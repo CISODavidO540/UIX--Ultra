@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sample Shop</title>
+<style>
+  :root { --brand: #6d28d9; }
+  body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #fafafa; color: #18181b; font-size: 16px; }
+  header { display: flex; gap: 16px; padding: 16px 32px; background: #fff; border-bottom: 1px solid #e4e4e7; }
+  nav a { color: #71717a; padding: 8px; }
+  .hero { padding: 64px 32px; }
+  h1 { font-size: 48px; line-height: 1.1; font-weight: 800; margin: 0 0 16px; }
+  .btn { background: var(--brand); color: #fff; border: 0; padding: 12px 24px; border-radius: 8px; transition: background-color 200ms cubic-bezier(.4,0,.2,1); outline: none; }
+  .btn:hover { background: #5b21b6; }
+  .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 0 32px; }
+  .faint { color: #c4c4c8; font-size: 11px; }
+  .icon { width: 16px; height: 16px; background: #ddd; border: 0; }
+  @keyframes pop { from { transform: scale(.9) } }
+  .card { animation: pop 300ms ease-out; }
+</style>
+</head>
+<body>
+<header><nav><a href="#">Home</a><a href="#">Shop</a></nav><button class="icon"></button></header>
+<div class="hero">
+  <h1>Things you want</h1>
+  <h4>Skipped heading levels</h4>
+  <p class="faint">Low contrast fine print here</p>
+  <button class="btn">Shop now</button>
+  <input placeholder="Search">
+</div>
+<div class="grid">
+  <article class="card"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw="><h3>Item</h3><p>$20</p></article>
+  <article class="card"><h3>Item</h3><p>$30</p></article>
+  <article class="card"><h3>Item</h3><p>$40</p></article>
+</div>
+</body>
+</html>

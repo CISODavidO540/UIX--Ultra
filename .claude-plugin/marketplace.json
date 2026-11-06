@@ -1,0 +1,11 @@
+{
+  "name": "super-uiux-omni",
+  "owner": { "name": "David Olson" },
+  "plugins": [
+    {
+      "name": "super-uiux-omni",
+      "source": "./",
+      "description": "Capture, audit and level up any UI: tokens, states, skeletons, motion."
+    }
+  ]
+}
