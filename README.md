@@ -31,7 +31,7 @@ omni-out/your-site.com/
 Requires Node 18+ and Playwright's Chromium.
 
 ```bash
-git clone https://github.com/<you>/super-uiux-omni && cd super-uiux-omni
+git clone https://github.com/CISODavidO540/UIX--Ultra && cd UIX--Ultra
 npm i -D playwright && npx playwright install chromium
 npm link          # makes `omni` available everywhere
 ```
@@ -39,7 +39,7 @@ npm link          # makes `omni` available everywhere
 ### As a Claude Code plugin
 
 ```
-/plugin marketplace add <you>/super-uiux-omni
+/plugin marketplace add CISODavidO540/UIX--Ultra
 /plugin install super-uiux-omni@super-uiux-omni
 ```
 
