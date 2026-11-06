@@ -101,17 +101,19 @@ function staticChecks() {
 async function focusCheck(page) {
   // Tab through the first focusables and see whether anything visibly changes.
   const issues = [];
-  let invisible = 0;
+  let invisible = 0, glowOnly = 0;
   for (let i = 0; i < 15; i++) {
     await page.keyboard.press('Tab');
     const r = await page.evaluate(() => {
       const el = document.activeElement;
       if (!el || el === document.body) return null;
       const cs = getComputedStyle(el);
-      const ring = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || cs.boxShadow !== 'none';
-      return { ring, desc: `<${el.tagName.toLowerCase()}> ${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 40)}` };
+      const outline = cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 && !/rgba\([^)]*,\s*0\)$/.test(cs.outlineColor);
+      const ring = outline || cs.boxShadow !== 'none';
+      return { ring, glowOnly: !outline && cs.boxShadow !== 'none', desc: `<${el.tagName.toLowerCase()}> ${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 40)}` };
     });
     if (!r) break;
+    if (r.glowOnly) { glowOnly++; if (glowOnly <= 2) issues.push({ severity: 'moderate', rule: 'focus-forced-colors', message: 'Focus shown only with box-shadow/glow — it disappears in Windows High Contrast. Keep a real outline (transparent is fine) under the glow', sample: r.desc }); }
     if (!r.ring) { invisible++; if (invisible <= 4) issues.push({ severity: 'serious', rule: 'focus-visible', message: 'Keyboard focus has no visible indicator (outline/box-shadow)', sample: r.desc }); }
   }
   return issues;

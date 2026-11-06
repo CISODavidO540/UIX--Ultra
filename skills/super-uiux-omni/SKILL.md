@@ -79,6 +79,15 @@ empty and error states; never ship "No data" or "Error".
 
 Report what you verified and what you didn't.
 
+### Stylized themes (cyberpunk, sci-fi, retro…)
+
+When the user wants a themed look, read `references/stylized-themes.md` first.
+Core rule: animate the chrome, never the work — every effect reports real state
+(hover, working, success, error, approval), reading surfaces stay plain, and an
+Effects Full/Subtle/Off control is mandatory. Start from `omni theme cyberpunk`
+(`themes/cyberpunk/`: `cyber.css` tokens + components, `fx.js` runtime,
+`demo.html` agent console) and re-skin its tokens rather than starting flat.
+
 ## Output quality bar
 
 - Use the tokens. One-off magic numbers need a reason.
@@ -104,4 +113,5 @@ feel) and apply them with the user's own brand and content.
 - `references/motion.md` — durations, easings, choreography, reduced motion
 - `references/skeletons.md` — skeleton loader rules and patterns
 - `references/ux-heuristics.md` — audit checklist beyond what the tool detects
+- `references/stylized-themes.md` — making stylized/FUI themes alive and usable
 - `references/ethics.md` — what this tool is and isn't for

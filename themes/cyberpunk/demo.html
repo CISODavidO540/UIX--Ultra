@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en" data-fx="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OMNI Cyberpunk agent console</title>
+<link rel="stylesheet" href="cyber.css">
+<style>
+  /* Layout for the demo only */
+  body { height: 100vh; overflow: hidden; }
+  .app { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+  .top { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-bottom: 1px solid var(--cy-line); background: color-mix(in srgb, var(--cy-bg) 85%, transparent); }
+  .brand { font: 700 15px/1 var(--cy-font-mono); letter-spacing: .18em; color: var(--cy-accent); text-shadow: 0 0 calc(10px * var(--cy-fx-glow)) color-mix(in srgb, var(--cy-accent) 60%, transparent); }
+  .brand b { color: var(--cy-accent-2); }
+  .top .grow { flex: 1; }
+  .main { display: grid; grid-template-columns: 240px 1fr 320px; min-height: 0; }
+  aside, .chat { min-height: 0; min-width: 0; }
+  .side { border-right: 1px solid var(--cy-line); padding: 14px; overflow: auto; display: grid; align-content: start; gap: 6px; }
+  .side a { display: block; padding: 8px 10px; color: var(--cy-text-dim); text-decoration: none; font-size: 14px; border-left: 2px solid transparent; outline: 2px solid transparent; outline-offset: -2px; transition: background-color var(--cy-t-fast), color var(--cy-t-fast), border-color var(--cy-t-fast); }
+  .side a:hover { color: var(--cy-text); background: var(--cy-surface); }
+  .side a:focus-visible { outline-color: var(--cy-accent); }
+  .side a[aria-current="page"] { color: var(--cy-text); border-left-color: var(--cy-accent); background: color-mix(in srgb, var(--cy-accent) 7%, transparent); }
+  .chat { display: grid; grid-template-rows: 1fr auto; }
+  .scroll { overflow: auto; padding: 8px 24px 24px; position: relative; }
+  .composer { padding: 12px 24px 18px; border-top: 1px solid var(--cy-line); }
+  .composer .row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+  .composer .row .grow { flex: 1; }
+  .right { border-left: 1px solid var(--cy-line); padding: 14px; overflow: auto; display: grid; align-content: start; gap: 14px; }
+  .term { font: 12px/1.55 var(--cy-font-mono); color: var(--cy-text-dim); white-space: pre-wrap; margin: 0; max-height: 220px; overflow: auto; }
+  .term .ok { color: var(--cy-ok); } .term .err { color: var(--cy-danger); } .term .cmd { color: var(--cy-accent); }
+  .stat { display: flex; justify-content: space-between; font: 12px/1.9 var(--cy-font-mono); color: var(--cy-text-dim); }
+  .stat b { color: var(--cy-text); font-weight: 500; }
+  .seg { display: inline-flex; border: 1px solid var(--cy-line-2); }
+  .seg button { all: unset; cursor: pointer; min-height: 28px; display: inline-flex; align-items: center; padding: 0 10px; font: 600 11px/1 var(--cy-font-mono); letter-spacing: .1em; color: var(--cy-text-dim); outline: 2px solid transparent; outline-offset: -2px; }
+  .seg button[aria-pressed="true"] { background: color-mix(in srgb, var(--cy-accent) 16%, transparent); color: var(--cy-accent); }
+  .seg button:focus-visible { outline-color: var(--cy-accent); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 1100px) { .main { grid-template-columns: 200px 1fr; } .right { display: none; } }
+  @media (max-width: 720px)  { .main { grid-template-columns: 1fr; } .side { display: none; } .top { gap: 10px; } .top .hide-sm, #snd, #open-pal .cy-kbd { display: none; } #conn { font-size: 0; gap: 0; } .scroll, .composer { padding-inline: 14px; } }
+</style>
+</head>
+<body>
+<div class="cy-grid-bg" aria-hidden="true"></div>
+<div class="app">
+  <header class="top cy-scan">
+    <h1 class="brand" style="margin:0" data-decode>AGENT//CONSOLE</h1>
+    <span class="cy-led" data-state="online" id="conn">Link online</span>
+    <span class="grow"></span>
+    <div class="cy-meter hide-sm" id="ctx" style="width:160px;--_v:34" data-level="ok">
+      <div class="cy-label">Context <span class="cy-mono" id="ctx-v">34%</span></div>
+      <div class="cy-meter-track" role="meter" aria-label="Context used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="34"></div>
+    </div>
+    <div class="seg hide-sm" role="group" aria-label="Effects level">
+      <button data-fx="full">FX FULL</button><button data-fx="subtle">SUBTLE</button><button data-fx="off">OFF</button>
+    </div>
+    <button class="cy-btn" data-variant="ghost" data-size="sm" id="snd" aria-pressed="false" title="UI sounds">SFX OFF</button>
+    <button class="cy-btn" data-size="sm" id="open-pal">Commands <span class="cy-kbd">Ctrl K</span></button>
+  </header>
+
+  <div class="main">
+    <nav class="side" aria-label="Sessions">
+      <div class="cy-label" style="margin:4px 0 8px">Sessions</div>
+      <a href="#" aria-current="page">Deploy sandbox runner</a>
+      <a href="#">Refactor auth middleware</a>
+      <a href="#">Nightly report digest</a>
+      <a href="#">GPU node health</a>
+      <div class="cy-label" style="margin:16px 0 8px">Agents</div>
+      <span class="cy-led" data-state="busy" style="padding:6px 10px">builder · working</span>
+      <span class="cy-led" data-state="online" style="padding:6px 10px">researcher · idle</span>
+      <span class="cy-led" data-state="warn" style="padding:6px 10px">ops · needs input</span>
+    </nav>
+
+    <main class="chat">
+      <div class="scroll" id="scroll" aria-live="polite" aria-busy="false">
+        <article class="cy-msg" data-role="user" data-assemble>
+          <div class="cy-avatar" aria-hidden="true">DO</div>
+          <div><div class="cy-msg-meta"><b>You</b><time>09:41</time></div>
+            <div class="cy-prose"><p>Spin up a sandbox, run the test suite, and tell me what's failing.</p></div></div>
+        </article>
+        <div class="cy-jump" id="jump"><button class="cy-btn" data-variant="solid" data-size="sm">↓ New output</button></div>
+      </div>
+
+      <form class="composer" id="composer">
+        <label class="sr-only" for="prompt">Message</label>
+        <div class="cy-brackets"><textarea id="prompt" class="cy-textarea" rows="2" placeholder="Ask the agent… (Ctrl+Enter to send)"></textarea></div>
+        <div class="row">
+          <span class="cy-hint">Esc stops · Ctrl+Enter sends · Ctrl+K commands</span>
+          <span class="grow"></span>
+          <button type="button" class="cy-btn" data-tone="danger" data-variant="ghost" id="stop" disabled>Stop</button>
+          <button class="cy-btn" data-variant="solid" id="send">Send</button>
+        </div>
+      </form>
+    </main>
+
+    <aside class="right" aria-label="Sandbox">
+      <section class="cy-panel cy-brackets" data-assemble>
+        <div class="cy-head"><h2 data-decode>Sandbox</h2><span class="cy-spacer"></span><span class="cy-led" data-state="online" id="sb-led">ready</span></div>
+        <pre class="term" id="term"><span class="cmd">$</span> sandbox attach run-7f3a
+<span class="ok">✓</span> container up · node 22 · 2 vCPU</pre>
+      </section>
+      <section class="cy-panel" data-assemble>
+        <div class="cy-head"><h2>Run stats</h2></div>
+        <div class="stat"><span>Tokens</span><b class="cy-mono" id="tok">12,480</b></div>
+        <div class="stat"><span>Tool calls</span><b class="cy-mono" id="calls">0</b></div>
+        <div class="stat"><span>First token</span><b class="cy-mono">412 ms</b></div>
+        <div class="stat"><span>Cost</span><b class="cy-mono">$0.042</b></div>
+      </section>
+      <section class="cy-panel" data-assemble>
+        <div class="cy-head"><h2>Loading state</h2></div>
+        <div class="cy-sk" style="width:80%"></div><div class="cy-sk"></div><div class="cy-sk" style="width:60%"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="cy-overlay" id="pal" hidden>
+  <div class="cy-panel cy-palette" data-tone="accent" role="dialog" aria-modal="true" aria-label="Command palette">
+    <input class="cy-input" placeholder="Type a command…" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list">
+    <ul id="pal-list" role="listbox"></ul>
+  </div>
+</div>
+
+<script type="module">
+  import { initAll, setFx, sound, scramble, glitch, ping, stickToBottom, initPalette, toast } from './fx.js';
+  initAll();
+  document.querySelectorAll('[data-decode]').forEach((el) => scramble(el));
+
+  // effect level segmented control
+  const segBtns = document.querySelectorAll('.seg button');
+  const syncSeg = () => segBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.fx === document.documentElement.dataset.fx)));
+  segBtns.forEach((b) => b.addEventListener('click', () => { setFx(b.dataset.fx); syncSeg(); }));
+  syncSeg();
+
+  const snd = document.getElementById('snd');
+  const syncSnd = () => { snd.textContent = sound.enabled ? 'SFX ON' : 'SFX OFF'; snd.setAttribute('aria-pressed', String(sound.enabled)); };
+  snd.onclick = () => { sound.enabled = !sound.enabled; syncSnd(); sound.play('ok'); };
+  syncSnd();
+
+  const scroll = document.getElementById('scroll');
+  const jumpWrap = document.getElementById('jump');
+  scroll.append(jumpWrap);
+  stickToBottom(scroll, jumpWrap);
+
+  const pal = initPalette(document.getElementById('pal'), [
+    { label: 'New session', kbd: 'Ctrl N', run: () => toast('New session created', { tone: 'ok' }) },
+    { label: 'Effects: full', run: () => { setFx('full'); syncSeg(); } },
+    { label: 'Effects: subtle', run: () => { setFx('subtle'); syncSeg(); } },
+    { label: 'Effects: off (flat)', run: () => { setFx('off'); syncSeg(); } },
+    { label: 'Toggle UI sounds', run: () => snd.click() },
+    { label: 'Simulate error', run: () => { toast('Sandbox lost connection — retrying', { tone: 'danger' }); glitch(document.getElementById('conn')); } },
+    { label: 'Run agent demo', kbd: 'Ctrl ↵', run: () => runAgent() },
+  ]);
+  document.getElementById('open-pal').onclick = pal.open;
+
+  // ---- simulated agent run --------------------------------------------------
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const term = document.getElementById('term');
+  const calls = document.getElementById('calls');
+  const stopBtn = document.getElementById('stop');
+  const sendBtn = document.getElementById('send');
+  let aborted = false, running = false;
+
+  function el(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+  function addMsg(role, who) {
+    const m = el(`<article class="cy-msg" data-role="${role}"><div class="cy-avatar" aria-hidden="true">${role === 'user' ? 'DO' : 'AI'}</div><div><div class="cy-msg-meta"><b>${who}</b><time>${new Date().toTimeString().slice(0, 5)}</time></div><div class="cy-prose"></div></div></article>`);
+    scroll.insertBefore(m, jumpWrap);
+    if (document.documentElement.dataset.fx !== 'off') m.classList.add('cy-enter');
+    return m.querySelector('.cy-prose');
+  }
+  function step(name, args) {
+    const s = el(`<details class="cy-step" data-state="pending"><summary><span class="cy-step-icon" aria-hidden="true"></span><span class="cy-step-name">${name} <span>${args}</span></span><span class="cy-step-status">queued</span><span class="cy-step-time">—</span></summary><div class="cy-step-body"><pre></pre></div></details>`);
+    let t0;
+    const timer = () => { s.querySelector('.cy-step-time').textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's'; };
+    let iv;
+    return {
+      node: s,
+      run() { s.dataset.state = 'running'; s.querySelector('.cy-step-status').textContent = 'running'; s.classList.add('cy-live'); t0 = performance.now(); iv = setInterval(timer, 100); calls.textContent = +calls.textContent + 1; },
+      log(line) { s.querySelector('pre').textContent += line + '\n'; },
+      end(state, label) { clearInterval(iv); if (t0) timer(); s.classList.remove('cy-live'); s.dataset.state = state; s.querySelector('.cy-step-status').textContent = label || state; state === 'error' ? glitch(s) : state === 'done' ? ping(s) : null; },
+      approval() { clearInterval(iv); s.classList.remove('cy-live'); s.dataset.state = 'approval'; s.querySelector('.cy-step-status').textContent = 'awaiting approval'; s.open = true;
+        const bar = el(`<div class="cy-approve"><span class="cy-hint">Run <code>npm test</code> in sandbox run-7f3a?</span><button class="cy-btn" data-size="sm" data-variant="solid" data-tone="warn">Allow</button><button class="cy-btn" data-size="sm" data-variant="ghost">Deny</button></div>`);
+        s.append(bar); bar.querySelector('button').focus({ preventScroll: true });
+        return new Promise((res) => { const [a, d] = bar.querySelectorAll('button'); a.onclick = () => { bar.remove(); res(true); }; d.onclick = () => { bar.remove(); res(false); }; });
+      },
+    };
+  }
+  async function stream(prose, text) {
+    const p = document.createElement('p'); prose.append(p);
+    const caret = el('<span class="cy-caret" aria-hidden="true"></span>');
+    for (const word of text.split(' ')) {
+      if (aborted) break;
+      p.append(word + ' '); p.append(caret);
+      await sleep(28 + Math.random() * 40);
+    }
+    caret.remove();
+  }
+
+  async function runAgent(promptText) {
+    if (running) return;
+    running = true; aborted = false;
+    stopBtn.disabled = false; sendBtn.setAttribute('aria-busy', 'true'); sendBtn.innerHTML = 'Send<span class="cy-btn-busy">Working</span>';
+    scroll.setAttribute('aria-busy', 'true');
+    if (promptText) { const up = addMsg('user', 'You'); up.innerHTML = `<p></p>`; up.firstChild.textContent = promptText; }
+    const prose = addMsg('assistant', 'Agent');
+    document.getElementById('conn').dataset.state = 'busy'; document.getElementById('conn').textContent = 'Agent working';
+
+    const think = el('<div class="cy-thinking"><span class="cy-bars"><i></i><i></i><i></i></span><span>Planning · <span class="cy-mono" id="el">0.0s</span></span></div>');
+    prose.append(think); const t0 = performance.now(); const tick = setInterval(() => think.querySelector('#el').textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's', 100);
+    await sleep(900); clearInterval(tick); think.remove();
+
+    await stream(prose, "I'll attach to the sandbox, install dependencies, then run the suite.");
+    const s1 = step('sandbox.exec', 'npm ci'); prose.append(s1.node); s1.run();
+    for (const l of ['added 412 packages in 6s', '0 vulnerabilities']) { await sleep(450); s1.log(l); }
+    s1.end('done', 'done');
+    term.innerHTML += '\n<span class="cmd">$</span> npm ci\n<span class="ok">✓</span> 412 packages';
+
+    if (aborted) return finish();
+    const s2 = step('sandbox.exec', 'npm test'); prose.append(s2.node);
+    const ok = await s2.approval();
+    if (!ok) { s2.end('denied', 'denied'); await stream(prose, 'Skipped running tests since you denied it. Want me to only lint instead?'); return finish(); }
+    s2.run();
+    for (const l of ['PASS src/router.test.ts', 'PASS src/store.test.ts', 'FAIL src/auth/session.test.ts', '  ● refreshes expired token', '    Expected 200, received 401']) { await sleep(380); s2.log(l); }
+    s2.end('error', '1 failed');
+    term.innerHTML += '\n<span class="cmd">$</span> npm test\n<span class="err">✕</span> 1 failed, 46 passed';
+    document.getElementById('sb-led').dataset.state = 'warn'; document.getElementById('sb-led').textContent = '1 failing';
+    await stream(prose, "One failure: the token refresh test gets a 401. The refresh call reads the old token from the cache before the new one is written, so it's a race in session.ts. I can patch it by awaiting the cache write before retrying.");
+    bumpCtx(18);
+    finish();
+  }
+  function finish() {
+    running = false; stopBtn.disabled = true; sendBtn.removeAttribute('aria-busy'); sendBtn.textContent = 'Send';
+    scroll.setAttribute('aria-busy', 'false');
+    const c = document.getElementById('conn'); c.dataset.state = 'online'; c.textContent = 'Link online';
+  }
+  function bumpCtx(n) {
+    const m = document.getElementById('ctx'); const v = Math.min(100, parseInt(m.style.getPropertyValue('--_v')) + n);
+    m.style.setProperty('--_v', v); document.getElementById('ctx-v').textContent = v + '%';
+    m.querySelector('[role=meter]').setAttribute('aria-valuenow', v);
+    m.dataset.level = v > 90 ? 'full' : v > 70 ? 'high' : 'ok';
+  }
+
+  const prompt = document.getElementById('prompt');
+  document.getElementById('composer').onsubmit = (e) => { e.preventDefault(); const t = prompt.value.trim() || 'Run it again.'; prompt.value = ''; runAgent(t); };
+  prompt.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); document.getElementById('composer').requestSubmit(); } });
+  stopBtn.onclick = () => { aborted = true; toast('Stopped. Work so far is kept.', { tone: 'warn' }); };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && running && document.getElementById('pal').hidden) stopBtn.click(); });
+
+  setTimeout(() => runAgent(), 700);
+</script>
+</body>
+</html>

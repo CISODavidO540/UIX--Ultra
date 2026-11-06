@@ -1,0 +1,432 @@
+/* ==========================================================================
+   OMNI // CYBERPUNK  — a stylized theme that stays usable.
+   Rules baked in (see skills/super-uiux-omni/references/stylized-themes.md):
+   - Effects live on chrome (frames, buttons, status), never on reading surfaces
+     (message text, code, inputs, tables, diffs, error text).
+   - Glow is painted on pseudo-elements and faded with opacity (cheap), never by
+     animating box-shadow/filter on many nodes.
+   - Focus uses a real outline (survives forced-colors), glow is decoration on top.
+   - Glitch/flicker only on events, < 300ms, never looping, never > 3 flashes/s.
+   - Three effect levels via [data-fx="full|subtle|off"] on <html>; reduced motion
+     forces "off" for movement.
+   ========================================================================== */
+
+/* ---------- 1. Tokens ---------------------------------------------------- */
+@property --cy-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+:root {
+  /* surfaces: tinted near-black, never #000 (halation) */
+  --cy-bg:        #0b0f14;
+  --cy-bg-2:      #0f151c;
+  --cy-surface:   #121a23;
+  --cy-surface-2: #17212c;
+  --cy-line:      #1f2d3a;
+  --cy-line-2:    #2b3e50;
+
+  /* text: off-white, never pure white on near-black */
+  --cy-text:      #d6dee8;
+  --cy-text-dim:  #9db0c3;
+  --cy-text-mute: #5f7184;
+
+  /* neon roles — each carries meaning, never decoration alone */
+  --cy-accent:    #00e5ff; /* primary / interactive / focus */
+  --cy-accent-2:  #ff2bd6; /* agent activity / highlight */
+  --cy-warn:      #ffd23f; /* needs attention / approval */
+  --cy-ok:        #39ff88; /* success / online */
+  --cy-danger:    #ff4d5e; /* error / destructive */
+
+  --cy-on-accent: #031016;
+
+  /* glow recipe: color-mix keeps alpha consistent across colors */
+  --cy-glow-sm: 0 0 6px  color-mix(in srgb, var(--cy-glow, var(--cy-accent)) 45%, transparent);
+  --cy-glow-md: 0 0 14px color-mix(in srgb, var(--cy-glow, var(--cy-accent)) 35%, transparent),
+                0 0 2px  color-mix(in srgb, var(--cy-glow, var(--cy-accent)) 70%, transparent);
+  --cy-glow-lg: 0 0 32px color-mix(in srgb, var(--cy-glow, var(--cy-accent)) 25%, transparent),
+                0 0 8px  color-mix(in srgb, var(--cy-glow, var(--cy-accent)) 50%, transparent);
+
+  /* geometry */
+  --cy-cut: 10px;          /* chamfer size */
+  --cy-cut-sm: 6px;
+  --cy-radius: 2px;
+  --cy-border: 1px;
+
+  /* type: readable sans for content, mono for data/chrome */
+  --cy-font-ui:   "Inter", "Segoe UI", system-ui, sans-serif;
+  --cy-font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+  --cy-font-display: "Rajdhani", "Oxanium", var(--cy-font-ui);
+
+  /* motion (NN/g: ~100ms feedback, 200–300ms panels, never > 500ms) */
+  --cy-t-instant: 80ms;
+  --cy-t-fast: 140ms;
+  --cy-t-base: 220ms;
+  --cy-t-slow: 320ms;
+  --cy-ease: cubic-bezier(0.2, 0, 0, 1);
+  --cy-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --cy-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* effect intensities (scaled down by data-fx) */
+  --cy-fx-glow: 1;
+  --cy-fx-scan: 0.06;
+  --cy-fx-motion: 1;
+
+  color-scheme: dark;
+}
+:root[data-fx="subtle"] { --cy-fx-glow: 0.5; --cy-fx-scan: 0.03; }
+:root[data-fx="off"]    { --cy-fx-glow: 0;   --cy-fx-scan: 0;    --cy-fx-motion: 0; }
+@media (prefers-reduced-motion: reduce) { :root { --cy-fx-motion: 0; } }
+@media (prefers-reduced-transparency: reduce) { :root { --cy-fx-scan: 0; } }
+
+/* ---------- 2. Base ------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--cy-bg); color: var(--cy-text); }
+body {
+  margin: 0;
+  font: 15px/1.55 var(--cy-font-ui);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, color-mix(in srgb, var(--cy-accent-2) 7%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, var(--cy-accent) 6%, transparent), transparent 60%),
+    var(--cy-bg);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: color-mix(in srgb, var(--cy-accent) 35%, transparent); color: var(--cy-text); }
+.cy-mono { font-family: var(--cy-font-mono); font-variant-numeric: tabular-nums; }
+.cy-label {
+  font: 600 11px/1 var(--cy-font-mono);
+  letter-spacing: .12em; text-transform: uppercase; color: var(--cy-text-dim);
+}
+.cy-label::before { content: "// "; color: var(--cy-accent); opacity: .7; }
+
+/* Background grid, static. Lives behind everything; costs one paint. */
+.cy-grid-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(var(--cy-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cy-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  opacity: calc(.35 * var(--cy-fx-glow) + .1);
+}
+/* Scanlines: static overlay on chrome only. Never animate. */
+.cy-scan { position: relative; isolation: isolate; }
+.cy-scan::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background: repeating-linear-gradient(to bottom, rgb(255 255 255 / var(--cy-fx-scan)) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+/* ---------- 3. Frames (chamfered panels) --------------------------------- */
+/* Border trick: outer element is the border color, ::before is the fill, both
+   clipped with the same polygon. Corners stay sharp, no SVG needed. */
+.cy-panel {
+  --_cut: var(--cy-cut);
+  --_line: var(--cy-line-2);
+  --_fill: var(--cy-surface);
+  position: relative;
+  padding: 16px 18px;
+  background: var(--_line);
+  clip-path: polygon(var(--_cut) 0, 100% 0, 100% calc(100% - var(--_cut)), calc(100% - var(--_cut)) 100%, 0 100%, 0 var(--_cut));
+  transition: background-color var(--cy-t-fast) var(--cy-ease);
+  z-index: 1;
+}
+.cy-panel::before {
+  content: ""; position: absolute; inset: var(--cy-border); z-index: -1;
+  background: var(--_fill);
+  clip-path: inherit;
+}
+.cy-panel[data-tone="accent"] { --_line: color-mix(in srgb, var(--cy-accent) 55%, var(--cy-line-2)); }
+.cy-panel[data-tone="agent"]  { --_line: color-mix(in srgb, var(--cy-accent-2) 55%, var(--cy-line-2)); }
+.cy-panel[data-tone="warn"]   { --_line: var(--cy-warn); }
+.cy-panel[data-tone="danger"] { --_line: var(--cy-danger); }
+.cy-panel[data-tone="ok"]     { --_line: color-mix(in srgb, var(--cy-ok) 60%, var(--cy-line-2)); }
+
+/* Corner brackets: HUD feel without clipping content. */
+.cy-brackets { position: relative; }
+.cy-brackets::before, .cy-brackets::after {
+  content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
+  border: 1px solid var(--cy-accent); opacity: calc(.4 + .5 * var(--cy-fx-glow));
+  transition: width var(--cy-t-base) var(--cy-ease), height var(--cy-t-base) var(--cy-ease), opacity var(--cy-t-base);
+}
+.cy-brackets::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.cy-brackets::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+.cy-brackets:hover::before, .cy-brackets:hover::after,
+.cy-brackets:focus-within::before, .cy-brackets:focus-within::after { width: 20px; height: 20px; opacity: 1; }
+
+/* Panel header with a status strip */
+.cy-head {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--cy-line);
+}
+.cy-head h2, .cy-head h3 { margin: 0; font: 600 13px/1 var(--cy-font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.cy-head .cy-spacer { flex: 1; }
+
+/* ---------- 4. Buttons ---------------------------------------------------- */
+.cy-btn {
+  --_c: var(--cy-accent);
+  --cy-glow: var(--_c);
+  position: relative; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 36px; padding: 0 16px;
+  font: 600 12px/1 var(--cy-font-mono); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--_c);
+  background: color-mix(in srgb, var(--_c) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--_c) 55%, transparent);
+  clip-path: polygon(var(--cy-cut-sm) 0, 100% 0, 100% calc(100% - var(--cy-cut-sm)), calc(100% - var(--cy-cut-sm)) 100%, 0 100%, 0 var(--cy-cut-sm));
+  cursor: pointer;
+  transition: background-color var(--cy-t-fast) var(--cy-ease), color var(--cy-t-fast) var(--cy-ease), transform var(--cy-t-instant) var(--cy-ease);
+  /* real outline for focus (survives forced-colors). Offset is negative so the
+     ring sits inside the chamfer and clip-path can't cut it off. */
+  outline: 2px solid transparent; outline-offset: -5px;
+}
+/* glow layer: opacity-only animation, cheap */
+.cy-btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--_c) 40%, transparent);
+  opacity: 0; transition: opacity var(--cy-t-fast) var(--cy-ease);
+}
+/* cursor spotlight (set by fx.js via --mx/--my) */
+.cy-btn::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(80px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--_c) 28%, transparent), transparent 70%);
+  opacity: 0; transition: opacity var(--cy-t-base) var(--cy-ease);
+}
+@media (hover: hover) {
+  .cy-btn:hover { background: color-mix(in srgb, var(--_c) 16%, transparent); text-shadow: 0 0 calc(8px * var(--cy-fx-glow)) var(--_c); }
+  .cy-btn:hover::before { opacity: var(--cy-fx-glow); }
+  .cy-btn:hover::after { opacity: var(--cy-fx-glow); }
+}
+.cy-btn:active { transform: translateY(1px) scale(.985); background: color-mix(in srgb, var(--_c) 24%, transparent); }
+.cy-btn:focus-visible { outline-color: var(--_c); }
+.cy-btn:disabled, .cy-btn[aria-disabled="true"] { --_c: var(--cy-text-mute); cursor: not-allowed; transform: none; text-shadow: none; }
+.cy-btn:disabled::before, .cy-btn:disabled::after { display: none; }
+
+.cy-btn[data-variant="solid"] { color: var(--cy-on-accent); background: var(--_c); }
+@media (hover: hover) { .cy-btn[data-variant="solid"]:hover { background: color-mix(in srgb, var(--_c) 85%, white); text-shadow: none; } }
+.cy-btn[data-variant="ghost"] { border-color: transparent; background: transparent; }
+.cy-btn[data-tone="danger"] { --_c: var(--cy-danger); }
+.cy-btn[data-tone="warn"]   { --_c: var(--cy-warn); }
+.cy-btn[data-tone="ok"]     { --_c: var(--cy-ok); }
+.cy-btn[data-tone="agent"]  { --_c: var(--cy-accent-2); }
+/* disabled must win over any tone */
+.cy-btn:is(:disabled, [aria-disabled="true"]) { --_c: var(--cy-text-mute); }
+.cy-btn[data-size="sm"] { min-height: 28px; padding: 0 10px; font-size: 12px; }
+.cy-btn[data-icon] { padding: 0; width: 36px; }
+
+/* loading: keep width, bar sweeps under label */
+.cy-btn[aria-busy="true"] { pointer-events: none; color: transparent; text-shadow: none; }
+.cy-btn[aria-busy="true"]::after {
+  opacity: 1; inset: auto 8px 8px 8px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--_c), transparent);
+  background-size: 50% 100%; background-repeat: no-repeat;
+  animation: cy-sweep 900ms linear infinite;
+}
+.cy-btn[aria-busy="true"] > .cy-btn-busy { position: absolute; inset: 0; display: grid; place-items: center; color: var(--_c); }
+.cy-btn[data-variant="solid"][aria-busy="true"] { background: color-mix(in srgb, var(--_c) 18%, transparent); }
+@keyframes cy-sweep { from { background-position: -100% 0; } to { background-position: 200% 0; } }
+
+/* keyboard hint chip */
+.cy-kbd {
+  font: 500 11px/1 var(--cy-font-mono); color: var(--cy-text-dim);
+  padding: 3px 5px; border: 1px solid var(--cy-line-2); border-bottom-width: 2px; border-radius: 3px;
+  background: var(--cy-bg-2);
+}
+
+/* ---------- 5. Inputs: NO decorative effects on the text itself ---------- */
+.cy-field { display: grid; gap: 6px; }
+.cy-input, .cy-textarea, .cy-select {
+  width: 100%;
+  min-height: 40px; padding: 10px 12px;
+  font: 15px/1.5 var(--cy-font-ui); color: var(--cy-text);
+  background: var(--cy-bg-2);
+  border: 1px solid var(--cy-line-2); border-radius: var(--cy-radius);
+  outline: 2px solid transparent; outline-offset: 1px;
+  transition: border-color var(--cy-t-fast) var(--cy-ease), box-shadow var(--cy-t-fast) var(--cy-ease);
+}
+.cy-input::placeholder, .cy-textarea::placeholder { color: var(--cy-text-mute); }
+.cy-input:hover, .cy-textarea:hover { border-color: color-mix(in srgb, var(--cy-accent) 35%, var(--cy-line-2)); }
+.cy-input:focus-visible, .cy-textarea:focus-visible, .cy-select:focus-visible {
+  border-color: var(--cy-accent); outline-color: var(--cy-accent);
+  box-shadow: 0 0 calc(16px * var(--cy-fx-glow)) color-mix(in srgb, var(--cy-accent) 22%, transparent);
+}
+.cy-input[aria-invalid="true"] { border-color: var(--cy-danger); }
+.cy-hint { font-size: 12px; color: var(--cy-text-dim); }
+.cy-error-text { font-size: 12px; color: var(--cy-danger); display: flex; gap: 6px; align-items: center; }
+.cy-error-text::before { content: "!"; font: 700 10px/16px var(--cy-font-mono); width: 16px; text-align: center; border: 1px solid currentColor; }
+
+/* ---------- 6. Status LEDs ----------------------------------------------- */
+.cy-led { --_c: var(--cy-text-mute); display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1 var(--cy-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--cy-text-dim); }
+.cy-led::before {
+  content: ""; width: 7px; height: 7px; flex: none; background: var(--_c);
+  box-shadow: 0 0 calc(8px * var(--cy-fx-glow)) var(--_c);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.cy-led[data-state="online"]  { --_c: var(--cy-ok); }
+.cy-led[data-state="busy"]    { --_c: var(--cy-accent-2); }
+.cy-led[data-state="warn"]    { --_c: var(--cy-warn); }
+.cy-led[data-state="error"]   { --_c: var(--cy-danger); }
+.cy-led[data-state="busy"]::before { animation: cy-pulse 1.2s ease-in-out infinite; }
+@keyframes cy-pulse { 50% { opacity: .35; } }
+
+/* ---------- 7. Active border (conic sweep) — ONE active element at a time - */
+.cy-live {
+  --_c: var(--cy-accent-2);
+  position: relative;
+}
+.cy-live::after {
+  content: ""; position: absolute; inset: -1px; pointer-events: none; z-index: 3;
+  padding: 1px;
+  background: conic-gradient(from var(--cy-angle), transparent 0 70%, var(--_c) 85%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: cy-spin 2.4s linear infinite;
+  opacity: var(--cy-fx-glow);
+}
+@keyframes cy-spin { to { --cy-angle: 360deg; } }
+
+/* ---------- 8. Chat / agent surfaces ------------------------------------- */
+.cy-msg { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 14px 0; }
+.cy-msg + .cy-msg { border-top: 1px dashed var(--cy-line); }
+.cy-avatar {
+  width: 28px; height: 28px; display: grid; place-items: center;
+  font: 700 11px/1 var(--cy-font-mono);
+  color: var(--cy-bg); background: var(--cy-text-dim);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.cy-msg[data-role="assistant"] .cy-avatar { background: var(--cy-accent-2); }
+.cy-msg-meta { display: flex; gap: 10px; align-items: baseline; margin-bottom: 4px; }
+.cy-msg-meta b { font: 600 12px/1 var(--cy-font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.cy-msg-meta time { font: 11px/1 var(--cy-font-mono); color: var(--cy-text-mute); }
+/* reading surface: plain, high contrast, comfortable measure */
+.cy-prose { max-width: 72ch; color: var(--cy-text); }
+.cy-prose p { margin: 0 0 .75em; }
+.cy-prose code { font: 13px var(--cy-font-mono); background: var(--cy-bg-2); border: 1px solid var(--cy-line); padding: 1px 5px; border-radius: 2px; }
+.cy-prose pre { font: 13px/1.6 var(--cy-font-mono); background: var(--cy-bg); border: 1px solid var(--cy-line); padding: 12px 14px; overflow: auto; border-left: 2px solid var(--cy-accent); }
+/* streaming caret */
+.cy-caret { display: inline-block; width: .55em; height: 1.1em; vertical-align: -.2em; background: var(--cy-accent); animation: cy-blink 1s steps(1) infinite; margin-left: 2px; }
+@keyframes cy-blink { 50% { opacity: 0; } }
+
+/* Tool / step card — state machine:
+   pending → running → (awaiting-approval) → done | error | denied */
+.cy-step {
+  --_c: var(--cy-text-mute);
+  border: 1px solid var(--cy-line); border-left: 2px solid var(--_c);
+  background: color-mix(in srgb, var(--_c) 4%, var(--cy-bg-2));
+  margin: 8px 0;
+  transition: border-color var(--cy-t-base) var(--cy-ease), background-color var(--cy-t-base) var(--cy-ease);
+}
+.cy-step[data-state="running"]  { --_c: var(--cy-accent-2); }
+.cy-step[data-state="approval"] { --_c: var(--cy-warn); }
+.cy-step[data-state="done"]     { --_c: var(--cy-ok); }
+.cy-step[data-state="error"]    { --_c: var(--cy-danger); }
+.cy-step[data-state="denied"]   { --_c: var(--cy-text-mute); }
+.cy-step > summary {
+  list-style: none; cursor: pointer;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 10px; align-items: center;
+  padding: 8px 12px; font: 12px/1.3 var(--cy-font-mono);
+  outline: 2px solid transparent; outline-offset: -2px;
+}
+.cy-step > summary::-webkit-details-marker { display: none; }
+.cy-step > summary:focus-visible { outline-color: var(--cy-accent); }
+.cy-step > summary:hover { background: color-mix(in srgb, var(--_c) 8%, transparent); }
+.cy-step .cy-step-icon { width: 14px; height: 14px; color: var(--_c); display: grid; place-items: center; }
+.cy-step[data-state="running"] .cy-step-icon::before { content: ""; width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: cy-rot 700ms linear infinite; }
+.cy-step[data-state="done"] .cy-step-icon::before { content: "✓"; }
+.cy-step[data-state="error"] .cy-step-icon::before { content: "✕"; }
+.cy-step[data-state="approval"] .cy-step-icon::before { content: "?"; font-weight: 700; }
+.cy-step[data-state="pending"] .cy-step-icon::before,
+.cy-step[data-state="denied"] .cy-step-icon::before { content: "·"; }
+@keyframes cy-rot { to { transform: rotate(360deg); } }
+.cy-step .cy-step-name { color: var(--cy-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-step .cy-step-name span { color: var(--cy-text-dim); }
+.cy-step .cy-step-status { color: var(--_c); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; }
+.cy-step .cy-step-time { color: var(--cy-text-mute); font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right; }
+.cy-step .cy-step-body { padding: 0 12px 12px; }
+.cy-step .cy-step-body:has(pre:empty) { display: none; }
+.cy-step .cy-step-body pre { margin: 0; max-height: 240px; overflow: auto; font: 12px/1.5 var(--cy-font-mono); color: var(--cy-text-dim); background: var(--cy-bg); padding: 10px; border: 1px solid var(--cy-line); }
+.cy-step .cy-approve { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 12px 12px; align-items: center; }
+
+/* Thinking indicator: calm, informative (label + elapsed), not a bouncing gimmick */
+.cy-thinking { display: inline-flex; align-items: center; gap: 10px; font: 12px/1 var(--cy-font-mono); color: var(--cy-text-dim); }
+.cy-thinking .cy-bars { display: inline-flex; gap: 2px; height: 12px; align-items: end; }
+.cy-thinking .cy-bars i { width: 3px; background: var(--cy-accent-2); animation: cy-eq 900ms ease-in-out infinite; }
+.cy-thinking .cy-bars i:nth-child(2) { animation-delay: -300ms; }
+.cy-thinking .cy-bars i:nth-child(3) { animation-delay: -600ms; }
+@keyframes cy-eq { 0%,100% { height: 3px; } 50% { height: 12px; } }
+
+/* Context / token meter: segmented, changes color at thresholds */
+.cy-meter { --_v: 0; --_c: var(--cy-accent); display: grid; gap: 4px; }
+.cy-meter[data-level="high"] { --_c: var(--cy-warn); }
+.cy-meter[data-level="full"] { --_c: var(--cy-danger); }
+.cy-meter-track {
+  height: 6px; background: var(--cy-bg-2); border: 1px solid var(--cy-line);
+  background-image: linear-gradient(90deg, var(--_c) calc(var(--_v) * 1%), transparent 0);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 8px);
+          mask: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 8px);
+  transition: background-image var(--cy-t-slow);
+}
+
+/* "New output" pill shown when user scrolled away during streaming */
+.cy-jump {
+  position: sticky; bottom: 12px; margin: 0 auto; display: flex; width: max-content;
+  opacity: 0; transform: translateY(8px); pointer-events: none;
+  transition: opacity var(--cy-t-fast) var(--cy-ease), transform var(--cy-t-fast) var(--cy-ease);
+}
+.cy-jump[data-show="true"] { opacity: 1; transform: none; pointer-events: auto; }
+
+/* ---------- 9. Overlays: palette, toast ---------------------------------- */
+.cy-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: start center; padding-top: 12vh; background: rgb(5 8 12 / .7); }
+.cy-overlay[hidden] { display: none; }
+.cy-palette { width: min(640px, calc(100vw - 32px)); }
+.cy-palette .cy-input { border: 0; background: transparent; font-size: 16px; min-height: 48px; }
+.cy-palette ul { list-style: none; margin: 0; padding: 6px 0 0; max-height: 50vh; overflow: auto; border-top: 1px solid var(--cy-line); }
+.cy-palette li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; font-size: 14px; cursor: pointer; border-left: 2px solid transparent; }
+.cy-palette li[aria-selected="true"] { background: color-mix(in srgb, var(--cy-accent) 10%, transparent); border-left-color: var(--cy-accent); }
+.cy-palette li .cy-kbd { flex: none; }
+
+.cy-toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 8px; z-index: 60; }
+.cy-toast { min-width: 260px; max-width: 380px; font-size: 14px; }
+
+/* ---------- 10. Event motion (only fires when fx.js adds the class) ------- */
+/* Assemble-in: frame draws, then content fades. Stagger via --i. */
+.cy-enter { animation: cy-assemble calc(var(--cy-t-slow) * var(--cy-fx-motion)) var(--cy-ease-out) both; animation-delay: calc(var(--i, 0) * 50ms * var(--cy-fx-motion)); }
+@keyframes cy-assemble {
+  0%   { opacity: 0; clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+/* Error glitch: 3 steps over 240ms = well under 3 flashes/s. Never loops. */
+.cy-glitch { animation: cy-glitch 240ms steps(3) 1; }
+@keyframes cy-glitch {
+  0%   { transform: translate(0); filter: none; }
+  33%  { transform: translate(-2px, 1px); filter: drop-shadow(2px 0 var(--cy-accent-2)) drop-shadow(-2px 0 var(--cy-accent)); /* hue shift, not a bright/red flash (WCAG 2.3.1) */ }
+  66%  { transform: translate(2px, -1px); }
+  100% { transform: translate(0); filter: none; }
+}
+/* Success ping: one ring expanding from the element */
+.cy-ping { position: relative; }
+.cy-ping::after {
+  content: ""; position: absolute; inset: -2px; border: 1px solid var(--cy-ok); pointer-events: none;
+  animation: cy-ping 500ms var(--cy-ease-out) 1 forwards;
+}
+@keyframes cy-ping { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(1.06); } }
+
+/* Skeletons in theme */
+.cy-sk { position: relative; overflow: hidden; background: color-mix(in srgb, var(--cy-accent) 6%, var(--cy-bg-2)); height: 12px; margin: 6px 0; }
+.cy-sk::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cy-accent) 18%, transparent), transparent); animation: cy-shimmer 1.4s ease-in-out infinite; }
+@keyframes cy-shimmer { to { transform: translateX(100%); } }
+
+/* ---------- 11. Accessibility overrides ---------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+  .cy-live::after { animation: none; background: var(--_c); }
+  .cy-sk::after { display: none; }
+}
+:root[data-fx="off"] .cy-live::after { animation: none; }
+@media (forced-colors: active) {
+  .cy-panel, .cy-btn, .cy-avatar, .cy-led::before { clip-path: none; }
+  .cy-panel { border: 1px solid CanvasText; }
+  .cy-panel::before { display: none; }
+  .cy-btn { border: 1px solid ButtonText; outline-offset: 2px; }
+  .cy-btn:focus-visible, .cy-input:focus-visible, .cy-step > summary:focus-visible { outline-color: Highlight; }
+  .cy-scan::after, .cy-grid-bg, .cy-live::after { display: none; }
+}

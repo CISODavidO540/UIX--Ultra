@@ -5,6 +5,9 @@ import { audit } from './audit.js';
 import { buildTokens } from './tokens.js';
 import { scaffold } from './scaffold.js';
 import { renderReport } from './report.js';
+import { fileURLToPath } from 'node:url';
+
+const THEMES_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'themes');
 
 const HELP = `
 super UI UX OMNI Pro Max Ultra Supreme  —  omni
@@ -25,6 +28,10 @@ USAGE
       Generate the "beyond pretty" layer from tokens: skeleton loaders,
       enter/exit transitions, state styles (hover/focus/active/disabled/
       loading/empty/error/success) and prefers-reduced-motion fallbacks.
+
+  omni theme    <name> [--out dir]
+      Copy a stylized-but-usable theme pack into your project.
+      Available: cyberpunk  (run "omni theme list")
 
   omni full     <url|file.html> [--out dir] [--framework ...]
       capture → audit → tokens → scaffold → REPORT.md, all in one.
@@ -136,6 +143,15 @@ export async function run(argv) {
       }
       await fs.writeFile(path.join(out, 'REPORT.md'), renderReport({ dna, audit: result, tokens: json, files: Object.keys(files) }));
       console.log(`✔ done → ${out}/REPORT.md  (audit ${result.score}/100)`);
+      return;
+    }
+    case 'theme': {
+      const names = (await fs.readdir(THEMES_DIR, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name);
+      if (!target || target === 'list') { console.log(`Themes: ${names.join(', ')}`); return; }
+      if (!names.includes(target)) throw new Error(`No theme "${target}". Available: ${names.join(', ')}`);
+      const out = path.resolve(args.out || path.join('omni-theme', target));
+      await fs.cp(path.join(THEMES_DIR, target), out, { recursive: true });
+      console.log(`✔ ${target} theme → ${out}\n  open ${path.join(out, 'demo.html')} through a local server (ES modules) to see it live.`);
       return;
     }
     default:

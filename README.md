@@ -53,12 +53,27 @@ To use only the skill, copy `skills/super-uiux-omni/` into `~/.claude/skills/`.
 | Command | What it does |
 |---|---|
 | `omni capture <url\|file>` | Extract design DNA + screenshots → `ui-dna.json` |
-| `omni audit <url\|file>` | Score UX/a11y: contrast, names/labels/alt, tap targets, focus visibility, heading order, landmarks, viewport, layout shift, reduced motion, loading states |
+| `omni audit <url\|file>` | Score UX/a11y: contrast, names/labels/alt, tap targets, focus visibility (incl. glow-only rings that vanish in high-contrast mode), heading order, landmarks, viewport, layout shift, reduced motion, loading states |
 | `omni tokens <dir>` | `ui-dna.json` → `tokens.json` + `tokens.css` |
 | `omni scaffold <dir> [--framework css\|react\|tailwind]` | Skeletons, motion, state styles, state sheet |
 | `omni full <url\|file>` | All of the above + `REPORT.md` |
+| `omni theme <name> [--out dir]` | Copy a theme pack (`cyberpunk`) into your project |
 
 Options: `--out <dir>`, `--viewport 1440x900`, `--mobile`. Set `OMNI_CHROMIUM=/path/to/chrome` to use a specific browser binary.
+
+## Themes: stylized and still usable
+
+```bash
+omni theme cyberpunk --out src/theme
+```
+
+`themes/cyberpunk/` is a cyberpunk / sci-fi theme pack for tool-heavy apps (built for an AI agent console):
+
+- `cyber.css`: tokens (tinted near-black, off-white text, neon used only for meaning), chamfered panels, corner brackets, glow buttons with a cursor spotlight, status LEDs, tool step cards (pending → running → approval → done/error/denied), thinking indicator, context meter, command palette, toasts, skeletons. Forced-colors and reduced-motion safe.
+- `fx.js`: an effects dial (Full / Subtle / Off), text decode for short labels, assemble-in on first view, event-only glitch and success ping, opt-in synthesized UI sounds, stick-to-bottom streaming with a "New output" pill, and a Ctrl/Cmd+K palette. No dependencies.
+- `demo.html`: a working agent console (streaming, tool calls, approval, failure, palette). Serve the folder (`npx serve themes/cyberpunk`) and open it.
+
+The rule behind it: **animate the chrome, never the work** — every effect reports real state. Research: [reports/Stylized UI that stays usable.md](reports/Stylized%20UI%20that%20stays%20usable.md), rules: [stylized-themes.md](skills/super-uiux-omni/references/stylized-themes.md).
 
 ## What "beyond pretty" means here
 
