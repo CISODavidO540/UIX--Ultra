@@ -5,6 +5,7 @@ import { withPage } from './browser.js';
 import { audit } from './audit.js';
 import { slopInPage } from './slop.js';
 import { craftProbe, craftPenalty } from './craft.js';
+import { colorProbe, structureProbe, expressionScore } from './expression.js';
 
 /**
  * omni check — the UI stat sheet.
@@ -111,7 +112,9 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   };
 
   const desktop = await withPage(target, { viewport, before }, async (page) => {
-    await page.screenshot({ path: path.join(out, 'desktop-fold.png') });
+    const foldBuf = await page.screenshot({ path: path.join(out, 'desktop-fold.png') });
+    const color = await page.evaluate(colorProbe, `data:image/png;base64,${foldBuf.toString('base64')}`);
+    const structure = await page.evaluate(structureProbe);
     await page.screenshot({ path: path.join(out, 'desktop-full.png'), fullPage: true });
     return {
       slop: await page.evaluate(slopInPage),
@@ -119,6 +122,7 @@ export async function check(target, { out, viewport = "1440x900", label, states:
       motion: await page.evaluate(motionProbe),
       layout: await page.evaluate(layoutProbe),
       craft: await page.evaluate(craftProbe),
+      color, structure,
       squint: await (async () => {
         // Squint test: grayscale + blur shows whether hierarchy survives without color/detail.
         await page.addStyleTag({ content: 'html{filter:grayscale(1) blur(4px)!important}' });
@@ -205,8 +209,10 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   craft -= craftPen;
   craft = clamp(craft);
 
-  const stats = { access, originality, states, motion, responsive, craft };
-  const W = { access: 1.2, originality: 1.3, states: 1.0, motion: 0.8, responsive: 1.0, craft: 1.0 };
+  const expr = expressionScore(desktop.color, desktop.structure);
+  const expression = expr.expression;
+  const stats = { access, originality, states, motion, responsive, craft, expression };
+  const W = { access: 1.2, originality: 1.3, states: 1.0, motion: 0.8, responsive: 1.0, craft: 1.0, expression: 1.0 };
   let overall = clamp(Object.entries(stats).reduce((s, [k, v]) => s + v * W[k], 0) / Object.values(W).reduce((a, b) => a + b, 0));
 
   const gate = [
@@ -221,6 +227,9 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   const pass = gate.every(([, ok]) => ok);
   // You can't be A-rank with a failing gate: cap at B.
   if (!pass) overall = Math.min(overall, 84);
+  // Hygiene isn't impressiveness (David, 2026-11-09): S needs expression ≥ 70; below 50 caps at B.
+  if (expression < 70) overall = Math.min(overall, 94);
+  if (expression < 50) overall = Math.min(overall, 87);
 
   const result = {
     target, label: label || target, checkedAt: new Date().toISOString(),
@@ -228,6 +237,7 @@ export async function check(target, { out, viewport = "1440x900", label, states:
     slop: desktop.slop, sheet: desktop.sheet, motion: { ...desktop.motion, durations: summarize(d) },
     layout: { desktop: desktop.layout, mobile: mobile.layout }, a11y, consoleErrors,
     craft: { ...desktop.craft, notes: craftNotes },
+    expression: { ...desktop.color, ...desktop.structure, notes: expr.notes },
     screenshots: ['desktop-fold.png', 'desktop-full.png', 'mobile-full.png', 'squint.png', ...stateShots],
   };
   await fs.writeFile(path.join(out, 'check.json'), JSON.stringify(result, null, 2));
@@ -276,6 +286,12 @@ export function renderStats(r) {
     for (const a of c.apcaSamples) L.push(`- Lc ${a.lc} (needs ${a.need}) \`${a.sample}\``);
     for (const x of c.capsSamples) L.push(`- caps, no tracking \`${x}\``);
     for (const n of c.notes) L.push(`- ${n}`);
+  }
+  if (r.expression) {
+    L.push('', '## Expression (color + structure)', '');
+    L.push(`Colorfulness ${r.expression.colorfulness ?? 'n/a'} · color share ${r.expression.colorShare ?? 'n/a'}% · hue families ${r.expression.hueFamilies ?? 'n/a'} · framed regions ${r.expression.regions}.`);
+    for (const n of r.expression.notes) L.push(`- ${n}`);
+    L.push('- Measures only *amount* of color and structure. Whether it is good still needs eyes and the critique rubric.');
   }
   L.push('', `## Accessibility (${r.a11y.score}/100)`, '');
   const shown = r.a11y.issues.filter((i) => i.severity !== 'info').slice(0, 12);

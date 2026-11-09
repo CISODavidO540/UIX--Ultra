@@ -1,9 +1,9 @@
 {
   "target": "after.html",
   "label": "after.html",
-  "checkedAt": "2026-11-09T23:00:19.910Z",
-  "overall": 100,
-  "rank": "S",
+  "checkedAt": "2026-11-09T23:12:21.690Z",
+  "overall": 87,
+  "rank": "B",
   "pass": true,
   "stats": {
     "access": 100,
@@ -11,7 +11,8 @@
     "states": 100,
     "motion": 100,
     "responsive": 100,
-    "craft": 100
+    "craft": 100,
+    "expression": 35
   },
   "gate": [
     {
@@ -115,7 +116,7 @@
       "info": 0
     },
     "issues": [],
-    "auditedAt": "2026-11-09T23:00:02.854Z"
+    "auditedAt": "2026-11-09T23:12:04.464Z"
   },
   "consoleErrors": [],
   "craft": {
@@ -131,6 +132,24 @@
     "zIndexes": 0,
     "weights": 3,
     "notes": []
+  },
+  "expression": {
+    "colorfulness": 11.2,
+    "colorShare": 0.5,
+    "hueFamilies": 0,
+    "regions": 10,
+    "samples": [
+      "<ol.ecl>",
+      "<pre.out>",
+      "<pre.out>",
+      "<ol.ecl>",
+      "<pre.out>"
+    ],
+    "notes": [
+      "colorfulness 11.2 (<15 reads monochrome/unfinished)",
+      "only 0.5% of the first screen carries color",
+      "0 hue family — color isn't doing zone/state work"
+    ]
   },
   "screenshots": [
     "desktop-fold.png",

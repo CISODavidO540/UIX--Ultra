@@ -1,6 +1,6 @@
 # UI stat sheet — after.html
 
-**Overall 100 · rank S · gate PASS**
+**Overall 87 · rank B · gate PASS**
 
 ```
 ACCESS       ██████████ 100  S
@@ -9,6 +9,7 @@ STATES       ██████████ 100  S
 MOTION       ██████████ 100  S
 RESPONSIVE   ██████████ 100  S
 CRAFT        ██████████ 100  S
+EXPRESSION   ████░░░░░░  35  F
 ```
 
 ## Gate
@@ -44,6 +45,14 @@ Font sizes in use: 5. Families: "IBM Plex Sans", "IBM Plex Mono". Accent hue buc
 ## Type & contrast (craft probe)
 
 APCA: 0/69 text elements below target. All-caps without tracking: 0. Paragraph line-height out of 1.2–1.8: 0. Unique radii 3, shadows 2, z-index 0, font weights 3.
+
+## Expression (color + structure)
+
+Colorfulness 11.2 · color share 0.5% · hue families 0 · framed regions 10.
+- colorfulness 11.2 (<15 reads monochrome/unfinished)
+- only 0.5% of the first screen carries color
+- 0 hue family — color isn't doing zone/state work
+- Measures only *amount* of color and structure. Whether it is good still needs eyes and the critique rubric.
 
 ## Accessibility (100/100)
 

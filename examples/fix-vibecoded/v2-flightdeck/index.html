@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes · Flight deck · Fix failing auth test</title>
+<style>
+  /* v2-A. Direction: DIRECTION.md — "Hermes flies, you are the captain." */
+  @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url(../fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url(../fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+
+  :root {
+    --bezel: #11161b; --bezel-2: #171d23; --glass: #090c10; --line: #26303a; --line-2: #34404c;
+    --text: #e8ecef; --dim: #bcc5ce;
+    --green: #7ee39a; --amber: #ffbf47; --red: #ff9d94; --magenta: #f5a6f5;
+    --on-lit: #14100a;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --r: 3px; --t: 120ms cubic-bezier(.2, 0, 0, 1);
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bezel); }
+  body { margin: 0; font: 400 15px/1.5 var(--sans); color: var(--text); background: var(--bezel); }
+  button, textarea { font: inherit; color: inherit; }
+  .mono, code, pre, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  code { font-size: 13px; }
+  :focus-visible { outline: 2px solid var(--magenta); outline-offset: 2px; }
+
+  /* ---------- keys: the only control language ---------- */
+  .key {
+    --lit: var(--dim);
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; min-width: 64px; padding: 10px 14px 8px;
+    background: linear-gradient(#1f262e, #191f26); border: 1px solid #2f3a45; border-radius: var(--r);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 0 -2px 0 rgba(0, 0, 0, .45), 0 1px 0 rgba(0, 0, 0, .5);
+    font: 600 14px/1 var(--sans); color: var(--dim);
+    cursor: pointer; transition: color var(--t), background-color var(--t), transform 60ms;
+  }
+  .key::before { /* lit bar */ content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 3px; border-radius: 2px; background: #2a333d; transition: background-color var(--t); }
+  .key:hover { color: var(--text); background: linear-gradient(#242c35, #1c232a); }
+  .key:active { transform: translateY(1px); box-shadow: inset 0 2px 3px rgba(0, 0, 0, .5); }
+  .key[aria-pressed="true"], .key.lit { color: var(--lit); }
+  .key[aria-pressed="true"]::before, .key.lit::before { background: var(--lit); box-shadow: 0 0 8px var(--lit); }
+  .key:disabled, .key[aria-disabled="true"] { opacity: .4; cursor: not-allowed; transform: none; }
+  .key:disabled::before { background: #2a333d; box-shadow: none; }
+  .key.solid.lit { background: var(--lit); border-color: var(--lit); color: var(--on-lit); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.25), 0 0 18px color-mix(in srgb, var(--lit) 35%, transparent); }
+  .key.solid.lit::before { background: rgba(0,0,0,.25); box-shadow: none; }
+  .key.solid.lit kbd { color: var(--on-lit); border-color: rgba(0,0,0,.3); }
+  .key.amber { --lit: var(--amber); } .key.green { --lit: var(--green); } .key.red { --lit: var(--red); } .key.mag { --lit: var(--magenta); }
+  .key[aria-busy="true"] { pointer-events: none; opacity: .7; }
+  .key kbd { font: 500 11px var(--mono); letter-spacing: 0; text-transform: none; color: var(--dim); border: 1px solid var(--line-2); border-radius: 2px; padding: 1px 4px; }
+
+  /* ---------- glareshield ---------- */
+  .glare { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: #0d1115; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; flex-direction: column; margin: 0; font-weight: 600; font-size: 16px; line-height: 1.1; }
+  .brand small { font: 400 12px var(--mono); color: var(--dim); }
+  .selector { display: flex; gap: 4px; padding: 4px; background: #0a0d10; border: 1px solid var(--line); border-radius: 4px; }
+  .selector .key { min-width: 0; min-height: 36px; padding: 8px 12px 6px; text-decoration: none; font-weight: 500; }
+  .annun { margin-left: auto; display: flex; gap: 8px; align-items: stretch; }
+  .lamp { display: grid; place-items: center; min-width: 86px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--r); background: #0a0d10; font: 600 12px/1.1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); text-align: center; }
+  .lamp small { display: block; font: 400 11px var(--mono); letter-spacing: 0; text-transform: none; color: var(--dim); margin-top: 2px; }
+  .lamp.ok { color: var(--green); border-color: rgba(126, 227, 154, .45); background: #0e2015; }
+  .lamp.ok small { color: #b9e9c6; }
+  .lamp.fail { color: var(--red); border-color: rgba(255, 157, 148, .55); background: #2a1210; }
+  .caution { min-width: 132px; min-height: 52px; --lit: var(--amber); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; line-height: 1.15; }
+  .caution.lit { animation: blink 360ms steps(1) 2; }
+  @keyframes blink { 50% { opacity: .55; } }
+
+  /* ---------- display units ---------- */
+  .deck { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto; gap: 14px; padding: 14px 20px 20px; height: calc(100vh - 73px); min-height: 640px; }
+  .du { display: flex; flex-direction: column; min-height: 0; background: var(--bezel-2); border: 1px solid var(--line); border-radius: 6px; padding: 0 10px 10px; }
+  .du > header { display: flex; align-items: center; gap: 10px; height: 34px; }
+  .du > header h2 { margin: 0; font: 600 13px/1 var(--sans); color: var(--text); }
+  .du > header::before { content: ""; width: 4px; height: 14px; border-radius: 1px; background: var(--zone, var(--dim)); }
+  .ecl-du { --zone: var(--magenta); } .syn-du { --zone: var(--green); } .comms-du { --zone: var(--dim); } .input-du { --zone: var(--amber); }
+  .du > header .tag { margin-left: auto; font: 500 12px var(--mono); color: var(--dim); }
+  .screen { flex: 1; min-height: 0; overflow: auto; background: var(--glass); border: 1px solid #1d252d; border-radius: 3px; box-shadow: inset 0 0 0 1px #000, inset 0 8px 24px rgba(0, 0, 0, .5); }
+  .ecl-du { grid-row: 1 / 3; }
+  .syn-du { grid-column: 2; }
+  .comms-du { grid-column: 2; }
+  .input-du { grid-column: 1 / 3; padding-bottom: 12px; }
+
+  /* checklist */
+  .ecl { list-style: none; margin: 0; padding: 8px 0; }
+  .ecl li { border-bottom: 1px solid #141a20; }
+  .ecl summary { display: grid; grid-template-columns: 22px 2ch minmax(0, auto) 1fr auto 6ch; align-items: center; gap: 10px; min-height: 44px; padding: 6px 14px; cursor: pointer; list-style: none; font: 400 14px var(--mono); transition: background-color var(--t); }
+  .ecl summary::-webkit-details-marker { display: none; }
+  .ecl summary:hover { background: #0f141a; }
+  .ecl summary:active { background: #131a21; }
+  .ecl summary:focus-visible { outline-offset: -2px; }
+  .box { width: 16px; height: 16px; border: 1.5px solid currentColor; border-radius: 2px; display: grid; place-items: center; font-size: 12px; line-height: 1; }
+  .ecl .n { color: var(--dim); }
+  .ecl .item { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ecl .dots { border-bottom: 2px dotted #3a4652; transform: translateY(4px); min-width: 12px; }
+  .ecl .st { font: 600 12px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+  .ecl .t { color: var(--dim); text-align: right; font-size: 13px; }
+  [data-s="done"] { color: var(--green); } [data-s="done"] .item { color: var(--dim); }
+  [data-s="done"] .box { background: #12301d; } [data-s="error"] summary { background: #22100e; } [data-s="error"] .box { background: #3a1714; }
+  [data-s="done"] .box::before { content: "✓"; }
+  [data-s="error"] { color: var(--red); } [data-s="error"] .box::before { content: "✕"; } [data-s="error"] .item { color: var(--text); }
+  [data-s="approval"] { color: var(--amber); } [data-s="approval"] .item { color: var(--text); }
+  [data-s="approval"] summary { outline: 1.5px solid var(--amber); outline-offset: -4px; background: #1a1407; }
+  [data-s="running"], [data-s="active"] { color: var(--magenta); } [data-s="running"] .item { color: var(--text); }
+  [data-s="running"] summary { outline: 1.5px solid var(--magenta); outline-offset: -4px; }
+  [data-s="running"] .box::before { content: ""; width: 6px; height: 6px; background: currentColor; border-radius: 1px; animation: pulse 900ms ease-in-out infinite; }
+  [data-s="denied"], [data-s="stopped"] { color: var(--dim); }
+  @keyframes pulse { 50% { opacity: .25; } }
+  .out { margin: 0 14px 12px 66px; padding: 10px 12px; font-size: 13px; line-height: 1.6; color: #d3d9de; background: #0d1217; border-left: 2px solid currentColor; white-space: pre; overflow-x: auto; }
+  .out .bad { color: #ffc0b8; } .out .add { color: #a6eab6; }
+  .note { margin: 4px 14px 12px 66px; font: 400 14px/1.5 var(--sans); color: var(--text); max-width: 64ch; }
+  .note b { color: var(--amber); font-weight: 600; }
+
+  /* synoptic */
+  .syn svg { display: block; width: 100%; height: auto; }
+  .syn text { font: 500 12px var(--mono); fill: var(--dim); }
+  .syn .lbl { font: 600 12px var(--sans); letter-spacing: .06em; text-transform: uppercase; fill: var(--text); }
+  .node { stroke-width: 2; }
+  .node.g { fill: #24583a; } .node.rd { fill: #6a2823; } .node.a { fill: var(--amber); } .node.m { fill: #3a1838; } .node.off { fill: #0d1217; }
+  .flow { stroke-width: 3; fill: none; }
+  .g { stroke: var(--green); } .a { stroke: var(--amber); } .rd { stroke: var(--red); } .m { stroke: var(--magenta); } .off { stroke: #3a4652; stroke-dasharray: 4 5; }
+  .gt { fill: var(--green) !important; } .at { fill: var(--on-lit) !important; font-weight: 600; } .rt { fill: var(--red) !important; } .mt { fill: var(--magenta) !important; }
+
+  /* comms (transcript) */
+  .comms { padding: 4px 14px 12px; }
+  .msg { padding: 10px 0; border-bottom: 1px solid #141a20; }
+  .msg:last-child { border-bottom: 0; }
+  .msg .who { font: 600 14px var(--sans); color: var(--dim); margin-bottom: 2px; }
+  .msg .who.h { color: var(--magenta); }
+  .msg p { margin: 0; font-size: 15px; }
+
+  /* crew input */
+  .crew { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+  .decision { grid-column: 1 / 3; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 12px; background: #261c08; border: 1px solid var(--amber); border-radius: var(--r); }
+  .decision p { margin: 0 auto 0 0; font-size: 15px; }
+  .decision p .st { font: 600 12px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-right: 8px; }
+  .decision[hidden] { display: none; }
+  .field label { display: block; font: 500 14px var(--sans); color: var(--dim); margin-bottom: 6px; }
+  .field textarea { display: block; width: 100%; min-height: 48px; max-height: 120px; resize: vertical; padding: 10px 12px; background: var(--glass); border: 1px solid var(--line-2); border-radius: var(--r); line-height: 1.4; transition: border-color var(--t); }
+  .field textarea:hover { border-color: var(--dim); }
+  .field textarea:focus-visible { outline: 2px solid var(--magenta); outline-offset: 0; }
+  .keys { display: flex; gap: 8px; }
+  .hint { grid-column: 1 / 3; margin: 0; font-size: 13px; color: var(--dim); }
+  .tape { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 10px; font: 500 14px var(--sans); color: var(--dim); }
+  .tape b { font-family: var(--mono); }
+  .tape b { color: var(--text); font-weight: 500; }
+  .seg { display: inline-flex; gap: 2px; vertical-align: -2px; margin-left: 6px; }
+  .seg i { width: 6px; height: 12px; background: #26303a; }
+  .seg i.on { background: var(--green); }
+  .status-msg { margin: 0; font-size: 15px; color: var(--green); }
+  .status-msg:empty { display: none; }
+
+  /* ---------- states (?state=) ---------- */
+  .banner, .empty-state, .skeleton { display: none; }
+  [data-state="error"] .banner { display: flex; }
+  .banner { align-items: center; gap: 12px; margin: 10px 14px; padding: 10px 12px; border: 1px solid var(--red); border-radius: var(--r); background: #1f0f0e; color: var(--text); font-size: 14px; }
+  .banner p { margin: 0 auto 0 0; }
+  [data-state="empty"] .run-only, [data-state="loading"] .run-only { display: none; }
+  /* no run: no run identity, no run facts (they would be invented) */
+  [data-state="empty"] .run-id, [data-state="loading"] .run-id { visibility: hidden; }
+  [data-state="empty"] .comms-du { display: none; }
+  [data-state="empty"] .empty-state { display: block; padding: 32px 20px; max-width: 56ch; }
+  .empty-state h3 { margin: 0 0 6px; font-size: 16px; }
+  .empty-state p { margin: 0 0 14px; color: var(--dim); }
+  .empty-state .keys { flex-wrap: wrap; }
+  [data-state="loading"] .skeleton { display: block; padding: 12px 14px; }
+  .sk { height: 30px; margin: 8px 0; border-radius: 2px; background: #0f141a; }
+
+  @media (max-width: 1100px) {
+    .deck { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; height: auto; }
+    .ecl-du, .syn-du, .comms-du, .input-du { grid-column: auto; grid-row: auto; }
+    .ecl-du .screen { max-height: none; }
+    .input-du { order: 2; }
+  }
+  @media (max-width: 720px) {
+    .glare { flex-wrap: wrap; padding: 10px 12px; gap: 10px; }
+    .annun { margin-left: 0; width: 100%; }
+    .annun .lamp { flex: 1; min-width: 0; }
+    .caution { flex: 1.4; min-width: 0; }
+    .selector { order: 3; width: 100%; overflow-x: auto; }
+    .deck { padding: 12px; }
+    .ecl summary { grid-template-columns: 20px minmax(0, 1fr) auto; }
+    .ecl .n, .ecl .dots, .ecl .t { display: none; }
+    .out, .note { margin-left: 14px; }
+    .crew { grid-template-columns: 1fr; }
+    .decision, .hint { grid-column: auto; }
+    .keys { flex-wrap: wrap; }
+    /* the decision must be reachable without scrolling: float it over the bottom edge */
+    .decision:not([hidden]) { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 10; box-shadow: 0 10px 30px rgba(0, 0, 0, .7); }
+    body[data-state="attention"] { padding-bottom: 150px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; }
+  }
+  @media (forced-colors: active) {
+    .key, .lamp, .du, .screen { border: 1px solid ButtonText; }
+    .key.lit::before, .key[aria-pressed="true"]::before { background: Highlight; }
+    [data-s="approval"] summary, [data-s="running"] summary { outline-color: Highlight; }
+  }
+</style>
+</head>
+<body data-state="attention">
+<header class="glare">
+  <h1 class="brand">Hermes <small class="run-id">run 7f3a</small></h1>
+  <nav class="selector" aria-label="Main">
+    <a class="key mag" href="#" aria-current="page" aria-pressed="true">Runs</a>
+    <a class="key mag" href="#">Agents</a>
+    <a class="key mag" href="#">Settings</a>
+    <a class="key mag" href="#">Docs</a>
+  </nav>
+  <div class="annun" role="group" aria-label="Annunciators">
+    <div class="lamp ok" id="lamp-link">Link<small id="link-sub">hermes-pop</small></div>
+    <div class="lamp ok" id="lamp-sb">Sandbox<small id="sb-sub">run-7f3a</small></div>
+    <div class="lamp ok" id="lamp-tests">Tests<small id="tests-sub">47/47</small></div>
+    <button class="key solid caution lit" type="button" id="caution" aria-describedby="caution-desc">Master<br>caution</button>
+    <span id="caution-desc" hidden>Step 5 needs your approval. Press to go to it.</span>
+  </div>
+</header>
+
+<main class="deck">
+  <section class="du ecl-du" aria-labelledby="ecl-h">
+    <header><h2 id="ecl-h">Checklist<span class="run-id"> · Fix failing auth test</span></h2><span class="tag run-only">5 items · 2:41</span></header>
+    <div class="screen">
+      <div class="banner" role="alert"><p>Link to hermes-pop lost. Run paused, nothing lost. Retrying in 5 s.</p><button class="key solid red lit" type="button" id="retry">Retry</button></div>
+      <div class="skeleton" aria-busy="true" aria-label="Loading run"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk" style="width:70%"></div></div>
+      <section class="empty-state" aria-labelledby="empty-h">
+        <h3 id="empty-h">No run loaded</h3>
+        <p>Give Hermes a task below. It plans it as a checklist; anything that changes code or pushes waits for your approval.</p>
+        <div class="keys"><button class="key mag" type="button" data-suggest>Run tests, report failures</button><button class="key mag" type="button" data-suggest>Check pve backups</button></div>
+      </section>
+      <ol class="ecl run-only" aria-label="Run checklist">
+        <li><details data-s="done"><summary><span class="box" aria-hidden="true"></span><span class="n">1</span><span class="item">sandbox.exec npm ci</span><span class="dots" aria-hidden="true"></span><span class="st">Done</span><span class="t">6.1s</span></summary>
+          <pre class="out">added 412 packages in 6s
+0 vulnerabilities</pre></details></li>
+        <li><details data-s="error" open><summary><span class="box" aria-hidden="true"></span><span class="n">2</span><span class="item">sandbox.exec npm test</span><span class="dots" aria-hidden="true"></span><span class="st">1 failed</span><span class="t">9.4s</span></summary>
+          <pre class="out">PASS src/router.test.ts
+PASS src/store.test.ts
+<span class="bad">FAIL src/auth/session.test.ts
+  ● refreshes expired token
+    Expected 200, received 401</span>
+Tests: 1 failed, 46 passed, 47 total</pre>
+          <p class="note">Refresh reads the old token from the cache before the new one is written, so the retry still sends the expired token. Fix: await the cache write.</p></details></li>
+        <li><details data-s="done"><summary><span class="box" aria-hidden="true"></span><span class="n">3</span><span class="item">edit src/auth/session.ts</span><span class="dots" aria-hidden="true"></span><span class="st">Done</span><span class="t">+3 −1</span></summary>
+          <pre class="out">  const fresh = await refresh(token);
+<span class="bad">- cache.set(KEY, fresh);</span>
+<span class="add">+ await cache.set(KEY, fresh);</span>
+  return retry(req, fresh);</pre></details></li>
+        <li><details data-s="done"><summary><span class="box" aria-hidden="true"></span><span class="n">4</span><span class="item">sandbox.exec npm test</span><span class="dots" aria-hidden="true"></span><span class="st">47 passed</span><span class="t">9.1s</span></summary>
+          <pre class="out">Tests: 47 passed, 47 total</pre></details></li>
+        <li id="step5"><details data-s="approval" open><summary><span class="box" aria-hidden="true"></span><span class="n">5</span><span class="item">git push origin fix/token-refresh</span><span class="dots" aria-hidden="true"></span><span class="st" id="s5">Needs you</span><span class="t" id="t5">—</span></summary>
+          <p class="note">Pushes <b>1 commit</b> to <code>origin/fix/token-refresh</code>. Does not touch <code>main</code>.</p></details></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="du syn-du run-only" aria-labelledby="syn-h">
+    <header><h2 id="syn-h">Synoptic · Run path</h2><span class="tag">fix/token-refresh</span></header>
+    <div class="screen syn">
+      <svg viewBox="0 0 520 170" role="img" aria-label="Run path: install done, test failed, edit done, retest passed, push waiting for approval">
+        <path class="flow g" d="M58 70 H142"/><path class="flow rd" d="M178 70 H232"/><path class="flow g" d="M268 70 H322"/>
+        <path class="flow off" id="flow-push" d="M358 70 H412"/>
+        <path class="flow rd" d="M160 92 V128 H250 V92" stroke-dasharray="0"/>
+        <circle class="node g" cx="40" cy="70" r="18"/><text x="40" y="74" text-anchor="middle" class="gt">✓</text>
+        <circle class="node rd" cx="160" cy="70" r="18"/><text x="160" y="74" text-anchor="middle" class="rt">1✕</text>
+        <circle class="node g" cx="250" cy="70" r="18"/><text x="250" y="74" text-anchor="middle" class="gt">✓</text>
+        <circle class="node g" cx="340" cy="70" r="18"/><text x="340" y="74" text-anchor="middle" class="gt">47</text>
+        <rect id="node-push" class="node a" x="412" y="50" width="92" height="40" rx="3"/><text id="push-t" x="458" y="74" text-anchor="middle" class="at" letter-spacing="1">NEEDS YOU</text>
+        <text x="40" y="112" text-anchor="middle" class="lbl">Install</text>
+        <text x="160" y="30" text-anchor="middle" class="lbl">Test</text>
+        <text x="250" y="30" text-anchor="middle" class="lbl">Edit</text>
+        <text x="340" y="112" text-anchor="middle" class="lbl">Retest</text>
+        <text x="458" y="112" text-anchor="middle" class="lbl">Push</text>
+        <text x="205" y="150" text-anchor="middle">fail → fix loop</text>
+        <text x="340" y="132" text-anchor="middle">47 / 47</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="du comms-du" aria-labelledby="comms-h">
+    <header><h2 id="comms-h">Comms</h2><span class="tag">09:41</span></header>
+    <div class="screen comms">
+      <div class="skeleton" aria-hidden="true"><div class="sk" style="height:14px;width:60%"></div><div class="sk" style="height:14px"></div></div>
+      <div class="run-only">
+        <div class="msg"><div class="who">You</div><p>Run the test suite on the sandbox and tell me what's failing.</p></div>
+        <div class="msg"><div class="who h">Hermes</div><p>One test failed: token refresh returned 401 because the retry read the old token. I awaited the cache write; all 47 pass. Approve the push to open a PR.</p></div>
+        <p class="status-msg msg" role="status" id="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="du input-du" aria-labelledby="crew-h">
+    <header><h2 id="crew-h">Crew input</h2><span class="tag">Ctrl+Enter send · Esc stop</span></header>
+    <form class="crew" id="composer">
+      <div class="decision run-only" id="pending" role="region" aria-label="Waiting for your approval">
+        <p><span class="st">Step 5</span><code>git push origin fix/token-refresh</code> · 1 commit · not main</p>
+        <button class="key solid amber lit" type="button" id="allow">Allow <kbd>Enter</kbd></button>
+        <button class="key red" type="button" id="deny">Deny</button>
+      </div>
+      <div class="field"><label for="msg">Message Hermes</label><textarea id="msg" rows="1" placeholder="Ask a follow-up or give the next task"></textarea></div>
+      <div class="keys"><button class="key red" type="button" id="stop">Stop</button><button class="key green lit" type="submit" id="send">Send</button></div>
+      <p class="hint" id="queued" hidden></p>
+    </form>
+    <div class="tape run-only" aria-label="Run facts">
+      <span>Context <b>18.4k</b>/200k <span class="seg" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+      <span>Elapsed <b>2:41</b></span><span>Tool calls <b>5</b></span><span>Cost <b>$0.04</b></span>
+    </div>
+  </section>
+</main>
+
+<script>
+  const body = document.body;
+  const forced = new URLSearchParams(location.search).get('state');
+  if (forced) body.dataset.state = forced;
+  const $ = (id) => document.getElementById(id);
+  const step = document.querySelector('#step5 details');
+  const caution = $('caution'), pending = $('pending'), stop = $('stop'), status = $('status');
+  const push = $('node-push'), pushT = $('push-t'), flow = $('flow-push');
+  let running = false;
+
+  function setStep(s, label) {
+    step.dataset.s = s; $('s5').textContent = label;
+    const cls = { approval: ['a', 'at', 'NEEDS YOU'], running: ['m', 'mt', 'PUSHING'], done: ['g', 'gt', 'PUSHED'], denied: ['off', '', 'DENIED'], stopped: ['off', '', 'PAUSED'] }[s];
+    push.setAttribute('class', `node ${cls[0]}`); pushT.setAttribute('class', cls[1]); pushT.textContent = cls[2]; pushT.style.fill = s === 'approval' ? '' : 'var(--text)';
+    flow.setAttribute('class', `flow ${s === 'done' ? 'g' : s === 'running' ? 'm' : 'off'}`);
+    const needs = s === 'approval';
+    caution.classList.toggle('lit', needs); pending.hidden = !needs;
+    caution.setAttribute('aria-disabled', String(!needs));
+  }
+  if (forced === 'running') { setStep('running', 'Running'); running = true; }
+  if (forced === 'done') { setStep('done', 'Done'); $('t5').textContent = '1.2s'; status.textContent = 'Pushed to origin/fix/token-refresh.'; }
+  if (forced === 'error') { setStep('stopped', 'Paused'); $('lamp-link').className = 'lamp fail'; $('link-sub').textContent = 'lost'; }
+  if (forced === 'empty' || forced === 'loading') { for (const id of ['lamp-sb', 'lamp-tests']) $(id).className = 'lamp'; $('sb-sub').textContent = forced === 'loading' ? '…' : 'idle'; $('tests-sub').textContent = '—'; caution.classList.remove('lit'); caution.setAttribute('aria-disabled', 'true'); pending.hidden = true; }
+  stop.disabled = !running;
+
+  caution.addEventListener('click', () => { if (caution.classList.contains('lit')) { step.closest('li').scrollIntoView({ block: 'center', behavior: 'smooth' }); $('allow').focus({ preventScroll: true }); } });
+  $('allow').addEventListener('click', (e) => {
+    e.currentTarget.setAttribute('aria-busy', 'true'); setStep('running', 'Running'); running = true; stop.disabled = false;
+    const t0 = performance.now();
+    setTimeout(() => { if (!running) return; running = false; stop.disabled = true; setStep('done', 'Done'); $('t5').textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's'; status.textContent = 'Pushed to origin/fix/token-refresh.'; }, 1400);
+  });
+  $('deny').addEventListener('click', () => { setStep('denied', 'Denied'); status.textContent = 'Not pushed. The fix stays committed in the sandbox.'; });
+  stop.addEventListener('click', () => { if (!running) return; running = false; stop.disabled = true; setStep('stopped', 'Stopped'); status.textContent = 'Stopped. Work so far is kept.'; });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && running) stop.click();
+    if (e.key === 'Enter' && !pending.hidden && document.activeElement === document.body) $('allow').click();
+  });
+  const msg = $('msg'), queued = $('queued');
+  $('composer').addEventListener('submit', (e) => { e.preventDefault(); const t = msg.value.trim(); if (!t) { msg.focus(); return; } queued.hidden = false; queued.textContent = running ? `Queued: “${t}” — sends when this step finishes.` : `Sent: “${t}”`; msg.value = ''; });
+  msg.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('composer').requestSubmit(); } });
+  document.querySelectorAll('[data-suggest]').forEach((b) => b.addEventListener('click', () => { msg.value = b.textContent; msg.focus(); }));
+  $('retry').addEventListener('click', (e) => { e.currentTarget.setAttribute('aria-busy', 'true'); setTimeout(() => { body.dataset.state = 'attention'; $('lamp-link').className = 'lamp ok'; $('link-sub').textContent = 'hermes-pop'; setStep('approval', 'Needs you'); }, 600); });
+</script>
+</body>
+</html>

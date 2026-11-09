@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes · Fix failing auth test</title>
+<style>
+  /* Variant B — "Vision mixer". Direction: DIRECTION.md */
+  @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url(../fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url(../fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+
+  :root {
+    --room: #0e1012; --deck: #181b1f; --face: #121417; --bezel: #2e333a; --cap: #262a30; --cap-edge: #3a4048;
+    --text: #e4e7ea; --text-2: #c9ced4;
+    --pgm: #ff4b3e; --pvw: #33d17a; --attn: #ffb238; --sel: #f2efe6; --fail: #ff9a91;
+    --on-lit: #160604;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --t: 140ms cubic-bezier(.2, 0, 0, 1);
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--room); }
+  body { margin: 0; font: 400 15px/1.5 var(--sans); color: var(--text); background: var(--room); }
+  button, textarea { font: inherit; color: inherit; }
+  .num, code, pre { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+
+  /* ---------- panel keys (every control) ---------- */
+  .key {
+    --lit: var(--sel);
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-width: 44px; min-height: 44px; padding: 0 14px;
+    border: 1px solid var(--cap-edge); border-radius: 3px;
+    background: var(--cap); color: var(--text);
+    font: 600 13px/1.15 var(--sans); text-align: center; text-decoration: none; cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 -3px 0 rgba(0,0,0,.35);
+    transition: background-color var(--t), color var(--t), border-color var(--t), transform 80ms;
+  }
+  .key:hover { background: #30353c; border-color: #4a525c; }
+  .key:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), inset 0 -1px 0 rgba(0,0,0,.35); }
+  .key:disabled, .key[aria-disabled="true"] { opacity: .4; cursor: not-allowed; transform: none; background: var(--cap); }
+  .key small { display: block; font: 500 12px/1.2 var(--mono); color: var(--text-2); }
+  .key[aria-pressed="true"], .key[aria-current="page"], .key.lit {
+    background: var(--lit); border-color: var(--lit); color: var(--on-lit);
+  }
+  .key[aria-pressed="true"] small, .key[aria-current="page"] small, .key.lit small { color: var(--on-lit); }
+  .key.pgm { --lit: #d0302a; --on-lit: #fff; } /* lit red key face: white legend (APCA 79) */
+  .key.pvw { --lit: var(--pvw); }
+  .key.attn { --lit: var(--attn); }
+  /* glow only on keys whose light carries state (ornament budget) */
+  .key.glow { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 -3px 0 rgba(0,0,0,.35), 0 0 14px color-mix(in srgb, var(--lit) 55%, transparent); }
+  kbd { font: 500 12px var(--mono); padding: 0 4px; border: 1px solid currentColor; border-radius: 2px; opacity: .8; }
+
+  /* ---------- top: source-select bus as navigation ---------- */
+  .top { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: var(--deck); border-bottom: 1px solid var(--bezel); }
+  .brand { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand span { color: var(--text-2); font-weight: 400; }
+  .navbus { display: flex; gap: 6px; }
+  .navbus .key { min-width: 88px; }
+  .link { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-2); }
+  .lamp { width: 10px; height: 10px; border-radius: 2px; background: var(--cap-edge); flex: none; }
+  .lamp.on-pvw { background: var(--pvw); }
+  .lamp.on-pgm { background: var(--pgm); }
+  .lamp.on-attn { background: var(--attn); }
+
+  /* ---------- readout strip: run facts ---------- */
+  .readouts { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); border-bottom: 1px solid var(--bezel); background: var(--face); }
+  .ro { padding: 8px 20px; border-right: 1px solid var(--bezel); min-width: 0; }
+  .ro:last-child { border-right: 0; }
+  .ro dt { font-size: 13px; color: var(--text-2); }
+  .ro dd { margin: 0; font: 500 16px/1.4 var(--mono); }
+  .meter { display: flex; gap: 2px; margin-top: 4px; }
+  .meter i { flex: 1; height: 6px; background: var(--cap); border-radius: 1px; }
+  .meter i.on { background: var(--pvw); }
+
+  @media (min-width: 1101px) {
+    body { height: 100vh; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; }
+    .mv { min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .mon { min-height: 0; }
+    .screen { overflow: auto; }
+    .deck { position: static; grid-row: 4; }
+    .readouts { grid-row: 2; } .mv { grid-row: 3; }
+    .pvw .screen, .diff .screen { flex: none; }
+  }
+  /* ---------- multiviewer ---------- */
+  .mv { display: grid; gap: 12px; padding: 12px 20px; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+        grid-template-areas: "pgm pvw" "pgm out" "pgm diff"; grid-template-rows: auto 1fr auto; }
+  .mon { position: relative; display: flex; flex-direction: column; min-width: 0; background: var(--face); border: 2px solid var(--bezel); border-radius: 4px; }
+  .mon.t-pgm { border: 3px solid var(--pgm); }
+  .mon.t-pvw { border: 3px solid var(--pvw); }
+  .mon.t-attn { border: 3px solid var(--attn); }
+  .screen { flex: 1; padding: 14px 16px; min-height: 0; }
+  .umd { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: #0a0b0d; border-top: 1px solid var(--bezel); }
+  .umd h2 { margin: 0; flex: 1; min-width: 0; font: 600 12px/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .umd .src { font: 500 12px var(--mono); color: var(--text-2); }
+  .pgm { grid-area: pgm; } .pvw { grid-area: pvw; } .out { grid-area: out; } .diff { grid-area: diff; }
+
+  /* program monitor: the run log */
+  .turn + .turn { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--bezel); }
+  .who { font-size: 13px; color: var(--text-2); margin-bottom: 2px; }
+  .who b { color: var(--text); font-weight: 600; }
+  .turn p { margin: 0 0 10px; max-width: 64ch; }
+  code { font-size: 13px; padding: 0 4px; border-radius: 2px; background: var(--cap); }
+  .log { list-style: none; margin: 8px 0 12px; padding: 0; border: 1px solid var(--bezel); border-radius: 3px; }
+  .log li { display: grid; grid-template-columns: 12px 2ch minmax(0, 1fr) auto 5ch; align-items: center; gap: 10px; min-height: 40px; padding: 4px 12px; font-size: 14px; }
+  .log li + li { border-top: 1px solid var(--bezel); }
+  .log .cmd { font: 13px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log .st { font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .log .tm { font: 13px var(--mono); color: var(--text-2); text-align: right; }
+  .log .n { font: 13px var(--mono); color: var(--text-2); }
+  .log [data-s="done"] .st { color: var(--pvw); }
+  .log [data-s="done"] .cmd { color: var(--text-2); }
+  .log [data-s="error"] .st { color: var(--fail); }
+  .log [data-s="staged"] { background: color-mix(in srgb, var(--attn) 10%, transparent); }
+  .log [data-s="staged"] .st { color: var(--attn); }
+  .log [data-s="live"] { background: color-mix(in srgb, var(--pgm) 12%, transparent); }
+  .log [data-s="live"] .st { color: #ff9b93; }
+  .log [data-s="denied"] .st, .log [data-s="stopped"] .st { color: var(--text-2); }
+
+  /* preview monitor: the staged action */
+  .stage-cmd { font: 500 15px var(--mono); padding: 10px 12px; margin: 0 0 10px; background: #0a0b0d; border: 1px solid var(--bezel); border-radius: 3px; overflow-x: auto; white-space: nowrap; }
+  .stage p { margin: 0 0 6px; color: var(--text-2); font-size: 14px; }
+  .stage p strong { color: var(--text); font-weight: 600; }
+  .stage .waiting { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 14px; font-weight: 600; color: var(--attn); }
+  .slate { display: none; color: var(--text-2); font-size: 14px; }
+
+  /* output + diff monitors */
+  pre.term { margin: 0; font-size: 13px; line-height: 1.6; color: #d3d8dd; white-space: pre; overflow-x: auto; }
+  pre.term .bad { color: #ffc0b8; }
+  pre.term .add { color: #a6dcb2; }
+
+  /* ---------- control surface ---------- */
+  .deck { position: sticky; bottom: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; padding: 12px 20px 16px; background: var(--deck); border-top: 1px solid var(--bezel); }
+  .busrow { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .busrow .bus-name { width: 72px; flex: none; font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .busrow .keys { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+  .busrow .key { min-width: 104px; flex-direction: column; gap: 0; padding: 4px 10px; }
+  .talk { grid-column: 1; display: flex; gap: 8px; align-items: stretch; }
+  .talk label { width: 72px; flex: none; font-size: 13px; font-weight: 600; color: var(--text-2); padding-top: 12px; }
+  .talk textarea { flex: 1; min-height: 46px; height: 46px; resize: vertical; padding: 11px 12px; background: var(--face); border: 1px solid var(--cap-edge); border-radius: 3px; line-height: 1.4; transition: border-color var(--t); }
+  .talk textarea:hover { border-color: #4a525c; }
+  .talk textarea:focus-visible { outline: 2px solid var(--sel); outline-offset: 0; }
+  .transition { grid-column: 2; grid-row: 1 / span 2; display: grid; grid-template-columns: auto auto; grid-template-rows: 1fr auto; gap: 8px; align-content: stretch; }
+  .take { grid-row: 1 / span 2; min-width: 128px; min-height: 100%; flex-direction: column; font-size: 20px; gap: 4px; }
+  .take small { font-family: var(--sans); font-size: 12px; font-weight: 500; }
+  .transition .side { display: grid; gap: 8px; }
+  .transition .side .key { min-width: 96px; flex-direction: column; gap: 0; }
+  .hint { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--text-2); }
+  .status { min-height: 0; margin: 0; font-size: 14px; font-weight: 600; color: var(--pvw); }
+  .status:empty { display: none; }
+  .queued { font-size: 13px; color: var(--text-2); }
+
+  /* ---------- states (forced with ?state=) ---------- */
+  .alert { display: none; align-items: center; gap: 12px; margin: 0 0 12px; padding: 8px 10px; border: 1px solid var(--pgm); border-radius: 3px; font-size: 14px; background: color-mix(in srgb, var(--pgm) 10%, transparent); }
+  .alert p { margin: 0 auto 0 0; }
+  [data-state="error"] .alert { display: flex; }
+  .sk, .empty { display: none; }
+  .sk { height: 12px; margin: 10px 0; border-radius: 2px; background: var(--cap); }
+  .sk.tall { height: 40px; }
+  [data-state="loading"] .content { display: none; }
+  [data-state="loading"] .sk { display: block; }
+  [data-state="loading"] .ro dd { color: transparent; background: var(--cap); border-radius: 2px; }
+  [data-state="loading"] .meter { visibility: hidden; }
+  [data-state="empty"] .content, [data-state="empty"] .readouts, [data-state="empty"] .busrow.steps, [data-state="loading"] .busrow.steps { display: none; }
+  [data-state="empty"] .empty { display: block; }
+  /* nothing is on air when there is no run: no red tally */
+  [data-state="empty"] .mon.t-pgm { border: 2px solid var(--bezel); }
+  [data-state="empty"] .pgm .umd .lamp { background: var(--cap-edge); }
+  [data-state="empty"] .slate { display: block; }
+  .empty .empty-h { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+  .empty p { margin: 0 0 14px; color: var(--text-2); max-width: 56ch; }
+  .empty .keys { display: flex; flex-wrap: wrap; gap: 8px; }
+  [data-state="running"] .pgm .umd .lamp.on-pgm { animation: onair 1.2s ease-in-out infinite; }
+  @keyframes onair { 50% { opacity: .35; } }
+
+  @media (max-width: 1100px) {
+    .mv { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pvw" "pgm" "out" "diff"; grid-template-rows: none; }
+    .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ro:nth-child(odd) { border-right: 1px solid var(--bezel); }
+    .ro:nth-child(even) { border-right: 0; }
+    .ro { border-bottom: 1px solid var(--bezel); }
+    .ro.wide { grid-column: 1 / -1; border-right: 0; }
+  }
+  @media (max-width: 720px) {
+    /* readouts compact: context full width, three small cells, sandbox lives in the PGM label */
+    .readouts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ro { padding: 6px 14px; border-right: 1px solid var(--bezel) !important; }
+    .ro:nth-child(4) { border-right: 0 !important; }
+    .ro.wide { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; border-right: 0 !important; }
+    .ro.wide dd { flex: 1; display: flex; align-items: center; gap: 12px; }
+    .ro.wide .meter { flex: 1; margin: 0; }
+    .ro dt { font-size: 12px; }
+    .ro dd { font-size: 14px; }
+    .ro:last-child { display: none; }
+    .take .kb { display: none; }
+  }
+  @media (max-width: 720px) {
+    .top { flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; }
+    .navbus { order: 3; width: 100%; overflow-x: auto; }
+    .navbus .key { min-width: 76px; }
+    .link span.txt { display: none; }
+    .mv, .ro { padding-left: 14px; padding-right: 14px; }
+    .deck { position: static; grid-template-columns: minmax(0, 1fr); padding: 12px 14px 96px; }
+    .busrow .bus-name, .talk label { width: auto; }
+    .busrow { flex-direction: column; align-items: stretch; }
+    .talk { flex-direction: column; }
+    .talk label { padding-top: 0; }
+    /* the decision stays in reach: transition keys pin to the bottom on phones */
+    .transition { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; grid-column: auto; grid-row: auto; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto; padding: 10px 14px; background: var(--deck); border-top: 1px solid var(--bezel); }
+    .take { grid-row: auto; min-height: 56px; font-size: 17px; }
+    .transition .side { display: contents; }
+    .transition .side .key { min-width: 0; }
+    .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; }
+  }
+  @media (forced-colors: active) {
+    .mon.t-pgm, .mon.t-pvw, .mon.t-attn { border-color: Highlight; }
+    .key { border: 1px solid ButtonText; }
+    .key[aria-pressed="true"], .key[aria-current="page"], .key.lit { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    .lamp, .meter i.on { forced-color-adjust: none; background: CanvasText; }
+  }
+</style>
+</head>
+<body data-state="attention">
+<header class="top">
+  <h1 class="brand">Hermes <span>· director</span></h1>
+  <nav class="navbus" aria-label="Main">
+    <a class="key" href="#" aria-current="page">Runs</a><a class="key" href="#">Agents</a><a class="key" href="#">Settings</a><a class="key" href="#">Docs</a>
+  </nav>
+  <div class="link" role="status"><i class="lamp on-pvw" id="link-lamp" aria-hidden="true"></i><span class="txt" id="link-text">Link to hermes-pop</span></div>
+</header>
+
+<dl class="readouts" aria-label="Run facts">
+  <div class="ro wide"><dt>Context</dt><dd><span class="num">18.4k / 200k</span><div class="meter" role="meter" aria-label="Context used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="9"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></dd></div>
+  <div class="ro"><dt>Elapsed</dt><dd id="elapsed">2:41</dd></div>
+  <div class="ro"><dt>Tool calls</dt><dd>5</dd></div>
+  <div class="ro"><dt>Cost</dt><dd>$0.04</dd></div>
+  <div class="ro"><dt>Sandbox</dt><dd>run-7f3a</dd></div>
+</dl>
+
+<main class="mv">
+  <!-- PROGRAM: what has gone to air -->
+  <section class="mon pgm t-pgm" aria-labelledby="pgm-h">
+    <div class="screen">
+      <div class="alert" role="alert"><p>Link to hermes-pop lost. The run is paused; nothing was lost. Retrying in 5 s.</p><button class="key" type="button" id="retry">Retry now</button></div>
+      <div class="sk" style="width:35%"></div><div class="sk" style="width:80%"></div><div class="sk tall"></div><div class="sk tall"></div><div class="sk tall"></div>
+      <div class="empty">
+        <h2 class="empty-h">Nothing on air</h2>
+        <p>Give Hermes a task in talkback. It stages anything that changes code or pushes on Preview, and nothing runs until you press Take.</p>
+        <div class="keys"><button class="key" type="button" data-suggest>Run the test suite and report failures</button><button class="key" type="button" data-suggest>Check disk and backup status on pve</button></div>
+      </div>
+      <div class="content" aria-busy="false">
+        <article class="turn">
+          <div class="who"><b>You</b> <span class="num">09:41</span></div>
+          <p>Run the test suite on the sandbox and tell me what's failing.</p>
+        </article>
+        <article class="turn">
+          <div class="who"><b>Hermes</b> <span class="num">09:41</span></div>
+          <p>Installing dependencies, then running the suite.</p>
+          <ol class="log" aria-label="Run log">
+            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">1</span><span class="cmd">sandbox.exec npm ci</span><span class="st">Done</span><span class="tm">6.1s</span></li>
+            <li data-s="error"><i class="lamp on-pgm" aria-hidden="true"></i><span class="n">2</span><span class="cmd">sandbox.exec npm test</span><span class="st">✕ 1 failed</span><span class="tm">9.4s</span></li>
+          </ol>
+          <p>One failure: the refresh call reads the old token from the cache before the new one is written, so the retry still sends the expired token. Fixed by awaiting the cache write.</p>
+          <ol class="log" aria-label="Fix log" start="3">
+            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">3</span><span class="cmd">edit src/auth/session.ts</span><span class="st">Done</span><span class="tm">+3 −1</span></li>
+            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">4</span><span class="cmd">sandbox.exec npm test</span><span class="st">47 passed</span><span class="tm">9.1s</span></li>
+            <li data-s="staged" id="row5"><i class="lamp on-attn" id="lamp5" aria-hidden="true"></i><span class="n">5</span><span class="cmd">git push origin fix/token-refresh</span><span class="st" id="st5">On preview</span><span class="tm" id="tm5">—</span></li>
+          </ol>
+          <p class="status" role="status" id="status"></p>
+        </article>
+      </div>
+    </div>
+    <div class="umd"><i class="lamp on-pgm" aria-hidden="true"></i><h2 id="pgm-h">Program · run log</h2><span class="src" id="pgm-src">run 7f3a</span></div>
+  </section>
+
+  <!-- PREVIEW: what is staged, waiting for Take -->
+  <section class="mon pvw t-attn" id="pvw-mon" aria-labelledby="pvw-h">
+    <div class="screen stage">
+      <div class="sk" style="width:60%"></div><div class="sk tall"></div>
+      <p class="slate">Nothing staged.</p>
+      <div class="content" id="stage">
+        <div class="stage-cmd">git push origin fix/token-refresh</div>
+        <p>Pushes <strong>1 commit</strong> (fix(auth): await cache write before retry) to <code>origin/fix/token-refresh</code>. <strong>Does not touch main.</strong></p>
+        <p>Tests: 47 passed after the fix.</p>
+        <span class="waiting" id="waiting"><i class="lamp on-attn" aria-hidden="true"></i>Waiting for Take</span>
+      </div>
+    </div>
+    <div class="umd"><i class="lamp on-pvw" aria-hidden="true"></i><h2 id="pvw-h">Preview · staged action</h2><span class="src" id="pvw-src">step 5</span></div>
+  </section>
+
+  <!-- OUTPUT: whichever source is punched on the source bus -->
+  <section class="mon out" aria-labelledby="out-h">
+    <div class="screen">
+      <div class="sk" style="width:70%"></div><div class="sk" style="width:50%"></div><div class="sk" style="width:60%"></div>
+      <div class="slate">No source.</div>
+      <pre class="term content" id="out-pre"></pre>
+    </div>
+    <div class="umd"><i class="lamp" aria-hidden="true"></i><h2 id="out-h">Output · source <span id="out-n">2</span></h2><span class="src" id="out-src">npm test</span></div>
+  </section>
+
+  <section class="mon diff" aria-labelledby="diff-h">
+    <div class="screen">
+      <div class="sk" style="width:80%"></div><div class="sk" style="width:65%"></div>
+      <div class="slate">No changes yet.</div>
+<pre class="term content">  const fresh = await refresh(token);
+<span class="bad">- cache.set(KEY, fresh);</span>
+<span class="add">+ await cache.set(KEY, fresh);</span>
+<span class="add">+ // retry must read the token we just wrote</span>
+  return retry(req, fresh);</pre>
+    </div>
+    <div class="umd"><i class="lamp" aria-hidden="true"></i><h2 id="diff-h">Diff · session.ts</h2><span class="src">+3 −1</span></div>
+  </section>
+</main>
+
+<form class="deck" id="deck" aria-label="Control surface">
+  <div class="busrow steps">
+    <span class="bus-name" id="bus-l">Sources</span>
+    <div class="keys" role="group" aria-labelledby="bus-l">
+      <button class="key" type="button" data-src="1" aria-pressed="false">npm ci<small>1 · done</small></button>
+      <button class="key" type="button" data-src="2" aria-pressed="true">npm test<small>2 · 1 failed</small></button>
+      <button class="key" type="button" data-src="3" aria-pressed="false">edit<small>3 · +3 −1</small></button>
+      <button class="key pgm lit glow" type="button" data-src="4" aria-pressed="false" id="key4">npm test<small>4 · program</small></button>
+      <button class="key pvw lit glow" type="button" data-src="5" aria-pressed="false" id="key5">git push<small>5 · preview</small></button>
+    </div>
+  </div>
+  <div class="talk">
+    <label for="msg">Talkback</label>
+    <textarea id="msg" rows="1" placeholder="Message Hermes without stopping the run"></textarea>
+    <button class="key" type="submit" id="send">Send</button>
+  </div>
+  <div class="transition" role="group" aria-label="Transition">
+    <button class="key take attn lit glow" type="button" id="take">Take<small>Allow push<span class="kb"> · Enter</span></small></button>
+    <div class="side">
+      <button class="key" type="button" id="cut">Cut<small>Deny</small></button>
+      <button class="key" type="button" id="ftb">FTB<small>Stop · Esc</small></button>
+    </div>
+  </div>
+  <p class="hint"><span id="queued" class="queued"></span> Ctrl+Enter sends talkback. Punch a source key to put its output on the output monitor.</p>
+</form>
+
+<script>
+  const body = document.body;
+  const forced = new URLSearchParams(location.search).get('state');
+  if (forced) body.dataset.state = forced;
+  const $ = (id) => document.getElementById(id);
+
+  const OUT = {
+    1: ['npm ci', 'added 412 packages in 6s\n0 vulnerabilities'],
+    2: ['npm test', 'PASS src/router.test.ts\nPASS src/store.test.ts\n<span class="bad">FAIL src/auth/session.test.ts\n  ● refreshes expired token\n    Expected 200, received 401</span>\nTests: 1 failed, 46 passed, 47 total'],
+    3: ['edit session.ts', 'src/auth/session.ts  +3 −1\n<span class="add">+ await cache.set(KEY, fresh);</span>'],
+    4: ['npm test', 'PASS src/router.test.ts\nPASS src/store.test.ts\nPASS src/auth/session.test.ts\nTests: 47 passed, 47 total'],
+    5: ['git push', '$ git push origin fix/token-refresh\n  (staged — runs when you press Take)'],
+  };
+  const srcKeys = [...document.querySelectorAll('[data-src]')];
+  function punch(n) {
+    srcKeys.forEach((k) => k.setAttribute('aria-pressed', String(k.dataset.src === String(n))));
+    $('out-n').textContent = n; $('out-src').textContent = OUT[n][0]; $('out-pre').innerHTML = OUT[n][1];
+  }
+  srcKeys.forEach((k) => k.addEventListener('click', () => punch(k.dataset.src)));
+  punch(2);
+
+  const take = $('take'), cut = $('cut'), ftb = $('ftb');
+  const key4 = $('key4'), key5 = $('key5'), pvw = $('pvw-mon');
+  let running = false;
+
+  function setRow5(s, label, lamp) { $('row5').dataset.s = s; $('st5').textContent = label; $('lamp5').className = 'lamp ' + lamp; }
+  function stageCleared(msg) {
+    take.disabled = true; take.classList.remove('lit', 'glow'); cut.disabled = true;
+    pvw.classList.remove('t-attn', 't-pvw'); $('stage').hidden = true; document.querySelector('.pvw .slate').style.display = 'block';
+    document.querySelector('.pvw .slate').textContent = msg || 'Nothing staged.';
+    key5.classList.remove('pvw', 'lit', 'glow');
+    $('pvw-src').textContent = '—';
+  }
+  function goLive() {
+    running = true; ftb.disabled = false; body.dataset.state = 'running';
+    stageCleared('Nothing staged. Step 5 is on air.');
+    key4.classList.remove('pgm', 'lit', 'glow'); key4.querySelector('small').textContent = '4 · done';
+    key5.classList.add('pgm', 'lit', 'glow'); key5.querySelector('small').textContent = '5 · on air';
+    setRow5('live', 'On air', 'on-pgm');
+  }
+  function finish() {
+    running = false; ftb.disabled = true; body.dataset.state = 'done';
+    key5.classList.remove('pgm', 'lit', 'glow'); key5.querySelector('small').textContent = '5 · done';
+    setRow5('done', 'Done', 'on-pvw'); $('tm5').textContent = '1.2s';
+    $('status').textContent = 'Pushed to origin/fix/token-refresh.';
+    document.querySelector('.pvw .slate').textContent = 'Nothing staged.';
+  }
+
+  ftb.disabled = true;
+  if (forced === 'running') goLive();
+  if (forced === 'done') { goLive(); finish(); }
+  if (forced === 'error') { stageCleared('Paused: link lost.'); setRow5('stopped', 'Paused', ''); key5.querySelector('small').textContent = '5 · paused'; $('link-lamp').className = 'lamp on-pgm'; $('link-text').textContent = 'Link lost'; }
+  if (forced === 'empty' || forced === 'loading') { stageCleared(forced === 'empty' ? 'Nothing staged.' : ''); }
+  if (forced === 'empty') { $('pgm-src').textContent = '—'; $('out-n').textContent = '—'; $('out-src').textContent = '—'; document.querySelector('#diff-h').textContent = 'Diff'; document.querySelector('.diff .src').textContent = '—'; }
+
+  take.addEventListener('click', () => {
+    if (take.disabled) return;
+    goLive();
+    setTimeout(() => { if (running) finish(); }, 1200);
+  });
+  cut.addEventListener('click', () => {
+    if (cut.disabled) return;
+    stageCleared('Cut. Not pushed; the fix stays committed in the sandbox.');
+    setRow5('denied', 'Cut', ''); key5.querySelector('small').textContent = '5 · cut';
+    $('status').textContent = 'Not pushed. The fix is committed locally in the sandbox.';
+  });
+  ftb.addEventListener('click', () => {
+    if (!running) return;
+    running = false; ftb.disabled = true; body.dataset.state = 'attention';
+    key5.classList.remove('pgm', 'lit', 'glow'); setRow5('stopped', 'Stopped', '');
+    $('status').textContent = 'Stopped. Work so far is kept.';
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && running) ftb.click();
+    if (e.key === 'Enter' && document.activeElement === document.body && !take.disabled) take.click();
+  });
+
+  const msg = $('msg');
+  $('deck').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const t = msg.value.trim(); if (!t) { msg.focus(); return; }
+    $('queued').textContent = running ? `Queued: “${t}”.` : `Sent: “${t}”.`; msg.value = '';
+  });
+  msg.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('deck').requestSubmit(); } });
+  document.querySelectorAll('[data-suggest]').forEach((b) => b.addEventListener('click', () => { msg.value = b.textContent; msg.focus(); }));
+  $('retry').addEventListener('click', (e) => { e.currentTarget.setAttribute('aria-busy', 'true'); setTimeout(() => location.search = '', 600); });
+</script>
+</body>
+</html>

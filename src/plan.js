@@ -37,6 +37,9 @@ export function buildPlan(r, book) {
   if (r.motion.infiniteLoops.length > 1) add('P1', 'motion', `${r.motion.infiniteLoops.length} infinite animations (${r.motion.infiniteLoops.slice(0, 3).join(', ')}). Keep at most one, and only while something is actually working.`, 'one or zero loops');
   if (r.motion.durations.count && !r.sheet.reducedMotion) add('P1', 'motion', 'Animates but ignores prefers-reduced-motion. Add a reduce block that removes movement (keep opacity/color feedback).', 'check shows reduced motion: yes');
 
+  // P1 — expression (what "not good enough to flex" measurably lacks)
+  for (const n of r.expression?.notes || []) add('P1', 'expression', `${n}. Give color a job (zones, states, controls) and make regions visible — see taste.md 2026-11-09.`, 'expression ≥ 70');
+
   // P2 — craft and polish
   for (const n of r.craft?.notes || []) add('P2', 'craft', n, 'craft note gone');
   for (const a of (r.craft?.apcaSamples || []).slice(0, 3)) add('P2', 'contrast', `Lc ${a.lc} < ${a.need}: ${a.sample}. Raise the text token (muted/secondary) rather than per element.`, 'APCA fails drop');

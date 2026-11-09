@@ -83,3 +83,39 @@ npm test   # test/fix-example.test.js: before must fail for these reasons, after
 write DIRECTION.md → build → `ui_check(target, states)` → read STATS.md and
 **look at the screenshots** → fix → `ui_diff(before, after)` → ask the user →
 `ui_verdict(...)`.
+
+---
+
+# Round 2: David's verdict and two v2 variants
+
+**Verdict on v1 (`after.html`, scored 100 S at the time):** "somewhat of a
+improvement but it lacks color and enough structure and the buttons and
+settings are vibecoded… right track… not good enough to flex."
+
+What changed in the toolkit because of it:
+
+- Logged with `omni verdict` (evidence: gate agreed with David 1/2), and as new
+  Never/Always rules in `skills/ui-max/references/taste.md`.
+- New **Expression** stat (`src/expression.js`): Hasler–Süsstrunk colorfulness,
+  color share, hue families, framed regions. S now requires expression ≥ 70.
+  v1 re-scores **87 B** (expression 35: colorfulness 11, 0.5% color), which
+  matches the verdict. Tests encode this so it can't silently regress.
+- Known gap: "framed regions" didn't flag v1's thin structure (it counted 10).
+  Structure still needs eyes.
+
+Then two concepts built in parallel (research: parallel prototypes beat serial polish):
+
+| | v2-A Flight deck | v2-B Vision mixer |
+|---|---|---|
+| Concept | Hermes flies, you're the captain: glass-cockpit display units, ECAM color code, synoptic run path, master caution | Hermes stages actions on PREVIEW, you TAKE them to PROGRAM: multiviewer, tally colors, source bus |
+| Controls | Backlit annunciator keys; lit = solid fill; master caution lights when you're needed | Illuminated bus keys, a big TAKE key, CUT (deny), FTB (stop) |
+| Score | 95 S, expression 75 | 100 S, expression 100 |
+| Strength | Calm, legible, the color code is a real standard | Most impressive at a glance; the decision is the biggest thing on screen |
+| Weakness | Comms panel has dead space; color still mostly line-weight | Red means both "on air" and "failed"; Take/Cut/FTB jargon costs learning; long runs scroll inside a monitor |
+| Files | `v2-flightdeck/` | `v2-mixer/` |
+
+Both: every state forced and looked at on desktop and 390px; empty/loading
+show no invented run facts; the decision is reachable without scrolling on
+phones. Neither has the Ctrl+K palette or live streaming yet.
+
+Open each with `?state=attention|running|empty|loading|error|done`.
