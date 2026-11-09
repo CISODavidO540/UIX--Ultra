@@ -36,7 +36,22 @@ its output on the output monitor).
 - **Production talkback panels** → the composer is talkback: you speak to the
   crew (Hermes) without stopping the show.
 
-## System
+## System (rev 2: theme roles)
+
+Colors now come only from theme roles (`themes/omni-themes.css`, presets
+`studio` / `studio-daylight`, switchable in the panel; `?theme=` → saved
+`hermes-theme` → OS preference). Mapping: Program tally = `active-*`,
+Preview/done = `ok-*`, waiting for Take = `accent-*`, failures only = `danger-*`,
+selected source / current page = inverted `text-1`. Every status has a tinted
+ground + border + word (chips, grounded log rows, diff lines). Program vs.
+failure is separated by form: the Program monitor wears a solid PGM / ON AIR
+sign on its top edge; failures are grounded rows with ✕ + "failed".
+Daylight: the preset's solid/on-solid pairs are under WCAG 2 AA for small
+text, so lit keys/tags are grounded there and Take keeps its solid face with a
+light legend plate.
+
+The original literal palette below is kept for reference.
+
 
 - Surfaces: room `#0e1012`, deck (control surface) `#181b1f`, monitor face `#121417`,
   bezel `#2e333a`, unlit key cap `#262a30`.

@@ -145,3 +145,9 @@ Next:
 - `examples/fix-vibecoded/`: before.html (34 F, 9 tells) → after.html (100 S, 0 tells, all 6 states), DIRECTION.md ("a run is an electronic checklist"), WALKTHROUGH.md, diff/compare.png. `test/fix-example.test.js` locks it in (9/9 tests).
 - Lessons logged in WALKTHROUGH: the score missed (a) the approval hidden behind the composer and (b) fake run facts in the empty state; both were caught only by looking at screenshots. Fixed a check.js false positive (line length on `<li>` wrapping code).
 - Awaiting David's verdict on after.html.
+
+## Update (Nov 9, round 3): theme engine
+
+- David on v2: "needs better theme management and colors… more grounding… depends on use case".
+- `src/theme-engine.js` + `omni themegen` + MCP `ui_themegen`; presets in `themes/presets/` (each tagged with use cases); output `themes/omni-themes.css`; doc `skills/ui-max/references/themes.md`.
+- Both v2 pages are on roles (0 raw colors) with theme switchers. Waiting on David's pick between flight deck and mixer, and on whether the grounding reads right now.

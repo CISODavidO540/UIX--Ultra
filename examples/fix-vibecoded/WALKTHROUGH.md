@@ -119,3 +119,37 @@ show no invented run facts; the decision is reachable without scrolling on
 phones. Neither has the Ctrl+K palette or live streaming yet.
 
 Open each with `?state=attention|running|empty|loading|error|done`.
+
+---
+
+# Round 3: managed themes, grounded color, use-case fit
+
+**Verdict on v2:** "good upgrade but it needs better theme management and
+colors and a little everywhere it just needs a little more grounding… it can
+work but it depends on usecase."
+
+Toolkit changes:
+
+- **Theme engine** (`src/theme-engine.js`, `omni themegen`, MCP `ui_themegen`):
+  a few OKLCH inputs per preset → every semantic role (surface ladder with inset
+  wells, text 1–3, and grounded status families: fg / tinted bg / border /
+  solid / on-solid). Lightness is solved until every pair passes APCA, lit
+  legends also pass WCAG 2 AA, and no two status families may collapse into one
+  color. 7 presets × 42 checks, all passing (`test/theme.test.js`).
+- **The engine caught real bugs:** in `studio`, "on air" and "failed" were
+  the same color (both hue 27); in `ledger`, info and selection were. Fixed in
+  the presets, not patched in pages.
+- **Sprinkled-color check:** `omni check` counts raw color literals in component
+  CSS. Flight deck had 39, mixer 10. Both are now **0**.
+- **Use case decides the concept:** each playbook has a "Concepts & themes"
+  section; `omni route` / `ui_route` recommend presets. Agent chat: flight deck
+  for long autonomous runs, vision mixer for high-stakes approvals and demos;
+  tables/settings: ledger; monitoring: master control.
+
+| Page | Theme | Score |
+|---|---|---|
+| v2-flightdeck | night / day / high contrast | 97 S / 95 S / 96 S |
+| v2-mixer | studio / daylight | 100 S / 97 S |
+
+Side by side: `v2-flightdeck/themes.png`, `v2-mixer/themes.png`. Switch live
+with the theme keys on each page, or `?theme=<name>`.

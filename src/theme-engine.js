@@ -38,6 +38,14 @@ export function apca(txt, bg) {
   return Math.round(Math.abs(lc * 100));
 }
 
+/** WCAG 2.x contrast ratio (still the legal bar in many places; APCA is the better perceptual one). */
+export function wcag(a, b) {
+  const lin = (hex) => [1, 3, 5].map((i) => { const v = parseInt(hex.slice(i, i + 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+  const L = (hex) => { const [r, g, bb] = lin(hex); return 0.2126 * r + 0.7152 * g + 0.0722 * bb; };
+  const [x, y] = [L(a), L(b)].sort((p, q) => q - p);
+  return +((x + 0.05) / (y + 0.05)).toFixed(2);
+}
+
 // ---------- generation ----------
 const DEFAULT_STATUS = { ok: 150, warn: 75, danger: 25, info: 245, active: 320 };
 
@@ -97,7 +105,7 @@ export function generate(preset) {
       for (let Ls = dark ? 0.76 : 0.6; Ls > 0.3 && Ls < 0.95 && !best; Ls += dir * 0.01) {
         const solid = oklch(Ls, chroma * 1.05, hue);
         const on = apca(onDark, solid) >= apca(onLight, solid) ? onDark : onLight;
-        if (apca(on, solid) >= want) best = { solid, on };
+        if (apca(on, solid) >= want && wcag(on, solid) >= 4.5) best = { solid, on };
       }
       if (best) break;
     }
@@ -122,6 +130,16 @@ export function validate(r) {
     need(`${f}-fg`, 'surface-1', 60, `${f} label on panel`);
     need(`${f}-on-solid`, `${f}-solid`, 60, `text on lit ${f}`);
     need('text-1', `${f}-bg`, 75, `body text on ${f} ground`);
+  }
+  // Lit legends are small bold text: also hold WCAG 2 AA (4.5:1).
+  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent']) {
+    const ratio = wcag(r[`${f}-on-solid`], r[`${f}-solid`]);
+    pairs.push({ fg: `${f}-on-solid`, bg: `${f}-solid`, target: 4.5, lc: ratio, why: 'WCAG 2 AA for small legends', wcag: true });
+  }
+  // Distinct families must not collapse into the same color (studio: active == danger).
+  const fams = ['ok', 'warn', 'danger', 'info', 'active', 'accent'];
+  for (let i = 0; i < fams.length; i++) for (let j = i + 1; j < fams.length; j++) {
+    if (r[`${fams[i]}-solid`] === r[`${fams[j]}-solid`]) pairs.push({ fg: `${fams[i]}-solid`, bg: `${fams[j]}-solid`, target: 1, lc: 0, why: 'two status families are the same color' });
   }
   const fails = pairs.filter((p) => p.lc < p.target);
   return { pairs: pairs.length, fails };

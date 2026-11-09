@@ -1,6 +1,6 @@
 # UI stat sheet — examples/fix-vibecoded/v2-mixer/index.html
 
-**Overall 100 · rank S · gate PASS**
+**Overall 98 · rank S · gate PASS**
 
 ```
 ACCESS       ██████████ 100  S
@@ -9,7 +9,7 @@ STATES       ██████████ 100  S
 MOTION       ██████████ 100  S
 RESPONSIVE   ██████████ 100  S
 CRAFT        ██████████ 100  S
-EXPRESSION   ██████████ 100  S
+EXPRESSION   █████████░  85  B
 ```
 
 ## Gate
@@ -32,7 +32,7 @@ None fired.
 
 ## Motion
 
-Transitions: 65 (median 140ms, max 140ms). Reduced motion: yes. Infinite loops: none.
+Transitions: 73 (median 140ms, max 140ms). Reduced motion: yes. Infinite loops: none.
 
 ## Layout
 
@@ -40,15 +40,16 @@ Transitions: 65 (median 140ms, max 140ms). Reduced motion: yes. Infinite loops: 
 
 ## System
 
-Font sizes in use: 7. Families: "IBM Plex Sans", "IBM Plex Mono". Accent hue buckets: 3. Off-grid spacing: 1.6%. Numeric nodes with tabular-nums: 5/7.
+Font sizes in use: 7. Families: "IBM Plex Sans", "IBM Plex Mono". Accent hue buckets: 3. Off-grid spacing: 1.9%. Numeric nodes with tabular-nums: 5/7.
 
 ## Type & contrast (craft probe)
 
-APCA: 0/86 text elements below target. All-caps without tracking: 0. Paragraph line-height out of 1.2–1.8: 0. Unique radii 4, shadows 4, z-index 0, font weights 3.
+APCA: 0/90 text elements below target. All-caps without tracking: 0. Paragraph line-height out of 1.2–1.8: 0. Unique radii 4, shadows 4, z-index 1, font weights 3.
 
 ## Expression (color + structure)
 
-Colorfulness 27.8 · color share 4% · hue families 2 · framed regions 10.
+Colorfulness 22.5 · color share 3.8% · hue families 2 · framed regions 12.
+- colorfulness 22.5 (low; 25+ wanted)
 - Measures only *amount* of color and structure. Whether it is good still needs eyes and the critique rubric.
 
 ## Accessibility (100/100)

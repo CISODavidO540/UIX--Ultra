@@ -1,6 +1,27 @@
-{ "name": "ledger", "label": "Ledger (data/admin)", "mode": "light",
-  "base": { "hue": 85, "chroma": 0.01 },
-  "accent": { "hue": 255, "chroma": 0.13, "meaning": "selection / primary action" },
-  "status": { "ok": 150, "warn": 70, "danger": 25, "info": 255, "active": 255 },
+{
+  "name": "ledger",
+  "label": "Ledger (data/admin)",
+  "mode": "light",
+  "base": {
+    "hue": 85,
+    "chroma": 0.01
+  },
+  "accent": {
+    "hue": 255,
+    "chroma": 0.13,
+    "meaning": "selection / primary action"
+  },
+  "status": {
+    "ok": 150,
+    "warn": 70,
+    "danger": 25,
+    "info": 215,
+    "active": 255
+  },
   "concept": "Accounting ledger: ruled, quiet, numbers first; for tables, admin, settings",
-  "usecases": ["data-table-admin", "forms-settings", "detail-page"] }
+  "usecases": [
+    "data-table-admin",
+    "forms-settings",
+    "detail-page"
+  ]
+}

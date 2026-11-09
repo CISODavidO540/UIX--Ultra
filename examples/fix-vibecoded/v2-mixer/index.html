@@ -1,11 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="studio">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hermes · Fix failing auth test</title>
+<link rel="stylesheet" href="../../../themes/omni-themes.css">
 <style>
-  /* Variant B — "Vision mixer". Direction: DIRECTION.md */
+  /* Variant B — "Vision mixer". Direction: DIRECTION.md.
+     Colors come ONLY from theme roles (themes/omni-themes.css, presets studio / studio-daylight).
+     Role jobs: active-* = Program / on air (tally) · ok-* = Preview / done · accent-* = waiting for Take
+     · danger-* = failures only · text-1 inverted = selected source / current page. */
   @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
   @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
   @font-face { font-family: "IBM Plex Sans"; src: url(../fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap; }
@@ -13,182 +17,225 @@
   @font-face { font-family: "IBM Plex Mono"; src: url(../fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
 
   :root {
-    --room: #0e1012; --deck: #181b1f; --face: #121417; --bezel: #2e333a; --cap: #262a30; --cap-edge: #3a4048;
-    --text: #e4e7ea; --text-2: #c9ced4;
-    --pgm: #ff4b3e; --pvw: #33d17a; --attn: #ffb238; --sel: #f2efe6; --fail: #ff9a91;
-    --on-lit: #160604;
     --sans: "IBM Plex Sans", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, monospace;
     --t: 140ms cubic-bezier(.2, 0, 0, 1);
-    color-scheme: dark;
   }
   *, *::before, *::after { box-sizing: border-box; }
-  html { background: var(--room); }
-  body { margin: 0; font: 400 15px/1.5 var(--sans); color: var(--text); background: var(--room); }
+  html { background: var(--surface-0); }
+  body { margin: 0; font: 400 15px/1.5 var(--sans); color: var(--text-1); background: var(--surface-0); }
   button, textarea { font: inherit; color: inherit; }
   .num, code, pre { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-  :focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* ---------- tags & chips: every status has a ground, a border and a word ---------- */
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border: 1px solid var(--border-1); border-radius: 3px; background: var(--surface-2); color: var(--text-2); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .chip.ok { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-fg); }
+  .chip.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
+  .chip.accent { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent-fg); }
+  .chip.active { background: var(--active-bg); border-color: var(--active-border); color: var(--active-fg); }
+  .tag { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 2px; font: 600 12px/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; background: var(--surface-3); color: var(--text-2); border: 1px solid var(--border-2); }
+  .tag.active { background: var(--active-solid); color: var(--active-on-solid); border-color: var(--active-solid); }
+  .tag.ok { background: var(--ok-solid); color: var(--ok-on-solid); border-color: var(--ok-solid); }
 
   /* ---------- panel keys (every control) ---------- */
   .key {
-    --lit: var(--sel);
+    --lit: var(--text-1); --on-lit: var(--surface-0);
     position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     min-width: 44px; min-height: 44px; padding: 0 14px;
-    border: 1px solid var(--cap-edge); border-radius: 3px;
-    background: var(--cap); color: var(--text);
+    border: 1px solid var(--border-2); border-radius: 3px;
+    background: var(--surface-3); color: var(--text-1);
     font: 600 13px/1.15 var(--sans); text-align: center; text-decoration: none; cursor: pointer;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 -3px 0 rgba(0,0,0,.35);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -3px 0 rgba(0,0,0,.28);
     transition: background-color var(--t), color var(--t), border-color var(--t), transform 80ms;
   }
-  .key:hover { background: #30353c; border-color: #4a525c; }
-  .key:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), inset 0 -1px 0 rgba(0,0,0,.35); }
-  .key:disabled, .key[aria-disabled="true"] { opacity: .4; cursor: not-allowed; transform: none; background: var(--cap); }
+  .key:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .key:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 rgba(0,0,0,.28); }
+  .key:disabled, .key[aria-disabled="true"] { opacity: .4; cursor: not-allowed; transform: none; background: var(--surface-3); border-color: var(--border-2); }
   .key small { display: block; font: 500 12px/1.2 var(--mono); color: var(--text-2); }
-  .key[aria-pressed="true"], .key[aria-current="page"], .key.lit {
-    background: var(--lit); border-color: var(--lit); color: var(--on-lit);
-  }
+  .key[aria-pressed="true"], .key[aria-current="page"], .key.lit { background: var(--lit); border-color: var(--lit); color: var(--on-lit); }
   .key[aria-pressed="true"] small, .key[aria-current="page"] small, .key.lit small { color: var(--on-lit); }
-  .key.pgm { --lit: #d0302a; --on-lit: #fff; } /* lit red key face: white legend (APCA 79) */
-  .key.pvw { --lit: var(--pvw); }
-  .key.attn { --lit: var(--attn); }
+  .key.pgm { --lit: var(--active-solid); --on-lit: var(--active-on-solid); }
+  .key.pvw { --lit: var(--ok-solid); --on-lit: var(--ok-on-solid); }
+  .key.attn { --lit: var(--accent-solid); --on-lit: var(--accent-on-solid); }
   /* glow only on keys whose light carries state (ornament budget) */
-  .key.glow { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), inset 0 -3px 0 rgba(0,0,0,.35), 0 0 14px color-mix(in srgb, var(--lit) 55%, transparent); }
-  kbd { font: 500 12px var(--mono); padding: 0 4px; border: 1px solid currentColor; border-radius: 2px; opacity: .8; }
+  .key.glow { box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -3px 0 rgba(0,0,0,.28), 0 0 14px color-mix(in srgb, var(--lit) 50%, transparent); }
 
   /* ---------- top: source-select bus as navigation ---------- */
-  .top { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: var(--deck); border-bottom: 1px solid var(--bezel); }
+  .top { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: var(--surface-1); border-bottom: 1px solid var(--border-1); }
   .brand { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
   .brand span { color: var(--text-2); font-weight: 400; }
-  .navbus { display: flex; gap: 6px; }
+  .navbus, .themebus { display: flex; gap: 6px; }
   .navbus .key { min-width: 88px; }
-  .link { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-2); }
-  .lamp { width: 10px; height: 10px; border-radius: 2px; background: var(--cap-edge); flex: none; }
-  .lamp.on-pvw { background: var(--pvw); }
-  .lamp.on-pgm { background: var(--pgm); }
-  .lamp.on-attn { background: var(--attn); }
+  .themebus { margin-left: auto; align-items: center; }
+  .themebus .lbl { font-size: 13px; color: var(--text-2); margin-right: 2px; }
+  .link { display: flex; align-items: center; gap: 8px; }
+  .lamp { width: 10px; height: 10px; border-radius: 2px; background: var(--border-2); flex: none; }
+  .lamp.on-pvw { background: var(--ok-solid); }
+  .lamp.on-pgm { background: var(--active-solid); }
+  .lamp.on-attn { background: var(--accent-solid); }
+  .lamp.on-fail { background: var(--danger-solid); }
 
   /* ---------- readout strip: run facts ---------- */
-  .readouts { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); border-bottom: 1px solid var(--bezel); background: var(--face); }
-  .ro { padding: 8px 20px; border-right: 1px solid var(--bezel); min-width: 0; }
+  .readouts { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); margin: 0; border-bottom: 1px solid var(--border-1); background: var(--surface-inset); }
+  .ro { padding: 8px 20px; border-right: 1px solid var(--border-1); min-width: 0; }
   .ro:last-child { border-right: 0; }
   .ro dt { font-size: 13px; color: var(--text-2); }
   .ro dd { margin: 0; font: 500 16px/1.4 var(--mono); }
   .meter { display: flex; gap: 2px; margin-top: 4px; }
-  .meter i { flex: 1; height: 6px; background: var(--cap); border-radius: 1px; }
-  .meter i.on { background: var(--pvw); }
+  .meter i { flex: 1; height: 6px; background: var(--surface-3); border: 1px solid var(--border-1); border-radius: 1px; }
+  .meter i.on { background: var(--text-2); border-color: var(--text-2); } /* data, not status: neutral */
 
-  @media (min-width: 1101px) {
-    body { height: 100vh; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; }
-    .mv { min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
-    .mon { min-height: 0; }
-    .screen { overflow: auto; }
-    .deck { position: static; grid-row: 4; }
-    .readouts { grid-row: 2; } .mv { grid-row: 3; }
-    .pvw .screen, .diff .screen { flex: none; }
-  }
   /* ---------- multiviewer ---------- */
   .mv { display: grid; gap: 12px; padding: 12px 20px; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
         grid-template-areas: "pgm pvw" "pgm out" "pgm diff"; grid-template-rows: auto 1fr auto; }
-  .mon { position: relative; display: flex; flex-direction: column; min-width: 0; background: var(--face); border: 2px solid var(--bezel); border-radius: 4px; }
-  .mon.t-pgm { border: 3px solid var(--pgm); }
-  .mon.t-pvw { border: 3px solid var(--pvw); }
-  .mon.t-attn { border: 3px solid var(--attn); }
+  .mon { position: relative; display: flex; flex-direction: column; min-width: 0; background: var(--surface-1); border: 2px solid var(--border-1); border-radius: 4px; }
+  .mon.t-pgm { border: 3px solid var(--active-border); }
+  .mon.t-pvw { border: 3px solid var(--ok-border); }
+  .mon.t-attn { border: 3px solid var(--accent-border); }
   .screen { flex: 1; padding: 14px 16px; min-height: 0; }
-  .umd { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: #0a0b0d; border-top: 1px solid var(--bezel); }
+  .umd { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--surface-inset); border-top: 1px solid var(--border-1); }
   .umd h2 { margin: 0; flex: 1; min-width: 0; font: 600 12px/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .umd .src { font: 500 12px var(--mono); color: var(--text-2); }
   .pgm { grid-area: pgm; } .pvw { grid-area: pvw; } .out { grid-area: out; } .diff { grid-area: diff; }
 
   /* program monitor: the run log */
-  .turn + .turn { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--bezel); }
+  .turn + .turn { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-1); }
   .who { font-size: 13px; color: var(--text-2); margin-bottom: 2px; }
-  .who b { color: var(--text); font-weight: 600; }
+  .who b { color: var(--text-1); font-weight: 600; }
   .turn p { margin: 0 0 10px; max-width: 64ch; }
-  code { font-size: 13px; padding: 0 4px; border-radius: 2px; background: var(--cap); }
-  .log { list-style: none; margin: 8px 0 12px; padding: 0; border: 1px solid var(--bezel); border-radius: 3px; }
+  code { font-size: 13px; padding: 0 4px; border-radius: 2px; background: var(--surface-3); border: 1px solid var(--border-1); }
+  .log { list-style: none; margin: 8px 0 12px; padding: 0; border: 1px solid var(--border-1); border-radius: 3px; background: var(--surface-0); }
   .log li { display: grid; grid-template-columns: 12px 2ch minmax(0, 1fr) auto 5ch; align-items: center; gap: 10px; min-height: 40px; padding: 4px 12px; font-size: 14px; }
-  .log li + li { border-top: 1px solid var(--bezel); }
+  .log li + li { border-top: 1px solid var(--border-1); }
   .log .cmd { font: 13px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .log .st { font-size: 13px; font-weight: 600; white-space: nowrap; }
   .log .tm { font: 13px var(--mono); color: var(--text-2); text-align: right; }
   .log .n { font: 13px var(--mono); color: var(--text-2); }
-  .log [data-s="done"] .st { color: var(--pvw); }
   .log [data-s="done"] .cmd { color: var(--text-2); }
-  .log [data-s="error"] .st { color: var(--fail); }
-  .log [data-s="staged"] { background: color-mix(in srgb, var(--attn) 10%, transparent); }
-  .log [data-s="staged"] .st { color: var(--attn); }
-  .log [data-s="live"] { background: color-mix(in srgb, var(--pgm) 12%, transparent); }
-  .log [data-s="live"] .st { color: #ff9b93; }
-  .log [data-s="denied"] .st, .log [data-s="stopped"] .st { color: var(--text-2); }
+  /* grounded rows: the row itself carries the status, not only the word */
+  .log [data-s="error"] { background: var(--danger-bg); outline: 1px solid var(--danger-border); outline-offset: -1px; }
+  .log [data-s="staged"] { background: var(--accent-bg); outline: 1px solid var(--accent-border); outline-offset: -1px; }
+  .log [data-s="live"] { background: var(--active-bg); outline: 1px solid var(--active-border); outline-offset: -1px; }
 
   /* preview monitor: the staged action */
-  .stage-cmd { font: 500 15px var(--mono); padding: 10px 12px; margin: 0 0 10px; background: #0a0b0d; border: 1px solid var(--bezel); border-radius: 3px; overflow-x: auto; white-space: nowrap; }
+  .stage-cmd { font: 500 15px var(--mono); padding: 10px 12px; margin: 0 0 10px; background: var(--surface-inset); border: 1px solid var(--border-1); border-radius: 3px; overflow-x: auto; white-space: nowrap; }
   .stage p { margin: 0 0 6px; color: var(--text-2); font-size: 14px; }
-  .stage p strong { color: var(--text); font-weight: 600; }
-  .stage .waiting { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 14px; font-weight: 600; color: var(--attn); }
+  .stage p strong { color: var(--text-1); font-weight: 600; }
+  .stage .waiting { margin-top: 6px; }
   .slate { display: none; color: var(--text-2); font-size: 14px; }
 
   /* output + diff monitors */
-  pre.term { margin: 0; font-size: 13px; line-height: 1.6; color: #d3d8dd; white-space: pre; overflow-x: auto; }
-  pre.term .bad { color: #ffc0b8; }
-  pre.term .add { color: #a6dcb2; }
+  pre.term { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text-1); white-space: pre; overflow-x: auto; }
+  /* diff/failure lines: the ground carries the status, the text stays text-1 (APCA body) */
+  pre.term .bad { color: var(--text-1); background: var(--danger-bg); box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  pre.term .add { color: var(--text-1); background: var(--ok-bg); box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
   /* ---------- control surface ---------- */
-  .deck { position: sticky; bottom: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; padding: 12px 20px 16px; background: var(--deck); border-top: 1px solid var(--bezel); }
+  .deck { position: sticky; bottom: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 24px; padding: 12px 20px 16px; background: var(--surface-1); border-top: 1px solid var(--border-1); }
   .busrow { display: flex; align-items: center; gap: 6px; min-width: 0; }
   .busrow .bus-name { width: 72px; flex: none; font-size: 13px; font-weight: 600; color: var(--text-2); }
   .busrow .keys { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
   .busrow .key { min-width: 104px; flex-direction: column; gap: 0; padding: 4px 10px; }
   .talk { grid-column: 1; display: flex; gap: 8px; align-items: stretch; }
   .talk label { width: 72px; flex: none; font-size: 13px; font-weight: 600; color: var(--text-2); padding-top: 12px; }
-  .talk textarea { flex: 1; min-height: 46px; height: 46px; resize: vertical; padding: 11px 12px; background: var(--face); border: 1px solid var(--cap-edge); border-radius: 3px; line-height: 1.4; transition: border-color var(--t); }
-  .talk textarea:hover { border-color: #4a525c; }
-  .talk textarea:focus-visible { outline: 2px solid var(--sel); outline-offset: 0; }
+  .talk textarea { flex: 1; min-height: 46px; height: 46px; resize: vertical; padding: 11px 12px; background: var(--surface-inset); border: 1px solid var(--border-2); border-radius: 3px; line-height: 1.4; transition: border-color var(--t); }
+  .talk textarea::placeholder { color: var(--text-3); }
+  .talk textarea:hover { border-color: var(--border-strong); }
+  .talk textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
   .transition { grid-column: 2; grid-row: 1 / span 2; display: grid; grid-template-columns: auto auto; grid-template-rows: 1fr auto; gap: 8px; align-content: stretch; }
   .take { grid-row: 1 / span 2; min-width: 128px; min-height: 100%; flex-direction: column; font-size: 20px; gap: 4px; }
   .take small { font-family: var(--sans); font-size: 12px; font-weight: 500; }
+  .take .plate { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .transition .side { display: grid; gap: 8px; }
   .transition .side .key { min-width: 96px; flex-direction: column; gap: 0; }
   .hint { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--text-2); }
-  .status { min-height: 0; margin: 0; font-size: 14px; font-weight: 600; color: var(--pvw); }
+  .status { margin: 0; }
   .status:empty { display: none; }
   .queued { font-size: 13px; color: var(--text-2); }
 
   /* ---------- states (forced with ?state=) ---------- */
-  .alert { display: none; align-items: center; gap: 12px; margin: 0 0 12px; padding: 8px 10px; border: 1px solid var(--pgm); border-radius: 3px; font-size: 14px; background: color-mix(in srgb, var(--pgm) 10%, transparent); }
+  .alert { display: none; align-items: center; gap: 12px; margin: 0 0 12px; padding: 8px 10px; border: 1px solid var(--danger-border); border-radius: 3px; font-size: 14px; background: var(--danger-bg); color: var(--danger-fg); }
   .alert p { margin: 0 auto 0 0; }
   [data-state="error"] .alert { display: flex; }
   .sk, .empty { display: none; }
-  .sk { height: 12px; margin: 10px 0; border-radius: 2px; background: var(--cap); }
+  .sk { height: 12px; margin: 10px 0; border-radius: 2px; background: var(--surface-3); }
   .sk.tall { height: 40px; }
   [data-state="loading"] .content { display: none; }
   [data-state="loading"] .sk { display: block; }
-  [data-state="loading"] .ro dd { color: transparent; background: var(--cap); border-radius: 2px; }
+  [data-state="loading"] .ro dd { color: transparent; background: var(--surface-3); border-radius: 2px; }
   [data-state="loading"] .meter { visibility: hidden; }
   [data-state="empty"] .content, [data-state="empty"] .readouts, [data-state="empty"] .busrow.steps, [data-state="loading"] .busrow.steps { display: none; }
   [data-state="empty"] .empty { display: block; }
-  /* nothing is on air when there is no run: no red tally */
-  [data-state="empty"] .mon.t-pgm { border: 2px solid var(--bezel); }
-  [data-state="empty"] .pgm .umd .lamp { background: var(--cap-edge); }
+  /* nothing is on air when there is no run: no tally */
+  [data-state="empty"] .mon.t-pgm { border: 2px solid var(--border-1); }
+  [data-state="empty"] .pgm .umd .lamp { background: var(--border-2); }
   [data-state="empty"] .slate { display: block; }
   .empty .empty-h { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
   .empty p { margin: 0 0 14px; color: var(--text-2); max-width: 56ch; }
   .empty .keys { display: flex; flex-wrap: wrap; gap: 8px; }
-  [data-state="running"] .pgm .umd .lamp.on-pgm { animation: onair 1.2s ease-in-out infinite; }
-  @keyframes onair { 50% { opacity: .35; } }
+  /* the on-air sign sits on the Program monitor's top edge: the first thing you read at that border */
+  .onair { display: none; position: absolute; top: -12px; left: 14px; z-index: 1; padding: 3px 10px; font-size: 12px; }
+  .t-pgm .onair { display: inline-flex; }
+  [data-state="empty"] .onair { display: none; }
+  [data-state="running"] .onair { animation: onair 1.2s ease-in-out infinite; }
+  @keyframes onair { 50% { opacity: .45; } }
 
+  /* Daylight: the preset's -solid/-on-solid pairs are under WCAG 2 AA for small text (3.7–4.3:1),
+     so lit keys and tags become grounded (-bg + 2px -border + -fg) instead of solid. */
+  [data-theme="studio-daylight"] .key.pgm.lit, [data-theme="studio-daylight"] .key.pvw.lit, [data-theme="studio-daylight"] .key.attn.lit,
+  [data-theme="studio-daylight"] .tag.active, [data-theme="studio-daylight"] .tag.ok { border-width: 2px; }
+  [data-theme="studio-daylight"] .key.pgm.lit, [data-theme="studio-daylight"] .tag.active { background: var(--active-bg); border-color: var(--active-solid); color: var(--active-fg); }
+  [data-theme="studio-daylight"] .key.pvw.lit, [data-theme="studio-daylight"] .tag.ok { background: var(--ok-bg); border-color: var(--ok-solid); color: var(--ok-fg); }
+  [data-theme="studio-daylight"] .key.attn.lit:not(.take) { background: var(--accent-bg); border-color: var(--accent-solid); color: var(--accent-fg); }
+  /* Take stays a solid lit key; its legend sits on a light plate (like an engraved cap) so small text keeps contrast */
+  [data-theme="studio-daylight"] .take.lit { padding: 6px; }
+  [data-theme="studio-daylight"] .take.lit .plate { align-self: stretch; justify-content: center; padding: 8px 12px; border-radius: 2px; background: var(--surface-1); color: var(--accent-fg); }
+  [data-theme="studio-daylight"] .mon.t-pgm, [data-theme="studio-daylight"] .mon.t-pvw, [data-theme="studio-daylight"] .mon.t-attn { border-width: 4px; }
+  [data-theme="studio-daylight"] .mon.t-pgm { border-color: var(--active-solid); }
+  [data-theme="studio-daylight"] .mon.t-attn { border-color: var(--accent-solid); }
+  [data-theme="studio-daylight"] .key.lit small { color: inherit; }
+
+  @media (min-width: 1101px) {
+    body { height: 100vh; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; }
+    .readouts { grid-row: 2; } .mv { grid-row: 3; }
+    .mv { min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .mon { min-height: 0; }
+    .screen { overflow: auto; }
+    .deck { position: static; grid-row: 4; }
+    .pvw .screen, .diff .screen { flex: none; }
+    .diff .screen { max-height: 132px; }
+    .pvw .screen { padding-top: 12px; padding-bottom: 10px; }
+    .mv { padding-top: 20px; }
+  }
   @media (max-width: 1100px) {
     .mv { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pvw" "pgm" "out" "diff"; grid-template-rows: none; }
     .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .ro:nth-child(odd) { border-right: 1px solid var(--bezel); }
+    .ro:nth-child(odd) { border-right: 1px solid var(--border-1); }
     .ro:nth-child(even) { border-right: 0; }
-    .ro { border-bottom: 1px solid var(--bezel); }
+    .ro { border-bottom: 1px solid var(--border-1); }
     .ro.wide { grid-column: 1 / -1; border-right: 0; }
   }
   @media (max-width: 720px) {
+    .top { flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; }
+    .navbus { order: 3; width: 100%; overflow-x: auto; }
+    .navbus .key { min-width: 76px; }
+    .themebus .lbl, .link .txt { display: none; }
+    .themebus .key { min-width: 0; padding: 0 10px; }
+    .mv, .ro { padding-left: 14px; padding-right: 14px; }
+    .deck { position: static; grid-template-columns: minmax(0, 1fr); padding: 12px 14px 96px; }
+    .busrow .bus-name, .talk label { width: auto; }
+    .busrow { flex-direction: column; align-items: stretch; }
+    .talk { flex-direction: column; }
+    .talk label { padding-top: 0; }
+    /* the decision stays in reach: transition keys pin to the bottom on phones */
+    .transition { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; grid-column: auto; grid-row: auto; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto; padding: 10px 14px; background: var(--surface-1); border-top: 1px solid var(--border-1); }
+    .take { grid-row: auto; min-height: 56px; font-size: 17px; }
+    .transition .side { display: contents; }
+    .transition .side .key { min-width: 0; }
+    .hint { display: none; }
     /* readouts compact: context full width, three small cells, sandbox lives in the PGM label */
     .readouts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .ro { padding: 6px 14px; border-right: 1px solid var(--bezel) !important; }
+    .ro { padding: 6px 14px; border-right: 1px solid var(--border-1) !important; }
     .ro:nth-child(4) { border-right: 0 !important; }
     .ro.wide { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; border-right: 0 !important; }
     .ro.wide dd { flex: 1; display: flex; align-items: center; gap: 12px; }
@@ -197,32 +244,16 @@
     .ro dd { font-size: 14px; }
     .ro:last-child { display: none; }
     .take .kb { display: none; }
-  }
-  @media (max-width: 720px) {
-    .top { flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; }
-    .navbus { order: 3; width: 100%; overflow-x: auto; }
-    .navbus .key { min-width: 76px; }
-    .link span.txt { display: none; }
-    .mv, .ro { padding-left: 14px; padding-right: 14px; }
-    .deck { position: static; grid-template-columns: minmax(0, 1fr); padding: 12px 14px 96px; }
-    .busrow .bus-name, .talk label { width: auto; }
-    .busrow { flex-direction: column; align-items: stretch; }
-    .talk { flex-direction: column; }
-    .talk label { padding-top: 0; }
-    /* the decision stays in reach: transition keys pin to the bottom on phones */
-    .transition { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; grid-column: auto; grid-row: auto; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto; padding: 10px 14px; background: var(--deck); border-top: 1px solid var(--bezel); }
-    .take { grid-row: auto; min-height: 56px; font-size: 17px; }
-    .transition .side { display: contents; }
-    .transition .side .key { min-width: 0; }
-    .hint { display: none; }
+    .log li { grid-template-columns: 12px minmax(0, 1fr) auto; }
+    .log .n, .log .tm { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; }
   }
   @media (forced-colors: active) {
     .mon.t-pgm, .mon.t-pvw, .mon.t-attn { border-color: Highlight; }
-    .key { border: 1px solid ButtonText; }
-    .key[aria-pressed="true"], .key[aria-current="page"], .key.lit { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    .key, .chip, .tag { border: 1px solid ButtonText; }
+    .key[aria-pressed="true"], .key[aria-current="page"], .key.lit, .tag.active, .tag.ok { forced-color-adjust: none; background: Highlight; color: HighlightText; }
     .lamp, .meter i.on { forced-color-adjust: none; background: CanvasText; }
   }
 </style>
@@ -233,7 +264,8 @@
   <nav class="navbus" aria-label="Main">
     <a class="key" href="#" aria-current="page">Runs</a><a class="key" href="#">Agents</a><a class="key" href="#">Settings</a><a class="key" href="#">Docs</a>
   </nav>
-  <div class="link" role="status"><i class="lamp on-pvw" id="link-lamp" aria-hidden="true"></i><span class="txt" id="link-text">Link to hermes-pop</span></div>
+  <div class="themebus" role="group" aria-label="Theme"><span class="lbl">Theme</span><button class="key" type="button" data-theme-set="studio">Studio</button><button class="key" type="button" data-theme-set="studio-daylight">Daylight</button></div>
+  <div class="link chip ok" role="status" id="link"><i class="lamp on-pvw" id="link-lamp" aria-hidden="true"></i><span class="txt" id="link-text">Link to hermes-pop</span></div>
 </header>
 
 <dl class="readouts" aria-label="Run facts">
@@ -247,6 +279,7 @@
 <main class="mv">
   <!-- PROGRAM: what has gone to air -->
   <section class="mon pgm t-pgm" aria-labelledby="pgm-h">
+    <span class="tag active onair" id="onair">Pgm</span>
     <div class="screen">
       <div class="alert" role="alert"><p>Link to hermes-pop lost. The run is paused; nothing was lost. Retrying in 5 s.</p><button class="key" type="button" id="retry">Retry now</button></div>
       <div class="sk" style="width:35%"></div><div class="sk" style="width:80%"></div><div class="sk tall"></div><div class="sk tall"></div><div class="sk tall"></div>
@@ -264,16 +297,16 @@
           <div class="who"><b>Hermes</b> <span class="num">09:41</span></div>
           <p>Installing dependencies, then running the suite.</p>
           <ol class="log" aria-label="Run log">
-            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">1</span><span class="cmd">sandbox.exec npm ci</span><span class="st">Done</span><span class="tm">6.1s</span></li>
-            <li data-s="error"><i class="lamp on-pgm" aria-hidden="true"></i><span class="n">2</span><span class="cmd">sandbox.exec npm test</span><span class="st">✕ 1 failed</span><span class="tm">9.4s</span></li>
+            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">1</span><span class="cmd">sandbox.exec npm ci</span><span class="st chip ok">Done</span><span class="tm">6.1s</span></li>
+            <li data-s="error"><i class="lamp on-fail" aria-hidden="true"></i><span class="n">2</span><span class="cmd">sandbox.exec npm test</span><span class="st chip danger">✕ 1 failed</span><span class="tm">9.4s</span></li>
           </ol>
           <p>One failure: the refresh call reads the old token from the cache before the new one is written, so the retry still sends the expired token. Fixed by awaiting the cache write.</p>
           <ol class="log" aria-label="Fix log" start="3">
-            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">3</span><span class="cmd">edit src/auth/session.ts</span><span class="st">Done</span><span class="tm">+3 −1</span></li>
-            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">4</span><span class="cmd">sandbox.exec npm test</span><span class="st">47 passed</span><span class="tm">9.1s</span></li>
-            <li data-s="staged" id="row5"><i class="lamp on-attn" id="lamp5" aria-hidden="true"></i><span class="n">5</span><span class="cmd">git push origin fix/token-refresh</span><span class="st" id="st5">On preview</span><span class="tm" id="tm5">—</span></li>
+            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">3</span><span class="cmd">edit src/auth/session.ts</span><span class="st chip ok">Done</span><span class="tm">+3 −1</span></li>
+            <li data-s="done"><i class="lamp on-pvw" aria-hidden="true"></i><span class="n">4</span><span class="cmd">sandbox.exec npm test</span><span class="st chip ok">✓ 47 passed</span><span class="tm">9.1s</span></li>
+            <li data-s="staged" id="row5"><i class="lamp on-attn" id="lamp5" aria-hidden="true"></i><span class="n">5</span><span class="cmd">git push origin fix/token-refresh</span><span class="st chip accent" id="st5">Waiting for Take</span><span class="tm" id="tm5">—</span></li>
           </ol>
-          <p class="status" role="status" id="status"></p>
+          <p class="status" role="status"><span id="status"></span></p>
         </article>
       </div>
     </div>
@@ -288,11 +321,10 @@
       <div class="content" id="stage">
         <div class="stage-cmd">git push origin fix/token-refresh</div>
         <p>Pushes <strong>1 commit</strong> (fix(auth): await cache write before retry) to <code>origin/fix/token-refresh</code>. <strong>Does not touch main.</strong></p>
-        <p>Tests: 47 passed after the fix.</p>
-        <span class="waiting" id="waiting"><i class="lamp on-attn" aria-hidden="true"></i>Waiting for Take</span>
+        <span class="waiting chip accent" id="waiting"><i class="lamp on-attn" aria-hidden="true"></i>Waiting for Take</span>
       </div>
     </div>
-    <div class="umd"><i class="lamp on-pvw" aria-hidden="true"></i><h2 id="pvw-h">Preview · staged action</h2><span class="src" id="pvw-src">step 5</span></div>
+    <div class="umd"><i class="lamp on-pvw" aria-hidden="true"></i><span class="tag ok">Pvw</span><h2 id="pvw-h">Preview · staged action</h2><span class="src" id="pvw-src">step 5</span></div>
   </section>
 
   <!-- OUTPUT: whichever source is punched on the source bus -->
@@ -336,7 +368,7 @@
     <button class="key" type="submit" id="send">Send</button>
   </div>
   <div class="transition" role="group" aria-label="Transition">
-    <button class="key take attn lit glow" type="button" id="take">Take<small>Allow push<span class="kb"> · Enter</span></small></button>
+    <button class="key take attn lit glow" type="button" id="take"><span class="plate">Take<small>Allow push<span class="kb"> · Enter</span></small></span></button>
     <div class="side">
       <button class="key" type="button" id="cut">Cut<small>Deny</small></button>
       <button class="key" type="button" id="ftb">FTB<small>Stop · Esc</small></button>
@@ -347,6 +379,17 @@
 
 <script>
   const body = document.body;
+  // Theme management: ?theme= wins (checks/screenshots), then the saved choice, then the OS preference.
+  const THEMES = ['studio', 'studio-daylight'];
+  const qTheme = new URLSearchParams(location.search).get('theme');
+  let saved = null; try { saved = localStorage.getItem('hermes-theme'); } catch {}
+  const pref = matchMedia('(prefers-color-scheme: light)').matches ? 'studio-daylight' : 'studio';
+  function applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.querySelectorAll('[data-theme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+  }
+  applyTheme(THEMES.includes(qTheme) ? qTheme : THEMES.includes(saved) ? saved : pref);
+  document.querySelectorAll('[data-theme-set]').forEach((b) => b.addEventListener('click', () => { applyTheme(b.dataset.themeSet); try { localStorage.setItem('hermes-theme', b.dataset.themeSet); } catch {} }));
   const forced = new URLSearchParams(location.search).get('state');
   if (forced) body.dataset.state = forced;
   const $ = (id) => document.getElementById(id);
@@ -370,7 +413,11 @@
   const key4 = $('key4'), key5 = $('key5'), pvw = $('pvw-mon');
   let running = false;
 
-  function setRow5(s, label, lamp) { $('row5').dataset.s = s; $('st5').textContent = label; $('lamp5').className = 'lamp ' + lamp; }
+  // The Program monitor is always PGM (red tally); it is ON AIR only while a step actually executes.
+  const sign = (live) => { $('onair').textContent = live ? 'On air' : 'Pgm'; };
+  const CHIP = { staged: 'accent', live: 'active', done: 'ok', denied: '', stopped: '' };
+  function setRow5(s, label, lamp) { $('row5').dataset.s = s; $('st5').textContent = label; $('st5').className = 'st chip ' + (CHIP[s] || ''); $('lamp5').className = 'lamp ' + lamp; }
+  function setStatus(text, kind) { $('status').textContent = text; $('status').className = text ? 'chip ' + kind : ''; }
   function stageCleared(msg) {
     take.disabled = true; take.classList.remove('lit', 'glow'); cut.disabled = true;
     pvw.classList.remove('t-attn', 't-pvw'); $('stage').hidden = true; document.querySelector('.pvw .slate').style.display = 'block';
@@ -379,24 +426,24 @@
     $('pvw-src').textContent = '—';
   }
   function goLive() {
-    running = true; ftb.disabled = false; body.dataset.state = 'running';
+    running = true; ftb.disabled = false; body.dataset.state = 'running'; sign(true);
     stageCleared('Nothing staged. Step 5 is on air.');
     key4.classList.remove('pgm', 'lit', 'glow'); key4.querySelector('small').textContent = '4 · done';
     key5.classList.add('pgm', 'lit', 'glow'); key5.querySelector('small').textContent = '5 · on air';
     setRow5('live', 'On air', 'on-pgm');
   }
   function finish() {
-    running = false; ftb.disabled = true; body.dataset.state = 'done';
+    running = false; ftb.disabled = true; body.dataset.state = 'done'; sign(false);
     key5.classList.remove('pgm', 'lit', 'glow'); key5.querySelector('small').textContent = '5 · done';
     setRow5('done', 'Done', 'on-pvw'); $('tm5').textContent = '1.2s';
-    $('status').textContent = 'Pushed to origin/fix/token-refresh.';
+    setStatus('✓ Pushed to origin/fix/token-refresh', 'ok');
     document.querySelector('.pvw .slate').textContent = 'Nothing staged.';
   }
 
   ftb.disabled = true;
   if (forced === 'running') goLive();
   if (forced === 'done') { goLive(); finish(); }
-  if (forced === 'error') { stageCleared('Paused: link lost.'); setRow5('stopped', 'Paused', ''); key5.querySelector('small').textContent = '5 · paused'; $('link-lamp').className = 'lamp on-pgm'; $('link-text').textContent = 'Link lost'; }
+  if (forced === 'error') { stageCleared('Paused: link lost.'); setRow5('stopped', 'Paused', ''); key5.querySelector('small').textContent = '5 · paused'; $('link-lamp').className = 'lamp on-fail'; $('link-text').textContent = 'Link lost'; $('link').className = 'link chip danger'; }
   if (forced === 'empty' || forced === 'loading') { stageCleared(forced === 'empty' ? 'Nothing staged.' : ''); }
   if (forced === 'empty') { $('pgm-src').textContent = '—'; $('out-n').textContent = '—'; $('out-src').textContent = '—'; document.querySelector('#diff-h').textContent = 'Diff'; document.querySelector('.diff .src').textContent = '—'; }
 
@@ -409,13 +456,13 @@
     if (cut.disabled) return;
     stageCleared('Cut. Not pushed; the fix stays committed in the sandbox.');
     setRow5('denied', 'Cut', ''); key5.querySelector('small').textContent = '5 · cut';
-    $('status').textContent = 'Not pushed. The fix is committed locally in the sandbox.';
+    setStatus('Cut: not pushed. The fix stays committed in the sandbox.', '');
   });
   ftb.addEventListener('click', () => {
     if (!running) return;
-    running = false; ftb.disabled = true; body.dataset.state = 'attention';
+    running = false; ftb.disabled = true; body.dataset.state = 'attention'; sign(false);
     key5.classList.remove('pgm', 'lit', 'glow'); setRow5('stopped', 'Stopped', '');
-    $('status').textContent = 'Stopped. Work so far is kept.';
+    setStatus('Stopped. Work so far is kept.', '');
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && running) ftb.click();

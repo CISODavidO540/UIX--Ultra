@@ -1,8 +1,8 @@
 {
   "target": "examples/fix-vibecoded/v2-mixer/index.html",
   "label": "examples/fix-vibecoded/v2-mixer/index.html",
-  "checkedAt": "2026-11-09T23:10:54.627Z",
-  "overall": 100,
+  "checkedAt": "2026-11-09T23:28:42.714Z",
+  "overall": 98,
   "rank": "S",
   "pass": true,
   "stats": {
@@ -12,7 +12,7 @@
     "motion": 100,
     "responsive": 100,
     "craft": 100,
-    "expression": 100
+    "expression": 85
   },
   "gate": [
     {
@@ -54,11 +54,11 @@
         "\"IBM Plex Mono\""
       ],
       "accentHueBuckets": 3,
-      "offGridSpacingRatio": 0.016,
+      "offGridSpacingRatio": 0.019,
       "numericNodes": 7,
       "tabularNumericNodes": 5,
-      "textNodes": 79,
-      "controls": 10,
+      "textNodes": 83,
+      "controls": 12,
       "ornamentCount": 3,
       "monoShare": 0.18
     }
@@ -76,15 +76,17 @@
     },
     "reducedMotion": true,
     "forcedColors": true,
-    "darkMode": false,
+    "darkMode": true,
     "containerOrMedia": true,
     "heavyTransitions": [],
     "heavyTransitionCount": 0,
-    "blockedSheets": 0
+    "rawColors": 0,
+    "rawSamples": [],
+    "blockedSheets": 1
   },
   "motion": {
     "durations": {
-      "count": 65,
+      "count": 73,
       "min": 80,
       "median": 140,
       "max": 140
@@ -116,11 +118,11 @@
       "info": 0
     },
     "issues": [],
-    "auditedAt": "2026-11-09T23:10:37.285Z"
+    "auditedAt": "2026-11-09T23:28:25.464Z"
   },
   "consoleErrors": [],
   "craft": {
-    "textNodes": 86,
+    "textNodes": 90,
     "apcaFails": 0,
     "apcaSamples": [],
     "capsTight": 0,
@@ -129,23 +131,25 @@
     "lineHeightSamples": [],
     "radii": 4,
     "shadows": 4,
-    "zIndexes": 0,
+    "zIndexes": 1,
     "weights": 3,
     "notes": []
   },
   "expression": {
-    "colorfulness": 27.8,
-    "colorShare": 4,
+    "colorfulness": 22.5,
+    "colorShare": 3.8,
     "hueFamilies": 2,
-    "regions": 10,
+    "regions": 12,
     "samples": [
       "<section.mon>",
       "<ol.log>",
-      "<ol.log>",
       "<li>",
-      "<div.umd>"
+      "<ol.log>",
+      "<li>"
     ],
-    "notes": []
+    "notes": [
+      "colorfulness 22.5 (low; 25+ wanted)"
+    ]
   },
   "screenshots": [
     "desktop-fold.png",
