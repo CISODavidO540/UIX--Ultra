@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { withPage } from './browser.js';
 import { audit } from './audit.js';
 import { slopInPage } from './slop.js';
+import { craftProbe, craftPenalty } from './craft.js';
 
 /**
  * omni check — the UI stat sheet.
@@ -115,6 +116,13 @@ export async function check(target, { out, viewport = "1440x900", label, states:
       sheet: await page.evaluate(stylesheetProbe),
       motion: await page.evaluate(motionProbe),
       layout: await page.evaluate(layoutProbe),
+      craft: await page.evaluate(craftProbe),
+      squint: await (async () => {
+        // Squint test: grayscale + blur shows whether hierarchy survives without color/detail.
+        await page.addStyleTag({ content: 'html{filter:grayscale(1) blur(4px)!important}' });
+        await page.screenshot({ path: path.join(out, 'squint.png') });
+        return 'squint.png';
+      })(),
     };
   });
   const mobile = await withPage(target, { viewport: '390x844', before }, async (page) => {
@@ -191,6 +199,8 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   if (sys.numericNodes >= 4 && sys.tabularNumericNodes === 0) craft -= 10;
   if (consoleErrors.length) craft -= Math.min(25, consoleErrors.length * 10);
   if (!desktop.sheet.forcedColors) craft -= 5;
+  const [craftPen, craftNotes] = craftPenalty(desktop.craft);
+  craft -= craftPen;
   craft = clamp(craft);
 
   const stats = { access, originality, states, motion, responsive, craft };
@@ -215,7 +225,8 @@ export async function check(target, { out, viewport = "1440x900", label, states:
     overall, rank: rank(overall), pass, stats, gate: gate.map(([name, ok]) => ({ name, ok })),
     slop: desktop.slop, sheet: desktop.sheet, motion: { ...desktop.motion, durations: summarize(d) },
     layout: { desktop: desktop.layout, mobile: mobile.layout }, a11y, consoleErrors,
-    screenshots: ['desktop-fold.png', 'desktop-full.png', 'mobile-full.png', ...stateShots],
+    craft: { ...desktop.craft, notes: craftNotes },
+    screenshots: ['desktop-fold.png', 'desktop-full.png', 'mobile-full.png', 'squint.png', ...stateShots],
   };
   await fs.writeFile(path.join(out, 'check.json'), JSON.stringify(result, null, 2));
   await fs.writeFile(path.join(out, 'STATS.md'), renderStats(result));
@@ -256,12 +267,20 @@ export function renderStats(r) {
   const s = r.slop.system;
   L.push('', '## System', '');
   L.push(`Font sizes in use: ${s.fontSizes}. Families: ${s.fontFamilies.join(', ')}. Accent hue buckets: ${s.accentHueBuckets}. Off-grid spacing: ${(s.offGridSpacingRatio * 100).toFixed(1)}%. Numeric nodes with tabular-nums: ${s.tabularNumericNodes}/${s.numericNodes}.`);
+  const c = r.craft;
+  if (c) {
+    L.push('', '## Type & contrast (craft probe)', '');
+    L.push(`APCA: ${c.apcaFails}/${c.textNodes} text elements below target. All-caps without tracking: ${c.capsTight}. Paragraph line-height out of 1.2–1.8: ${c.lineHeightBad}. Unique radii ${c.radii}, shadows ${c.shadows}, z-index ${c.zIndexes}, font weights ${c.weights}.`);
+    for (const a of c.apcaSamples) L.push(`- Lc ${a.lc} (needs ${a.need}) \`${a.sample}\``);
+    for (const x of c.capsSamples) L.push(`- caps, no tracking \`${x}\``);
+    for (const n of c.notes) L.push(`- ${n}`);
+  }
   L.push('', `## Accessibility (${r.a11y.score}/100)`, '');
   const shown = r.a11y.issues.filter((i) => i.severity !== 'info').slice(0, 12);
   if (!shown.length) L.push('No findings above info.');
   for (const i of shown) L.push(`- ${i.severity} · ${i.rule} — ${i.message}${i.sample ? ` \`${i.sample.slice(0, 80)}\`` : ''}`);
   if (r.consoleErrors.length) L.push('', '## Console errors', '', ...r.consoleErrors.slice(0, 6).map((e) => `- \`${e}\``));
-  L.push('', '## Look at it', '', 'Scripts cannot judge taste. Open `desktop-fold.png` and `mobile-full.png` and run the critique rubric in the ui-max skill (`references/critique.md`).');
+  L.push('', '## Look at it', '', 'Scripts cannot judge taste. Open `desktop-fold.png`, `mobile-full.png` and `squint.png` (grayscale + blur: can you still find the primary action and the hierarchy?) and run the critique rubric in the ui-max skill (`references/critique.md`).');
   const extra = r.screenshots.filter((f) => f.startsWith('states-'));
   if (extra.length) L.push('', 'Forced states (contact sheets — look at these too): ' + extra.map((f) => `\`${f}\``).join(', '));
   return L.join('\n') + '\n';
