@@ -2,3 +2,4 @@ node_modules/
 omni-out/
 *.log
 .DS_Store
+.omni/
