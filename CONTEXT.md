@@ -138,3 +138,10 @@ Next:
 - "Astra" was most likely **Astryx** (facebook/astryx), Meta's agent-ready React design system. Verified with CLI 0.7.11: it has an `ai-chat` page template, tool-call blocks, `astryx build "<task>"` template router, and `astryx init --agent hermes`.
 - Added: MCP server (`bin/omni-mcp.js`, tools ui_route, ui_playbook, ui_reference, ui_capture, ui_check, ui_audit, ui_diff, ui_verdict, ui_evidence, astryx), `omni setup [--write]`, plugin auto-registration, use-case router + 9 playbooks mapped to real Astryx template ids, evidence log (`.omni/evidence.jsonl`, `omni verdict`, `omni evidence`), `references/astryx.md`.
 - Not done: B1 rebuilt on Astryx `ai-chat` + custom theme and compared with `omni diff`; example library of good/bad pairs per playbook; `omni judge`.
+
+## Update (Nov 9, end): fix-a-vibe-coded-page demo
+
+- `omni plan` / MCP `ui_fix_plan`: check → ordered FIXPLAN.md (P0 blockers, P1 slop tells + missing states + motion, P2 craft, playbook must-haves).
+- `examples/fix-vibecoded/`: before.html (34 F, 9 tells) → after.html (100 S, 0 tells, all 6 states), DIRECTION.md ("a run is an electronic checklist"), WALKTHROUGH.md, diff/compare.png. `test/fix-example.test.js` locks it in (9/9 tests).
+- Lessons logged in WALKTHROUGH: the score missed (a) the approval hidden behind the composer and (b) fake run facts in the empty state; both were caught only by looking at screenshots. Fixed a check.js false positive (line length on `<li>` wrapping code).
+- Awaiting David's verdict on after.html.

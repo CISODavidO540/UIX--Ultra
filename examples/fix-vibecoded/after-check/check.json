@@ -1,0 +1,155 @@
+{
+  "target": "after.html",
+  "label": "after.html",
+  "checkedAt": "2026-11-09T23:00:19.910Z",
+  "overall": 100,
+  "rank": "S",
+  "pass": true,
+  "stats": {
+    "access": 100,
+    "originality": 100,
+    "states": 100,
+    "motion": 100,
+    "responsive": 100,
+    "craft": 100
+  },
+  "gate": [
+    {
+      "name": "No critical/serious a11y findings",
+      "ok": true
+    },
+    {
+      "name": "No compositional slop tells (3, 8, 10)",
+      "ok": true
+    },
+    {
+      "name": "At most 1 slop tell",
+      "ok": true
+    },
+    {
+      "name": "No horizontal scroll at 390px",
+      "ok": true
+    },
+    {
+      "name": "No console errors",
+      "ok": true
+    },
+    {
+      "name": "State coverage ≥ 6/8",
+      "ok": true
+    },
+    {
+      "name": "prefers-reduced-motion handled (if animated)",
+      "ok": true
+    }
+  ],
+  "slop": {
+    "tells": [],
+    "slopScore": 0,
+    "system": {
+      "fontSizes": 5,
+      "fontFamilies": [
+        "\"IBM Plex Sans\"",
+        "\"IBM Plex Mono\""
+      ],
+      "accentHueBuckets": 2,
+      "offGridSpacingRatio": 0,
+      "numericNodes": 7,
+      "tabularNumericNodes": 12,
+      "textNodes": 63,
+      "controls": 5,
+      "ornamentCount": 0,
+      "monoShare": 0.26
+    }
+  },
+  "sheet": {
+    "states": {
+      "hover": true,
+      "focusVisible": true,
+      "active": true,
+      "disabled": true,
+      "loading": true,
+      "empty": true,
+      "error": true,
+      "success": true
+    },
+    "reducedMotion": true,
+    "forcedColors": true,
+    "darkMode": false,
+    "containerOrMedia": true,
+    "heavyTransitions": [],
+    "heavyTransitionCount": 0,
+    "blockedSheets": 0
+  },
+  "motion": {
+    "durations": {
+      "count": 46,
+      "min": 80,
+      "median": 140,
+      "max": 140
+    },
+    "infiniteLoops": []
+  },
+  "layout": {
+    "desktop": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": 82,
+      "bodyFontPx": 16
+    },
+    "mobile": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": 45,
+      "bodyFontPx": 16
+    }
+  },
+  "a11y": {
+    "target": "after.html",
+    "score": 100,
+    "bySeverity": {
+      "critical": 0,
+      "serious": 0,
+      "moderate": 0,
+      "minor": 0,
+      "info": 0
+    },
+    "issues": [],
+    "auditedAt": "2026-11-09T23:00:02.854Z"
+  },
+  "consoleErrors": [],
+  "craft": {
+    "textNodes": 69,
+    "apcaFails": 0,
+    "apcaSamples": [],
+    "capsTight": 0,
+    "capsSamples": [],
+    "lineHeightBad": 0,
+    "lineHeightSamples": [],
+    "radii": 3,
+    "shadows": 2,
+    "zIndexes": 0,
+    "weights": 3,
+    "notes": []
+  },
+  "screenshots": [
+    "desktop-fold.png",
+    "desktop-full.png",
+    "mobile-full.png",
+    "squint.png",
+    "state-attention-desktop.png",
+    "state-attention-mobile.png",
+    "state-running-desktop.png",
+    "state-running-mobile.png",
+    "state-empty-desktop.png",
+    "state-empty-mobile.png",
+    "state-loading-desktop.png",
+    "state-loading-mobile.png",
+    "state-error-desktop.png",
+    "state-error-mobile.png",
+    "state-done-desktop.png",
+    "state-done-mobile.png",
+    "states-desktop.png",
+    "states-mobile.png"
+  ]
+}

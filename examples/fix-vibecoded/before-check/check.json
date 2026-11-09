@@ -1,0 +1,347 @@
+{
+  "target": "before.html",
+  "label": "before.html",
+  "checkedAt": "2026-11-09T23:00:25.400Z",
+  "overall": 34,
+  "rank": "F",
+  "pass": false,
+  "stats": {
+    "access": 53,
+    "originality": 0,
+    "states": 25,
+    "motion": 52,
+    "responsive": 30,
+    "craft": 55
+  },
+  "gate": [
+    {
+      "name": "No critical/serious a11y findings",
+      "ok": false
+    },
+    {
+      "name": "No compositional slop tells (3, 8, 10)",
+      "ok": false
+    },
+    {
+      "name": "At most 1 slop tell",
+      "ok": false
+    },
+    {
+      "name": "No horizontal scroll at 390px",
+      "ok": false
+    },
+    {
+      "name": "No console errors",
+      "ok": true
+    },
+    {
+      "name": "State coverage ≥ 6/8",
+      "ok": false
+    },
+    {
+      "name": "prefers-reduced-motion handled (if animated)",
+      "ok": false
+    }
+  ],
+  "slop": {
+    "tells": [
+      {
+        "id": 1,
+        "name": "Tech gradient",
+        "fix": "Recolor: drop the blue/violet gradient; use a flat surface and spend color on one meaningful element.",
+        "evidence": [
+          "<div.logo> ✨ Hermes AI",
+          "<section.hero> Your AI Agent, Supercharged 🚀 Hermes au",
+          "<div.num> 99.9%",
+          "<div.num> 10x"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Default accent hue",
+        "fix": "Recolor: derive the accent from the concept/brand. Framework default swatches and indigo/violet read as unchosen.",
+        "evidence": [
+          "#22c55e (Tailwind green-500) ×1"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Feature-tile grid",
+        "fix": "Re-layout: rank the items. Give the most important one more space, or turn them into a list/table with real content.",
+        "evidence": [
+          "<div.features> 🤖 Smart Agents Deploy intelligent agent"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Unearned blur",
+        "fix": "Remove: keep blur only on one real overlay (modal/sheet). Solid surfaces for everything else.",
+        "evidence": [
+          "<div.stat> 99.9% Uptime",
+          "<div.stat> 10x Faster Workflows",
+          "<div.stat> 2.4M Tokens Processed",
+          "<div.stat> 500+ Tasks Completed"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "Monument stat",
+        "fix": "Remove: big numbers that nobody acts on. Keep a number only if it is real and drives a decision; size it as data, not decoration.",
+        "evidence": [
+          "<div.num> 99.9%",
+          "<div.num> 10x",
+          "<div.num> 2.4M",
+          "<div.num> 500+"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Center stack",
+        "fix": "Re-layout: commit to a grid with a left edge. Centering everything means no composition was chosen.",
+        "evidence": [
+          "5/8 text blocks centered"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "Default type",
+        "fix": "Re-typeset: pick a face for a reason (concept, density, numerals). Inter/system is fine only when it is a stated decision.",
+        "evidence": [
+          "primary face: Inter"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "Ornament everywhere",
+        "fix": "Remove: reserve glow/brackets/chamfers for 2–3 elements that carry state (active step, approval, connection). Everything else plain.",
+        "evidence": [
+          "7 ornamented elements (6 glow boxes, 0 glow text, 1 brackets/chamfers/patterns) of 52",
+          "<section.hero> Your AI Agent, Supercharged 🚀 Hermes au"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "Emoji icons",
+        "fix": "Remove: use one consistent SVG icon set, or no icons.",
+        "evidence": [
+          "<h1> Your AI Agent, Supercharged 🚀",
+          "<h2> Powerful Features ⚡",
+          "<div.icon> 🤖",
+          "<div.icon> ⚡"
+        ]
+      }
+    ],
+    "slopScore": 9,
+    "system": {
+      "fontSizes": 11,
+      "fontFamilies": [
+        "Inter",
+        "Arial"
+      ],
+      "accentHueBuckets": 1,
+      "offGridSpacingRatio": 0,
+      "numericNodes": 4,
+      "tabularNumericNodes": 0,
+      "textNodes": 36,
+      "controls": 7,
+      "ornamentCount": 7,
+      "monoShare": 0
+    }
+  },
+  "sheet": {
+    "states": {
+      "hover": true,
+      "focusVisible": false,
+      "active": false,
+      "disabled": false,
+      "loading": false,
+      "empty": false,
+      "error": false,
+      "success": true
+    },
+    "reducedMotion": false,
+    "forcedColors": false,
+    "darkMode": false,
+    "containerOrMedia": false,
+    "heavyTransitions": [
+      "all"
+    ],
+    "heavyTransitionCount": 1,
+    "blockedSheets": 0
+  },
+  "motion": {
+    "durations": {
+      "count": 56,
+      "min": 300,
+      "median": 300,
+      "max": 300
+    },
+    "infiniteLoops": [
+      "<button.btn> glow",
+      "<div.icon> float",
+      "<div.dot> pulse"
+    ]
+  },
+  "layout": {
+    "desktop": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": null,
+      "bodyFontPx": 16
+    },
+    "mobile": {
+      "overflowPx": 810,
+      "offenders": [
+        "<div.container> right=1200",
+        "<nav> right=1180",
+        "<div.nav-links> right=1180",
+        "<a> right=956"
+      ],
+      "maxCharsPerLine": null,
+      "bodyFontPx": 16
+    }
+  },
+  "a11y": {
+    "target": "before.html",
+    "score": 53,
+    "bySeverity": {
+      "critical": 0,
+      "serious": 8,
+      "moderate": 3,
+      "minor": 1,
+      "info": 1
+    },
+    "issues": [
+      {
+        "severity": "serious",
+        "rule": "contrast",
+        "message": "Text contrast 2.36:1, needs 4.5:1",
+        "sample": "<footer> © 2026 Hermes AI. Made with 💜 and AI."
+      },
+      {
+        "severity": "serious",
+        "rule": "input-label",
+        "message": "Form field has no label (placeholder is not a label)",
+        "sample": "<input> "
+      },
+      {
+        "severity": "serious",
+        "rule": "tap-target",
+        "message": "Target is 72×17px (min 24, ideal 44)",
+        "sample": "<a> Dashboard"
+      },
+      {
+        "severity": "serious",
+        "rule": "tap-target",
+        "message": "Target is 47×17px (min 24, ideal 44)",
+        "sample": "<a> Agents"
+      },
+      {
+        "severity": "serious",
+        "rule": "tap-target",
+        "message": "Target is 54×17px (min 24, ideal 44)",
+        "sample": "<a> Settings"
+      },
+      {
+        "severity": "serious",
+        "rule": "tap-target",
+        "message": "Target is 34×17px (min 24, ideal 44)",
+        "sample": "<a> Docs"
+      },
+      {
+        "severity": "serious",
+        "rule": "tap-target",
+        "message": "Target is 20×20px (min 24, ideal 44)",
+        "sample": "<button.icon-btn> 📎"
+      },
+      {
+        "severity": "serious",
+        "rule": "focus-visible",
+        "message": "Keyboard focus has no visible indicator (outline/box-shadow)",
+        "sample": "<input> "
+      },
+      {
+        "severity": "moderate",
+        "rule": "contrast",
+        "message": "Text contrast 3.75:1, needs 4.5:1",
+        "sample": "<div.label> Uptime"
+      },
+      {
+        "severity": "moderate",
+        "rule": "html-lang",
+        "message": "<html> has no lang attribute"
+      },
+      {
+        "severity": "moderate",
+        "rule": "reduced-motion",
+        "message": "Page animates but has no prefers-reduced-motion handling"
+      },
+      {
+        "severity": "minor",
+        "rule": "landmark",
+        "message": "No <main> landmark"
+      },
+      {
+        "severity": "info",
+        "rule": "loading-states",
+        "message": "No skeleton/aria-busy patterns found in the initial DOM — check async views have loading states"
+      }
+    ],
+    "auditedAt": "2026-11-09T23:00:25.355Z"
+  },
+  "consoleErrors": [],
+  "craft": {
+    "textNodes": 31,
+    "apcaFails": 12,
+    "apcaSamples": [
+      {
+        "lc": 15,
+        "need": 60,
+        "sample": "<footer> © 2026 Hermes AI. Made with 💜 and AI."
+      },
+      {
+        "lc": 28,
+        "need": 60,
+        "sample": "<div.label> Uptime"
+      },
+      {
+        "lc": 28,
+        "need": 60,
+        "sample": "<div.label> Faster Workflows"
+      },
+      {
+        "lc": 28,
+        "need": 60,
+        "sample": "<div.label> Tokens Processed"
+      },
+      {
+        "lc": 28,
+        "need": 60,
+        "sample": "<div.label> Tasks Completed"
+      },
+      {
+        "lc": 28,
+        "need": 75,
+        "sample": "<p> Deploy intelligent agents that learn and"
+      }
+    ],
+    "capsTight": 0,
+    "capsSamples": [],
+    "lineHeightBad": 0,
+    "lineHeightSamples": [],
+    "radii": 6,
+    "shadows": 3,
+    "zIndexes": 0,
+    "weights": 4,
+    "notes": [
+      "12 text elements below APCA target (−20)",
+      "6 unique radii (budget 4) (−4)"
+    ]
+  },
+  "screenshots": [
+    "desktop-fold.png",
+    "desktop-full.png",
+    "mobile-full.png",
+    "squint.png"
+  ]
+}

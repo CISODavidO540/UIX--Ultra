@@ -50,6 +50,10 @@ USAGE
   omni playbook <id>
       Print a use-case playbook.
 
+  omni plan     <url|file.html> [--task "<what it is>"] [--out dir]
+      Check the page and write FIXPLAN.md: P0 blockers, P1 vibe-coded tells and
+      missing states, P2 craft — plus the use-case playbook's must-haves.
+
   omni verdict  <target> keep|reject "<reason>" [--property type|color|spacing|ornament|motion|copy|layout|states] [--check dir] [--playbook id]
       Log a human verdict to .omni/evidence.jsonl (how the toolkit learns your taste).
 
@@ -195,6 +199,15 @@ export async function run(argv) {
       const out = path.resolve(args.out || path.join('omni-out', 'diff'));
       const r = await diff(a, b, { out, viewport: args.viewport });
       console.log(`before ${r.before.overall} (${r.before.rank}) → after ${r.after.overall} (${r.after.rank})${r.regressions.length ? `  regressions: ${r.regressions.join(', ')}` : ''}\n  → ${out}/DIFF.md`);
+      return;
+    }
+    case 'plan': {
+      needTarget();
+      const { plan } = await import('./plan.js');
+      const out = path.resolve(args.out || defaultOut(target));
+      const r = await plan(target, { out, task: typeof args.task === 'string' ? args.task : undefined, states: typeof args.states === 'string' ? args.states.split(',').map((x) => x.trim()).filter(Boolean) : [] });
+      const n = (p) => r.plan.items.filter((i) => i.p === p).length;
+      console.log(`${r.result.pass ? '✔ PASS' : '✘ FAIL'}  ${r.result.overall} (${r.result.rank})  fixes: P0 ${n('P0')} · P1 ${n('P1')} · P2 ${n('P2')}\n  → ${out}/FIXPLAN.md`);
       return;
     }
     case 'route': {

@@ -87,6 +87,8 @@ function layoutProbe() {
   // line length: characters per line in paragraphs
   const measures = [];
   for (const p of document.querySelectorAll('p, li')) {
+    // Only prose: an <li> that wraps code, lists or disclosure widgets is a container, not a line of text.
+    if (p.querySelector('pre, ol, ul, table, details, p')) continue;
     const t = (p.innerText || '').trim(); if (t.length < 120) continue;
     const cs = getComputedStyle(p); const fs = parseFloat(cs.fontSize);
     const cpl = p.getBoundingClientRect().width / (fs * 0.5);

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!-- A deliberately "vibe coded" page: what a one-shot prompt like
+     "make a modern AI agent dashboard for Hermes" typically produces.
+     Used as the BEFORE in the UI-MAX fix walkthrough. -->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes AI - Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0f172a; color: #fff; }
+  .container { width: 1200px; margin: 0 auto; padding: 0 20px; }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+  .logo { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links a { color: #94a3b8; margin-left: 30px; text-decoration: none; font-size: 14px; }
+  .nav-links a:hover { color: #fff; }
+  .hero { text-align: center; padding: 80px 0 60px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); border-radius: 24px; margin: 20px 0 40px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: -50%; background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%); animation: pulse 4s infinite; }
+  .hero h1 { font-size: 56px; font-weight: 800; margin-bottom: 20px; }
+  .hero p { font-size: 20px; color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto 30px; }
+  .btn { display: inline-block; padding: 14px 32px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 0 20px rgba(139,92,246,0.5); animation: glow 2s infinite; }
+  .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; animation: none; margin-left: 12px; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  @keyframes glow { 0%,100% { box-shadow: 0 0 20px rgba(139,92,246,0.5); } 50% { box-shadow: 0 0 40px rgba(139,92,246,0.8); } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+  .stat { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: center; }
+  .stat .num { font-size: 48px; font-weight: 800; background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat .label { color: #64748b; font-size: 14px; margin-top: 8px; }
+  h2 { font-size: 36px; text-align: center; margin-bottom: 40px; }
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 60px; }
+  .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px; text-align: center; box-shadow: 0 0 30px rgba(99,102,241,0.2); }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 0 40px rgba(99,102,241,0.4); }
+  .card .icon { width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 16px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 32px; animation: float 3s infinite; }
+  .card h3 { font-size: 20px; margin-bottom: 12px; }
+  .card p { color: #64748b; font-size: 14px; line-height: 1.6; }
+  .chat-section { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px; margin-bottom: 60px; }
+  .chat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; animation: pulse 1.5s infinite; }
+  .msg { padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; max-width: 70%; font-size: 15px; line-height: 1.5; }
+  .msg.user { background: linear-gradient(135deg, #6366f1, #8b5cf6); margin-left: auto; }
+  .msg.ai { background: rgba(255,255,255,0.08); color: #cbd5e1; }
+  .chat-input { display: flex; gap: 10px; margin-top: 20px; }
+  .chat-input input { flex: 1; padding: 16px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 15px; outline: none; }
+  .icon-btn { width: 20px; height: 20px; border: none; background: none; color: #64748b; cursor: pointer; }
+  footer { text-align: center; color: #475569; padding: 40px 0; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <nav>
+    <div class="logo">✨ Hermes AI</div>
+    <div class="nav-links"><a href="#">Dashboard</a><a href="#">Agents</a><a href="#">Settings</a><a href="#">Docs</a></div>
+  </nav>
+
+  <section class="hero">
+    <h1>Your AI Agent, Supercharged 🚀</h1>
+    <p>Hermes automates your workflows with cutting-edge AI. Build faster. Ship smarter. Scale effortlessly.</p>
+    <button class="btn">Launch Agent</button><button class="btn btn-outline">Learn More</button>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><div class="num">99.9%</div><div class="label">Uptime</div></div>
+    <div class="stat"><div class="num">10x</div><div class="label">Faster Workflows</div></div>
+    <div class="stat"><div class="num">2.4M</div><div class="label">Tokens Processed</div></div>
+    <div class="stat"><div class="num">500+</div><div class="label">Tasks Completed</div></div>
+  </div>
+
+  <h2>Powerful Features ⚡</h2>
+  <div class="features">
+    <div class="card"><div class="icon">🤖</div><h3>Smart Agents</h3><p>Deploy intelligent agents that learn and adapt to your workflow automatically.</p></div>
+    <div class="card"><div class="icon">⚡</div><h3>Lightning Fast</h3><p>Experience blazing fast responses powered by state-of-the-art models.</p></div>
+    <div class="card"><div class="icon">🔒</div><h3>Secure Sandbox</h3><p>Run code safely in isolated sandboxes with enterprise-grade security.</p></div>
+  </div>
+
+  <div class="chat-section">
+    <div class="chat-header"><div class="dot"></div><h3>Chat with Hermes</h3></div>
+    <div class="msg user">Run the test suite on the sandbox and tell me what's failing</div>
+    <div class="msg ai">Sure! I've analyzed your test suite. 46 tests passed and 1 test failed in session.test.ts. The token refresh test is returning 401 instead of 200. Would you like me to fix it? 🔧</div>
+    <div class="msg user">Yes please</div>
+    <div class="msg ai">Great! I've fixed the issue by awaiting the cache write before retrying. All 47 tests are now passing! ✅</div>
+    <div class="chat-input"><input placeholder="Ask Hermes anything..."><button class="btn">Send 🚀</button></div>
+    <div style="margin-top:10px"><button class="icon-btn">📎</button> <button class="icon-btn">🎤</button> <button class="icon-btn">⚙️</button></div>
+  </div>
+
+  <footer>© 2026 Hermes AI. Made with 💜 and AI.</footer>
+</div>
+</body>
+</html>

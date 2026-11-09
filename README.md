@@ -103,6 +103,15 @@ To use only the skill, copy `skills/ui-max/` into `~/.claude/skills/`.
 
 Options: `--out <dir>`, `--viewport 1440x900`, `--mobile`. Set `OMNI_CHROMIUM=/path/to/chrome` to use a specific browser binary.
 
+## See it fix a vibe-coded page
+
+[`examples/fix-vibecoded/`](examples/fix-vibecoded/WALKTHROUGH.md): a typical one-shot "AI agent dashboard" (**34 F**, 9 slop tells, 13 a11y issues) fixed with the UI-MAX loop (**100 S**, 0 tells, 0 issues), with every command, the fix plan, the direction, four check-and-look rounds, and what the score still can't see.
+
+```bash
+omni plan before.html --task "Hermes agent chat with tool calls"   # → FIXPLAN.md (P0 / P1 / P2 + playbook must-haves)
+omni diff before.html after.html                                   # → DIFF.md + compare.png
+```
+
 ## Toolkit mode (REA-style)
 
 UI-MAX installs like a toolkit, not just a prompt:
@@ -120,6 +129,7 @@ Installed as a Claude Code plugin, the MCP server is registered automatically (`
 |---|---|
 | `ui_route` / `ui_playbook` | Task → use-case playbook (agent chat, dashboard, data table, forms/settings, detail, onboarding, landing, mobile, stylized/FUI) |
 | `ui_capture` | Design DNA + tokens + screenshots of an existing UI |
+| `ui_fix_plan` | Check a page and return an ordered fix plan (P0 blockers, P1 vibe-coded tells and missing states, P2 craft, playbook must-haves) |
 | `ui_check` / `ui_audit` / `ui_diff` | Stat sheet (Access, Originality, States, Motion, Responsive, Craft), a11y, before/after |
 | `ui_verdict` / `ui_evidence` | Log your keep/reject verdicts with the deciding property; see whether the gate agrees with you |
 | `astryx` | Read-only queries to Meta's [Astryx](https://github.com/facebook/astryx) design system (templates, components, tokens, build kits) |

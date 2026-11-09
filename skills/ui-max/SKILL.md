@@ -156,11 +156,12 @@ how the consistency compounds.
 | `omni audit <target>` | Accessibility audit only |
 | `omni theme cyberpunk` | Old theme pack: keep its behaviors (step cards, effects dial, stick-to-bottom), not its look |
 
+| `omni plan <target> --task "<what>"` | Fix plan for bad / vibe-coded UI: P0 → P1 → P2 + playbook must-haves (MCP `ui_fix_plan`). Example: `examples/fix-vibecoded/WALKTHROUGH.md` |
 | `omni route "<task>"` / `omni playbook <id>` | Use-case router and playbooks (with Astryx template ids) |
 | `omni verdict <target> keep\|reject "<reason>" --property p --check dir` | Log David's verdict; `omni evidence` shows whether the gate agrees with him |
 | `omni setup [--write]` | Register the MCP server (Claude Code, Cursor, Claude Desktop) and link this skill |
 
-**MCP tools** (server `ui-max`, `bin/omni-mcp.js`): `ui_route`, `ui_playbook`,
+**MCP tools** (server `ui-max`, `bin/omni-mcp.js`): `ui_fix_plan`, `ui_route`, `ui_playbook`,
 `ui_reference`, `ui_capture`, `ui_check`, `ui_audit`, `ui_diff`, `ui_verdict`,
 `ui_evidence`, `astryx` (read-only Astryx CLI queries). Prefer them over shelling
 out when available. Only call `ui_verdict` with David's actual words.

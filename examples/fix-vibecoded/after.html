@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes · Fix failing auth test</title>
+<style>
+  /* Fix of before.html. Direction: DIRECTION.md ("a run is an electronic checklist"). */
+  @font-face { font-family: "IBM Plex Sans"; src: url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Sans"; src: url(fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "IBM Plex Sans"; src: url(fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "IBM Plex Mono"; src: url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+
+  :root {
+    --bg: #14181d; --panel: #1a1f25; --line: #2b333c; --line-2: #3a444f;
+    --text: #e3e7eb; --text-2: #cad1d7;
+    --done: #94d4a3; --attn: #f2b552; --fail: #ff9a91;
+    --out-fail: #ffc0b8; --out-add: #a6dcb2; /* output lines are body text: APCA Lc 75+ */
+    --on-attn: #1b1306;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --r: 4px;
+    --t: 140ms cubic-bezier(.2, 0, 0, 1);
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; font: 400 16px/1.5 var(--sans); color: var(--text); background: var(--bg); }
+  button, input, textarea { font: inherit; color: inherit; }
+  .mono, code, pre, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  :focus-visible { outline: 2px solid var(--attn); outline-offset: 2px; }
+
+  /* ---------- top bar ---------- */
+  .bar { display: flex; align-items: center; gap: 24px; padding: 0 24px; height: 56px; border-bottom: 1px solid var(--line); }
+  .wordmark { font-weight: 600; font-size: 16px; margin: 0; letter-spacing: -0.01em; }
+  .tabs { display: flex; gap: 4px; min-width: 0; overflow-x: auto; }
+  .tabs a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: var(--r); color: var(--text-2); text-decoration: none; font-size: 14px; white-space: nowrap; transition: color var(--t), background-color var(--t); }
+  .tabs a:hover { color: var(--text); background: var(--panel); }
+  .tabs a:active { background: var(--line); }
+  .tabs a[aria-current="page"] { color: var(--text); background: var(--panel); box-shadow: inset 0 -2px 0 var(--text); }
+  .conn { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); white-space: nowrap; }
+  .conn i { width: 8px; height: 8px; border-radius: 50%; background: var(--done); }
+  [data-state="error"] .conn i { background: var(--fail); }
+
+  /* ---------- layout ---------- */
+  .page { display: grid; grid-template-columns: minmax(0, 760px) 280px; gap: 48px; justify-content: center; padding: 32px 24px 0; }
+  .run-head h2 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .run-head p { margin: 0; font-size: 14px; color: var(--text-2); }
+
+  /* ---------- transcript ---------- */
+  .turn { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .who { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; font-size: 14px; color: var(--text-2); }
+  .who b { color: var(--text); font-weight: 600; }
+  .turn p { margin: 0 0 12px; max-width: 68ch; }
+  .turn p:last-child { margin-bottom: 0; }
+  code { font-size: 14px; padding: 1px 4px; border: 1px solid var(--line); border-radius: var(--r); }
+
+  /* ---------- checklist (the signature) ---------- */
+  .ecl { list-style: none; margin: 12px 0 12px; padding: 0; border: 1px solid var(--line); border-radius: var(--r); }
+  .ecl > li + li { border-top: 1px solid var(--line); }
+  .ecl details > summary, .ecl .line { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; list-style: none; cursor: pointer; font-size: 14px; transition: background-color var(--t); }
+  .ecl summary::-webkit-details-marker { display: none; }
+  .ecl summary:hover { background: var(--panel); }
+  .ecl summary:active { background: var(--line); }
+  .ecl summary:focus-visible { outline-offset: -2px; }
+  .ecl .n { color: var(--text-2); width: 2ch; text-align: right; }
+  .ecl .item { font-family: var(--mono); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .ecl .leader { flex: 1; min-width: 16px; border-bottom: 1px dotted var(--line-2); transform: translateY(4px); }
+  .ecl .st { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+  .ecl .t { color: var(--text-2); font-size: 13px; min-width: 5ch; text-align: right; }
+  .ecl [data-s="done"] .st { color: var(--done); }
+  .ecl [data-s="done"] .item { color: var(--text-2); }
+  .ecl [data-s="error"] .st { color: var(--fail); }
+  .ecl [data-s="denied"] .st, .ecl [data-s="stopped"] .st { color: var(--text-2); }
+  .ecl [data-s="running"] .st { color: var(--text); }
+  .ecl [data-s="running"] .st::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border: 2px solid var(--text); border-right-color: transparent; border-radius: 50%; vertical-align: -1px; animation: spin 800ms linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .out { margin: 0 12px 12px 44px; padding: 12px; font-size: 13px; line-height: 1.6; color: #cdd3d9; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow-x: auto; white-space: pre; }
+  .out .bad { color: var(--out-fail); }
+  .out .add { color: var(--out-add); }
+
+  /* the one raised element: the line that needs you */
+  .ecl [data-s="approval"] { background: var(--panel); box-shadow: inset 3px 0 0 var(--attn); }
+  .ecl [data-s="approval"] .st { color: var(--attn); }
+  .ask { padding: 0 12px 12px 44px; }
+  .ask p { margin: 0; font-size: 14px; color: var(--text-2); }
+  .ask p strong { color: var(--text); font-weight: 500; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  /* ---------- buttons ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 0 14px; border-radius: var(--r); border: 1px solid var(--line-2); background: transparent; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color var(--t), border-color var(--t), opacity var(--t), transform 80ms; }
+  .btn:hover { background: var(--panel); border-color: var(--text-2); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; transform: none; background: transparent; border-color: var(--line-2); }
+  .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn.primary:hover { background: #fff; }
+  .btn.attn { background: var(--attn); color: var(--on-attn); border-color: var(--attn); }
+  .btn.attn:hover { background: #f7c46e; }
+  .btn[aria-busy="true"] { pointer-events: none; opacity: .7; }
+  kbd { font: 12px var(--mono); color: var(--text-2); padding: 1px 4px; border: 1px solid var(--line-2); border-radius: var(--r); }
+  .btn.attn kbd { color: var(--on-attn); border-color: rgba(27,19,6,.35); }
+
+  /* ---------- composer ---------- */
+  .composer { position: sticky; bottom: 0; padding: 16px 0 24px; background: var(--bg); border-top: 1px solid var(--line); }
+  /* pinned approval: the one raised element on the page (ornament budget #1) */
+  .pending { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0 0 16px; padding: 10px 12px; background: var(--panel); border-radius: var(--r); box-shadow: inset 3px 0 0 var(--attn); }
+  .pending p { margin: 0 auto 0 0; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; min-width: 0; }
+  .pending .st { color: var(--attn); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+  .pending .why { color: var(--text-2); }
+  .pending[hidden] { display: none; }
+  .btn:link, .btn:visited { color: var(--text); text-decoration: none; }
+  .composer label { display: block; font-size: 14px; color: var(--text-2); margin-bottom: 6px; }
+  .composer textarea { display: block; width: 100%; min-height: 72px; resize: vertical; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--r); line-height: 1.5; transition: border-color var(--t); }
+  .composer textarea:hover { border-color: var(--text-2); }
+  .composer textarea:focus-visible { outline: 2px solid var(--attn); outline-offset: 0; border-color: transparent; }
+  .composer .row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .composer .hint { margin-right: auto; font-size: 14px; color: var(--text-2); }
+  .queued { font-size: 14px; color: var(--text-2); padding: 8px 0 0; }
+
+  /* ---------- rail ---------- */
+  .rail { padding-top: 4px; }
+  .rail h2 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+  .facts { margin: 0 0 32px; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px; }
+  .facts dt { color: var(--text-2); }
+  .facts dd { margin: 0; text-align: right; }
+  .meter { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+  .meter i { display: block; height: 100%; width: var(--v); background: var(--text-2); }
+  .meter[data-level="high"] i { background: var(--attn); }
+
+  /* ---------- states (forced with ?state=) ---------- */
+  .banner { display: none; align-items: center; gap: 12px; margin: 0 0 16px; padding: 10px 12px; border: 1px solid var(--fail); border-radius: var(--r); font-size: 14px; }
+  .banner p { margin: 0 auto 0 0; }
+  [data-state="error"] .banner { display: flex; }
+  .empty-state, .skeleton { display: none; }
+  [data-state="empty"] .run-body, [data-state="loading"] .run-body { display: none; }
+  /* no run yet: no run title, no run facts (they would be invented) */
+  [data-state="empty"] .run-head, [data-state="empty"] .rail { display: none; }
+  [data-state="loading"] .rail dd { color: transparent; background: var(--panel); border-radius: 2px; }
+  [data-state="loading"] .rail .meter { visibility: hidden; }
+  [data-state="empty"] .empty-state { display: block; padding: 48px 0; max-width: 56ch; }
+  .empty-state h3 { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
+  .empty-state p { margin: 0 0 16px; color: var(--text-2); }
+  .empty-state ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  [data-state="loading"] .skeleton { display: block; padding: 20px 0; }
+  .sk { height: 12px; margin: 12px 0; border-radius: 2px; background: var(--panel); }
+  .sk.line { height: 44px; }
+  .status-msg { font-size: 14px; color: var(--done); margin: 0; }
+  .status-msg:empty { display: none; }
+
+  @media (max-width: 1100px) {
+    .page { grid-template-columns: minmax(0, 760px); gap: 0; }
+    .rail { padding: 24px 0 32px; border-top: 1px solid var(--line); }
+    .facts { grid-template-columns: repeat(4, auto); margin-bottom: 0; }
+    .facts dd { text-align: left; }
+  }
+  @media (max-width: 640px) {
+    .bar { gap: 12px; padding: 0 16px; }
+    .conn span { display: none; }
+    .page { padding: 20px 16px 0; }
+    .facts { grid-template-columns: auto 1fr; }
+    .facts dd { text-align: right; }
+    .out, .ask { margin-left: 0; padding-left: 12px; }
+    .out { margin-right: 12px; margin-left: 12px; }
+    .composer .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; }
+  }
+  @media (forced-colors: active) {
+    .ecl [data-s="approval"], .pending { box-shadow: none; border-left: 3px solid Highlight; }
+    .btn { border: 1px solid ButtonText; }
+    .meter i { background: Highlight; }
+  }
+</style>
+</head>
+<body data-state="attention">
+<header class="bar">
+  <h1 class="wordmark">Hermes</h1>
+  <nav class="tabs" aria-label="Main">
+    <a href="#" aria-current="page">Runs</a><a href="#">Agents</a><a href="#">Settings</a><a href="#">Docs</a>
+  </nav>
+  <div class="conn" role="status"><i aria-hidden="true"></i><span id="conn-text">Connected to hermes-pop</span></div>
+</header>
+
+<div class="page">
+  <main>
+    <div class="run-head">
+      <h2>Fix failing auth test</h2>
+      <p class="mono">run 7f3a · sandbox run-7f3a · started 09:41</p>
+    </div>
+
+    <div class="banner" role="alert">
+      <p>Lost connection to hermes-pop. The run is paused; nothing was lost. Retrying in 5 s.</p>
+      <button class="btn" type="button" id="retry">Retry now</button>
+    </div>
+
+    <div class="skeleton" aria-busy="true" aria-label="Loading run">
+      <div class="sk" style="width:40%"></div><div class="sk" style="width:85%"></div>
+      <div class="sk line"></div><div class="sk line"></div><div class="sk line"></div>
+    </div>
+
+    <section class="empty-state" aria-labelledby="empty-h">
+      <h3 id="empty-h">No run yet</h3>
+      <p>Describe a task below. Hermes plans it as a checklist; anything that changes code or pushes waits for your approval.</p>
+      <ul>
+        <li><button class="btn" type="button" data-suggest>Run the test suite and report failures</button></li>
+        <li><button class="btn" type="button" data-suggest>Check disk and backup status on pve</button></li>
+      </ul>
+    </section>
+
+    <div class="run-body">
+      <article class="turn">
+        <div class="who"><b>You</b><time class="num">09:41</time></div>
+        <p>Run the test suite on the sandbox and tell me what's failing.</p>
+      </article>
+
+      <article class="turn">
+        <div class="who"><b>Hermes</b><time class="num">09:41</time></div>
+        <p>Installing dependencies, then running the suite.</p>
+        <ol class="ecl" aria-label="Run checklist">
+          <li><details data-s="done"><summary><span class="n num">1</span><span class="item">sandbox.exec npm ci</span><span class="leader" aria-hidden="true"></span><span class="st">Done</span><span class="t num">6.1s</span></summary>
+            <pre class="out">added 412 packages in 6s
+0 vulnerabilities</pre></details></li>
+          <li><details data-s="error" open><summary><span class="n num">2</span><span class="item">sandbox.exec npm test</span><span class="leader" aria-hidden="true"></span><span class="st">1 failed</span><span class="t num">9.4s</span></summary>
+            <pre class="out">PASS src/router.test.ts
+PASS src/store.test.ts
+<span class="bad">FAIL src/auth/session.test.ts
+  ● refreshes expired token
+    Expected 200, received 401</span>
+Tests: 1 failed, 46 passed, 47 total</pre></details></li>
+        </ol>
+        <p>One failure. The refresh call reads the old token from the cache before the new one is written, so the retry still sends the expired token. Fixing it by awaiting the cache write.</p>
+        <ol class="ecl" aria-label="Fix checklist" start="3">
+          <li><details data-s="done"><summary><span class="n num">3</span><span class="item">edit src/auth/session.ts</span><span class="leader" aria-hidden="true"></span><span class="st">Done</span><span class="t num">+3 −1</span></summary>
+            <pre class="out">  const fresh = await refresh(token);
+<span class="bad">- cache.set(KEY, fresh);</span>
+<span class="add">+ await cache.set(KEY, fresh);</span>
+<span class="add">+ // retry must read the token we just wrote</span>
+  return retry(req, fresh);</pre></details></li>
+          <li><details data-s="done"><summary><span class="n num">4</span><span class="item">sandbox.exec npm test</span><span class="leader" aria-hidden="true"></span><span class="st">47 passed</span><span class="t num">9.1s</span></summary>
+            <pre class="out">Tests: 47 passed, 47 total</pre></details></li>
+          <li id="step5"><details data-s="approval" open><summary><span class="n num">5</span><span class="item">git push origin fix/token-refresh</span><span class="leader" aria-hidden="true"></span><span class="st" id="s5">Needs you</span><span class="t num" id="t5">—</span></summary></details>
+            <div class="ask" id="ask">
+              <p>Pushes <strong>1 commit</strong> to <code>origin/fix/token-refresh</code>. Does not touch <code>main</code>; you can open the PR after.</p>
+            </div>
+          </li>
+        </ol>
+        <p class="status-msg" role="status" id="status"></p>
+      </article>
+    </div>
+
+    <form class="composer" id="composer">
+      <div class="pending" id="pending" role="region" aria-label="Waiting for your approval">
+        <p><span class="st">Step 5 needs you</span> <code>git push origin fix/token-refresh</code> <span class="why">1 commit · not main</span></p>
+        <div class="actions">
+          <button class="btn attn" type="button" id="allow">Allow <kbd>Enter</kbd></button>
+          <button class="btn" type="button" id="deny">Deny</button>
+          <a class="btn" href="#step5" id="show">Show step</a>
+        </div>
+      </div>
+      <label for="msg">Message Hermes</label>
+      <textarea id="msg" rows="2" placeholder="Ask a follow-up or give the next task"></textarea>
+      <div class="row">
+        <span class="hint"><kbd>Ctrl</kbd> <kbd>Enter</kbd> sends · <kbd>Esc</kbd> stops the run</span>
+        <button class="btn" type="button" id="stop">Stop</button>
+        <button class="btn primary" type="submit" id="send">Send</button>
+      </div>
+      <div class="queued" id="queued" hidden></div>
+    </form>
+  </main>
+
+  <aside class="rail" aria-label="Run facts">
+    <h2>This run</h2>
+    <dl class="facts">
+      <dt>Context</dt><dd><span class="num">18.4k / 200k</span><div class="meter" role="meter" aria-label="Context used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="9" style="--v:9%"><i></i></div></dd>
+      <dt>Elapsed</dt><dd class="num" id="elapsed">2:41</dd>
+      <dt>Tool calls</dt><dd class="num">5</dd>
+      <dt>Cost</dt><dd class="num">$0.04</dd>
+    </dl>
+  </aside>
+</div>
+
+<script>
+  const body = document.body;
+  const forced = new URLSearchParams(location.search).get('state');
+  if (forced) body.dataset.state = forced;
+
+  const step = document.querySelector('#step5 details');
+  const s5 = document.getElementById('s5'), t5 = document.getElementById('t5');
+  const ask = document.getElementById('ask'), status = document.getElementById('status');
+  const pending = document.getElementById('pending');
+  const hideAsk = () => { ask.hidden = true; pending.hidden = true; };
+  const stop = document.getElementById('stop');
+  let running = false;
+
+  function setStep(state, label) { step.dataset.s = state; s5.textContent = label; }
+  if (forced === 'running') { setStep('running', 'Running'); hideAsk(); running = true; }
+  if (forced === 'done') { setStep('done', 'Done'); hideAsk(); t5.textContent = '1.2s'; status.textContent = 'Pushed to origin/fix/token-refresh.'; }
+  if (forced === 'error') { setStep('stopped', 'Paused'); hideAsk(); }
+  if (forced === 'empty' || forced === 'loading') hideAsk();
+  stop.disabled = !running;
+  // Newest output in view on open; the pinned bar keeps the decision reachable either way.
+  if (!forced || forced === 'attention' || forced === 'running' || forced === 'done') scrollTo(0, document.body.scrollHeight);
+
+  document.getElementById('allow').addEventListener('click', (e) => {
+    e.currentTarget.setAttribute('aria-busy', 'true');
+    hideAsk(); setStep('running', 'Running'); running = true; stop.disabled = false;
+    const t0 = performance.now();
+    setTimeout(() => {
+      if (!running) return;
+      running = false; stop.disabled = true;
+      setStep('done', 'Done'); t5.textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's';
+      status.textContent = 'Pushed to origin/fix/token-refresh.';
+    }, 1200);
+  });
+  document.getElementById('deny').addEventListener('click', () => {
+    hideAsk(); setStep('denied', 'Denied'); status.textContent = 'Not pushed. The fix is committed locally in the sandbox.';
+  });
+  stop.addEventListener('click', () => { if (!running) return; running = false; stop.disabled = true; setStep('stopped', 'Stopped'); status.textContent = 'Stopped. Work so far is kept.'; });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && running) stop.click();
+    if (e.key === 'Enter' && !pending.hidden && document.activeElement === document.body) document.getElementById('allow').click();
+  });
+
+  const msg = document.getElementById('msg'), queued = document.getElementById('queued');
+  document.getElementById('composer').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = msg.value.trim(); if (!text) { msg.focus(); return; }
+    queued.hidden = false;
+    queued.textContent = running ? `Queued: “${text}” — sends when this step finishes.` : `Sent: “${text}”`;
+    msg.value = '';
+  });
+  msg.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); document.getElementById('composer').requestSubmit(); } });
+  document.querySelectorAll('[data-suggest]').forEach((b) => b.addEventListener('click', () => { msg.value = b.textContent; msg.focus(); }));
+  document.getElementById('retry').addEventListener('click', (e) => { e.currentTarget.setAttribute('aria-busy', 'true'); setTimeout(() => { body.dataset.state = 'attention'; setStep('approval', 'Needs you'); ask.hidden = false; pending.hidden = false; }, 600); });
+</script>
+</body>
+</html>

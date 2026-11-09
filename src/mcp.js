@@ -54,6 +54,19 @@ const TOOLS = [
     },
   },
   {
+    name: 'ui_fix_plan',
+    description: 'Check a page and return an ordered fix plan: P0 blockers (a11y, overflow, errors), P1 why it reads as vibe coded (slop tells, missing states, motion), P2 craft, plus the use-case playbook must-haves. Use this to fix bad or vibe-coded UI.',
+    inputSchema: { type: 'object', properties: { target: str('URL or path to HTML'), task: str('What the page is for (routes to a playbook)'), states: str('Comma-separated ?state= values to screenshot'), out: str('Output dir (optional)') }, required: ['target'] },
+    run: async ({ target, task, out, states }) => {
+      const { plan } = await import('./plan.js');
+      const dir = path.resolve(out || outDir(target, 'plan'));
+      await fs.mkdir(dir, { recursive: true });
+      const r = await plan(target, { out: dir, task, states: states ? states.split(',').map((x) => x.trim()).filter(Boolean) : [] });
+      await evidence.append({ type: 'check', ...evidence.summarizeCheck(r.result), dir });
+      return `${r.markdown}\nScreenshots in ${dir}`;
+    },
+  },
+  {
     name: 'ui_audit',
     description: 'Accessibility/UX audit only (contrast, names, labels, targets, focus, headings, CLS, reduced motion).',
     inputSchema: { type: 'object', properties: { target: str('URL or path to HTML') }, required: ['target'] },
