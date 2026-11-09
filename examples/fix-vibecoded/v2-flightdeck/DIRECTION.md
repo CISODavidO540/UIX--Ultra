@@ -25,15 +25,25 @@ you press, not links you click.
 - **Airbus FCU / Boeing MCP keys** → backlit rectangular keys with a legend and
   a lit bar; pressed = travels 1px. Replaces every kit button.
 
-## System
-- Bezel `#11161b`, display glass `#090c10`, keylines `#26303a`.
-- Text white `#e8ecef`, dim `#b4bec8`. Code: green `#7ee39a` done, amber
-  `#ffbf47` needs you, red `#ff8a80` failed, magenta `#f08cf0` active.
+## System (round 3: on managed themes)
+
+David on round 2: "needs better theme management and colors… a little more
+grounding… it depends on use case". So the palette moved out of the page:
+
+- Colors come from `themes/presets/flight-deck-{night,day,hc}.json` via
+  `omni themegen` → `themes/omni-themes.css`. The page holds **zero** raw colors.
+- ECAM code as roles: done = `ok-*`, needs crew = `accent-*` (amber), failed =
+  `danger-*`, active/current = `active-*` (Boeing magenta), Hermes voice = `info-fg`.
+- Grounding: every status row/area uses its `-bg` tint + `-solid` inset bar +
+  icon + word; output lines that matter are tinted, not just recolored.
+  Screens are `surface-inset` wells inside `surface-1` display units; display
+  units carry a zone color on their top edge.
+- Theme keys in the glareshield: Night / Day / High contrast; `?theme=` wins,
+  then saved choice, then OS contrast/color-scheme.
 - IBM Plex Sans (content), Plex Mono (lines, values). One tracked uppercase
-  level: bezel labels and key legends.
-- Shape: 3px radius, 1px keylines, keys with inner bevel.
-- Motion: master caution blinks twice when lit (once, not looping), the
-  active node pulses only while running; reduced motion removes both.
+  level: lamps, status words.
+- Motion: master caution blinks twice when it lights (not looping); the active
+  step pulses only while running; reduced motion removes both.
 
 ## Ornament budget
 1. Master caution annunciator (lit only when approval pending).

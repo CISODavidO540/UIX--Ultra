@@ -20,4 +20,9 @@ keywords: form, settings, preferences, config, wizard, onboarding form, checkout
 
 **Slop risks:** floating labels everywhere; giant centered single-column form on desktop for 2 fields; toggles for actions that need confirmation.
 
+**Concepts & themes**
+- **Ledger** (`ledger`) or the host product's theme in its light mode (`flight-deck-day`): settings want calm and legibility.
+- Status roles (ok/warn/danger) carry validation; accent only for the primary action.
+- Not: stylized keys for every toggle; keep native-feeling inputs with clear states.
+
 **Astryx:** templates `settings`, `settings-sidebar`, `settings-dialog`, `form-wizard`, `form-wizard-inline`, `form-wizard-vertical`, `form-wizard-dialog`, `form-two-column`, `contact-form`, `payment-form`, `checkout-wizard`.

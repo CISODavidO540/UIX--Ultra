@@ -50,6 +50,11 @@ USAGE
   omni playbook <id>
       Print a use-case playbook.
 
+  omni themegen [preset.json ...] [--out themes.css] [--for <playbook>]
+      Generate semantic color roles (surfaces, text, grounded status/accent
+      families) from OKLCH presets, light/dark/high-contrast, APCA-validated.
+      No args = all presets in themes/presets. --for lists presets fit for a use case.
+
   omni plan     <url|file.html> [--task "<what it is>"] [--out dir]
       Check the page and write FIXPLAN.md: P0 blockers, P1 vibe-coded tells and
       missing states, P2 craft — plus the use-case playbook's must-haves.
@@ -201,6 +206,30 @@ export async function run(argv) {
       console.log(`before ${r.before.overall} (${r.before.rank}) → after ${r.after.overall} (${r.after.rank})${r.regressions.length ? `  regressions: ${r.regressions.join(', ')}` : ''}\n  → ${out}/DIFF.md`);
       return;
     }
+    case 'themegen': {
+      const { generate, toCSS } = await import('./theme-engine.js');
+      const presetDir = path.join(THEMES_DIR, 'presets');
+      let files = args._.slice(1);
+      if (!files.length) files = (await fs.readdir(presetDir)).filter((f) => f.endsWith('.json')).map((f) => path.join(presetDir, f));
+      let presets = await Promise.all(files.map(async (f) => JSON.parse(await fs.readFile(f, 'utf8'))));
+      if (typeof args.for === 'string') {
+        presets = presets.filter((p) => (p.usecases || []).includes(args.for));
+        for (const p of presets) console.log(`${p.name.padEnd(20)} ${p.mode.padEnd(5)} ${p.concept || ''}`);
+        if (!args.out) return;
+      }
+      const themes = presets.map(generate);
+      let bad = 0;
+      for (const t of themes) {
+        const f = t.report.fails;
+        bad += f.length;
+        console.log(`${f.length ? '✘' : '✔'} ${t.name.padEnd(20)} ${t.mode.padEnd(5)} ${t.report.pairs - f.length}/${t.report.pairs} APCA pairs pass${f.length ? '  → ' + f.slice(0, 3).map((x) => `${x.fg} on ${x.bg} Lc ${x.lc}<${x.target}`).join('; ') : ''}`);
+      }
+      const out = path.resolve(args.out || 'themes.css');
+      await fs.writeFile(out, toCSS(themes));
+      console.log(`→ ${out}`);
+      if (bad) process.exitCode = 1;
+      return;
+    }
     case 'plan': {
       needTarget();
       const { plan } = await import('./plan.js');
@@ -217,6 +246,9 @@ export async function run(argv) {
       const r = await route(task);
       if (!r.length) { console.log('No playbook matched. See: omni playbook list'); return; }
       for (const b of r) console.log(`${b.id.padEnd(20)} ${b.title}  [${b.surface}]  matched: ${b.hits.join(', ')}`);
+      const { themesFor } = await import('./route.js');
+      const th = await themesFor(r[0].id);
+      if (th.length) { console.log(`\nthemes for ${r[0].id}:`); for (const t of th) console.log(`  ${t.name.padEnd(20)} ${t.mode.padEnd(5)} ${t.concept}`); }
       return;
     }
     case 'playbook': {
@@ -251,7 +283,7 @@ export async function run(argv) {
       return;
     }
     case 'theme': {
-      const names = (await fs.readdir(THEMES_DIR, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name);
+      const names = (await fs.readdir(THEMES_DIR, { withFileTypes: true })).filter((d) => d.isDirectory() && d.name !== 'presets').map((d) => d.name);
       if (!target || target === 'list') { console.log(`Themes: ${names.join(', ')}`); return; }
       if (!names.includes(target)) throw new Error(`No theme "${target}". Available: ${names.join(', ')}`);
       const out = path.resolve(args.out || path.join('omni-theme', target));

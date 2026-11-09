@@ -17,4 +17,7 @@ keywords: detail, record, profile page, item page, document, issue, ticket, orde
 
 **Slop risks:** hero banner on a record page; every field in its own card.
 
+**Concepts & themes**
+- **Ledger** (`ledger`) for records; the product's main theme otherwise.
+
 **Astryx:** templates `detail-page`, `work-item-detail`, `product-detail`.

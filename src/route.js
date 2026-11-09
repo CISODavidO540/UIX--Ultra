@@ -36,6 +36,14 @@ export async function route(task, { limit = 3 } = {}) {
   return scored.slice(0, limit);
 }
 
+/** Theme presets whose `usecases` include this playbook (themes/presets/*.json). */
+export async function themesFor(id) {
+  const dir = path.resolve(PLAYBOOK_DIR, '..', '..', '..', 'themes', 'presets');
+  let files = []; try { files = (await fs.readdir(dir)).filter((f) => f.endsWith('.json')); } catch { return []; }
+  const ps = await Promise.all(files.map(async (f) => JSON.parse(await fs.readFile(path.join(dir, f), 'utf8'))));
+  return ps.filter((p) => (p.usecases || []).includes(id)).map((p) => ({ name: p.name, mode: p.mode, concept: p.concept }));
+}
+
 export async function playbook(id) {
   const books = await loadPlaybooks();
   const b = books.find((x) => x.id === id);

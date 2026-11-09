@@ -1,0 +1,6 @@
+{ "name": "flight-deck-night", "label": "Flight deck · night", "mode": "dark",
+  "base": { "hue": 235, "chroma": 0.014 },
+  "accent": { "hue": 75, "chroma": 0.16, "meaning": "needs the operator (master caution)" },
+  "status": { "ok": 150, "warn": 75, "danger": 25, "info": 230, "active": 325 },
+  "concept": "Glass cockpit (ECAM/EICAS color code): calm, legible for long sessions",
+  "usecases": ["agent-chat", "monitor-dashboard"] }

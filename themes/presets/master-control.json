@@ -1,0 +1,6 @@
+{ "name": "master-control", "label": "Master control (monitoring)", "mode": "dark",
+  "base": { "hue": 200, "chroma": 0.012 },
+  "accent": { "hue": 25, "chroma": 0.17, "meaning": "alarm needs acknowledgement" },
+  "status": { "ok": 150, "warn": 75, "danger": 25, "info": 200, "active": 160 },
+  "concept": "Broadcast/power-plant master control: exceptions first, mimic lines, tally lamps",
+  "usecases": ["monitor-dashboard"] }

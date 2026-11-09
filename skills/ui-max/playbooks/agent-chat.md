@@ -21,6 +21,12 @@ keywords: agent, chat, llm, assistant, copilot, hermes, tool call, streaming, sa
 
 **Slop risks:** chat bubbles with gradients; spinner with no label; "AI ✨" sparkles; neon on everything; fake stats panels.
 
+**Concepts & themes (pick by the job, not by taste alone)**
+- *Long, mostly-autonomous runs you glance at* → **Flight deck** (`flight-deck-night` / `-day` / `-hc`): calm, a strict color code, a master caution that only lights when you're needed. Best daily driver.
+- *High-stakes approvals, demos, pairing sessions* → **Vision mixer** (`studio` / `studio-daylight`): the decision (TAKE) is the biggest thing on screen; preview vs program makes "staged vs executed" unmistakable. Costs some learning (Take/Cut/FTB).
+- *Writing-heavy chat, research answers* → editorial (quiet chrome, measure, margins); not built yet.
+- Not: either concept for a quick one-question chat; plain is better there.
+
 **Astryx (0.7.11, verified):** page templates `ai-chat` (transcript + collapsible tool-call output + resizable artifact panel), `ai-chat-landing` (zero state), `ide` (multi-pane with docked drawer for a sandbox terminal), `table-inbox` (session list + reading pane). Blocks: `ChatToolCallsInteractiveToolCalls`, `ChatToolCallsShowcase`. Run `astryx build "<your task>"`. Hermes projects: `astryx init --agent hermes` writes the agent doc to `.hermes.md`/`HERMES.md`. The approval prompt and stick-to-bottom behavior still need checking against this playbook.
 
 **Benchmark:** `benchmarks/` B1 (agent console).

@@ -19,4 +19,9 @@ keywords: table, admin, crud, list, records, users, inventory, grid, rows, bulk,
 
 **Slop risks:** zebra stripes + borders + shadows all at once; icon-only action columns without labels; cards instead of a table for tabular data.
 
+**Concepts & themes**
+- **Ledger** (`ledger`, light): ruled, numbers first, one blue for selection/primary; color only for status cells.
+- Dark only if the rest of the product is dark (`flight-deck-night` roles work for tables too).
+- Not: cockpit or mixer chrome around a table; the data is the interface.
+
 **Astryx:** templates `table-page`, `table-filter`, `table-grouped`, `table-tree`, `table-collapsible`, `table-comparison`, `table-inbox`; component `Table` (sorting, selection, pagination, column management via plugins). `astryx component Table` before changing props.

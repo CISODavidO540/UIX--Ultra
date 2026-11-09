@@ -1,0 +1,6 @@
+{ "name": "flight-deck-day", "label": "Flight deck · day", "mode": "light",
+  "base": { "hue": 235, "chroma": 0.012 },
+  "accent": { "hue": 70, "chroma": 0.16, "meaning": "needs the operator" },
+  "status": { "ok": 150, "warn": 70, "danger": 25, "info": 230, "active": 325 },
+  "concept": "Same code on a daylight display (bright rooms, printouts)",
+  "usecases": ["agent-chat", "monitor-dashboard", "forms-settings"] }

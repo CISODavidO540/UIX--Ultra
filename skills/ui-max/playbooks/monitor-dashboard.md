@@ -20,4 +20,9 @@ keywords: dashboard, monitor, metrics, kpi, status, health, uptime, observabilit
 
 **Slop risks:** 4 identical KPI cards with big numbers and +12% badges; donut charts for everything; decorative sparklines with no axis.
 
+**Concepts & themes**
+- *Wall display / glance from across the room* → **Master control** (`master-control`): exceptions first, tally lamps, mimic lines; healthy things recede.
+- *Ops console you also act from* → **Flight deck** (`flight-deck-night`): annunciators + synoptic page.
+- Not: vision mixer (no preview/program idea in monitoring).
+
 **Astryx:** templates `dashboard`, `dashboard-alert-rail` (exceptions first), `dashboard-scorecard`, `dashboard-progress`, `incident-console`. Charts via `@astryxdesign/charts` (canary). Watch the `dashboard` template's "row of headline tiles": make each tile carry a unit, timeframe and comparison, or it becomes slop tell "identical KPI cards".

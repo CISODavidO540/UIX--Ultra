@@ -1,0 +1,6 @@
+{ "name": "flight-deck-hc", "label": "Flight deck · high contrast", "mode": "dark", "contrast": "high",
+  "base": { "hue": 235, "chroma": 0.01 },
+  "accent": { "hue": 75, "chroma": 0.17, "meaning": "needs the operator" },
+  "status": { "ok": 150, "warn": 75, "danger": 25, "info": 230, "active": 325 },
+  "concept": "Accessibility variant: higher Lc targets, deeper wells",
+  "usecases": ["agent-chat", "monitor-dashboard"] }

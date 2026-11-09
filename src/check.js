@@ -31,6 +31,21 @@ function stylesheetProbe() {
     }
   };
   for (const s of document.styleSheets) { try { walk(s.cssRules); } catch { blocked++; } }
+  // Theme discipline: color literals in component rules (outside :root / [data-theme] token blocks).
+  // Neutral black/white with alpha (shadows, scrims) are allowed.
+  let rawColors = 0; const rawSamples = [];
+  const COLOR = /#[0-9a-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla|oklch|oklab|lab|lch|color)\([^)]*\)/gi;
+  const neutral = (c) => /^(?:rgba?\(\s*(?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255)\s*[,/)]|#000(?:0{3})?\b|#fff(?:f{3})?\b)/i.test(c);
+  const scan = (rules) => {
+    for (const r of rules) {
+      if (r.cssRules && !r.selectorText) { scan(r.cssRules); continue; }
+      if (!r.selectorText || /(^|,)\s*(:root|html|\[data-theme)/.test(r.selectorText)) continue;
+      const decl = r.style ? r.style.cssText : '';
+      const hits = (decl.match(COLOR) || []).filter((c) => !neutral(c));
+      if (hits.length) { rawColors += hits.length; if (rawSamples.length < 5) rawSamples.push(`${r.selectorText.slice(0, 40)} { ${hits[0]} }`); }
+    }
+  };
+  for (const s of document.styleSheets) { try { scan(s.cssRules); } catch { /* cross-origin */ } }
   const all = sel.join('\n');
   const dom = document.documentElement.outerHTML;
   const has = (re, src = all) => re.test(src);
@@ -55,6 +70,7 @@ function stylesheetProbe() {
     containerOrMedia: /min-width|max-width|width\s*[<>]|@container/.test(mediaAll) || /@container/.test(all),
     heavyTransitions: heavy.slice(0, 6),
     heavyTransitionCount: heavy.length,
+    rawColors, rawSamples,
     blockedSheets: blocked,
   };
 }
@@ -206,6 +222,8 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   if (consoleErrors.length) craft -= Math.min(25, consoleErrors.length * 10);
   if (!desktop.sheet.forcedColors) craft -= 5;
   const [craftPen, craftNotes] = craftPenalty(desktop.craft);
+  // Sprinkled color (taste.md 2026-11-09): raw color literals in components instead of theme roles.
+  if (desktop.sheet.rawColors > 6) { const d = Math.min(15, Math.ceil((desktop.sheet.rawColors - 6) / 3)); craft -= d; craftNotes.push(`${desktop.sheet.rawColors} raw color literals in component CSS — use theme roles (omni themegen) (−${d})`); }
   craft -= craftPen;
   craft = clamp(craft);
 

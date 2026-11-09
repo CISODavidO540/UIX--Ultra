@@ -26,7 +26,11 @@ const TOOLS = [
     run: async ({ task }) => {
       const r = await route(task);
       if (!r.length) return `No playbook matched. Available: ${(await loadPlaybooks()).map((b) => b.id).join(', ')}. Pick the closest with ui_playbook.`;
-      return r.map((b, i) => `${i + 1}. ${b.id} — ${b.title} (surface: ${b.surface}; matched: ${b.hits.join(', ')})`).join('\n') + '\n\nNext: ui_playbook with the top id.';
+      const { themesFor } = await import('./route.js');
+      const th = await themesFor(r[0].id);
+      return r.map((b, i) => `${i + 1}. ${b.id} — ${b.title} (surface: ${b.surface}; matched: ${b.hits.join(', ')})`).join('\n') +
+        (th.length ? `\n\nTheme presets for ${r[0].id} (themes/presets, generate with omni themegen):\n` + th.map((t) => `- ${t.name} (${t.mode}): ${t.concept}`).join('\n') : '') +
+        '\n\nNext: ui_playbook with the top id; its "Concepts & themes" section says which concept fits which job.';
     },
   },
   {
@@ -34,6 +38,18 @@ const TOOLS = [
     description: 'Get a use-case playbook: core tasks, states that must exist, effects budget, slop risks and Astryx component guidance.',
     inputSchema: { type: 'object', properties: { id: str('Playbook id from ui_route') }, required: ['id'] },
     run: async ({ id }) => (await playbook(id)).body,
+  },
+  {
+    name: 'ui_themegen',
+    description: 'Generate a theme (semantic color roles: surfaces, text, grounded ok/warn/danger/info/active/accent families) from OKLCH inputs, APCA-validated. Pass a preset name from themes/presets or a custom preset object. Returns CSS custom properties plus any failing contrast pairs.',
+    inputSchema: { type: 'object', properties: { preset: str('Preset name (e.g. flight-deck-night, ledger, studio)'), custom: { type: 'object', description: 'Custom preset: { name, mode, contrast, base:{hue,chroma}, accent:{hue,chroma}, status:{ok,warn,danger,info,active} }' } } },
+    run: async ({ preset, custom }) => {
+      const { generate, toCSS } = await import('./theme-engine.js');
+      const p = custom || JSON.parse(await fs.readFile(path.join(ROOT, 'themes', 'presets', `${String(preset).replace(/[^a-z0-9-]/gi, '')}.json`), 'utf8'));
+      const t = generate(p);
+      const f = t.report.fails;
+      return `${f.length ? `${f.length} contrast pairs FAIL: ` + f.map((x) => `${x.fg} on ${x.bg} Lc ${x.lc}<${x.target}`).join('; ') : `All ${t.report.pairs} APCA pairs pass.`}\n\n${toCSS([t])}`;
+    },
   },
   {
     name: 'ui_reference',

@@ -1,17 +1,17 @@
 {
   "target": "examples/fix-vibecoded/v2-flightdeck/index.html",
   "label": "examples/fix-vibecoded/v2-flightdeck/index.html",
-  "checkedAt": "2026-11-09T23:10:38.282Z",
+  "checkedAt": "2026-11-09T23:19:38.883Z",
   "overall": 95,
   "rank": "S",
   "pass": true,
   "stats": {
-    "access": 96,
+    "access": 94,
     "originality": 100,
     "states": 100,
     "motion": 100,
     "responsive": 100,
-    "craft": 86,
+    "craft": 87,
     "expression": 85
   },
   "gate": [
@@ -53,13 +53,13 @@
         "\"IBM Plex Sans\"",
         "\"IBM Plex Mono\""
       ],
-      "accentHueBuckets": 5,
+      "accentHueBuckets": 4,
       "offGridSpacingRatio": 0,
       "numericNodes": 7,
       "tabularNumericNodes": 2,
-      "textNodes": 78,
-      "controls": 6,
-      "ornamentCount": 4,
+      "textNodes": 87,
+      "controls": 9,
+      "ornamentCount": 1,
       "monoShare": 0.29
     }
   },
@@ -80,11 +80,13 @@
     "containerOrMedia": true,
     "heavyTransitions": [],
     "heavyTransitionCount": 0,
-    "blockedSheets": 0
+    "rawColors": 0,
+    "rawSamples": [],
+    "blockedSheets": 1
   },
   "motion": {
     "durations": {
-      "count": 42,
+      "count": 51,
       "min": 60,
       "median": 120,
       "max": 120
@@ -107,15 +109,21 @@
   },
   "a11y": {
     "target": "examples/fix-vibecoded/v2-flightdeck/index.html",
-    "score": 96,
+    "score": 94,
     "bySeverity": {
       "critical": 0,
       "serious": 0,
-      "moderate": 0,
+      "moderate": 1,
       "minor": 4,
       "info": 0
     },
     "issues": [
+      {
+        "severity": "moderate",
+        "rule": "contrast",
+        "message": "Text contrast 4.06:1, needs 4.5:1",
+        "sample": "<button#allow.key.solid> Allow\nEnter"
+      },
       {
         "severity": "minor",
         "rule": "tiny-text",
@@ -141,11 +149,11 @@
         "sample": "<kbd> Enter"
       }
     ],
-    "auditedAt": "2026-11-09T23:10:21.016Z"
+    "auditedAt": "2026-11-09T23:19:21.560Z"
   },
   "consoleErrors": [],
   "craft": {
-    "textNodes": 84,
+    "textNodes": 93,
     "apcaFails": 0,
     "apcaSamples": [],
     "capsTight": 0,
@@ -153,14 +161,16 @@
     "lineHeightBad": 0,
     "lineHeightSamples": [],
     "radii": 4,
-    "shadows": 3,
+    "shadows": 9,
     "zIndexes": 0,
     "weights": 3,
-    "notes": []
+    "notes": [
+      "9 unique shadows (budget 4) (−6)"
+    ]
   },
   "expression": {
-    "colorfulness": 23.4,
-    "colorShare": 3.3,
+    "colorfulness": 22.7,
+    "colorShare": 3.7,
     "hueFamilies": 2,
     "regions": 15,
     "samples": [
@@ -171,7 +181,7 @@
       "<pre.out>"
     ],
     "notes": [
-      "colorfulness 23.4 (low; 25+ wanted)"
+      "colorfulness 22.7 (low; 25+ wanted)"
     ]
   },
   "screenshots": [

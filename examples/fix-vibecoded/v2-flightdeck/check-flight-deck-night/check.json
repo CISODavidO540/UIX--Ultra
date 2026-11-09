@@ -1,0 +1,185 @@
+{
+  "target": "http://127.0.0.1:8790/examples/fix-vibecoded/v2-flightdeck/index.html?theme=flight-deck-night",
+  "label": "http://127.0.0.1:8790/examples/fix-vibecoded/v2-flightdeck/index.html?theme=flight-deck-night",
+  "checkedAt": "2026-11-09T23:20:07.014Z",
+  "overall": 97,
+  "rank": "S",
+  "pass": true,
+  "stats": {
+    "access": 96,
+    "originality": 100,
+    "states": 100,
+    "motion": 100,
+    "responsive": 100,
+    "craft": 80,
+    "expression": 100
+  },
+  "gate": [
+    {
+      "name": "No critical/serious a11y findings",
+      "ok": true
+    },
+    {
+      "name": "No compositional slop tells (3, 8, 10)",
+      "ok": true
+    },
+    {
+      "name": "At most 1 slop tell",
+      "ok": true
+    },
+    {
+      "name": "No horizontal scroll at 390px",
+      "ok": true
+    },
+    {
+      "name": "No console errors",
+      "ok": true
+    },
+    {
+      "name": "State coverage ≥ 6/8",
+      "ok": true
+    },
+    {
+      "name": "prefers-reduced-motion handled (if animated)",
+      "ok": true
+    }
+  ],
+  "slop": {
+    "tells": [],
+    "slopScore": 0,
+    "system": {
+      "fontSizes": 6,
+      "fontFamilies": [
+        "\"IBM Plex Sans\"",
+        "\"IBM Plex Mono\""
+      ],
+      "accentHueBuckets": 5,
+      "offGridSpacingRatio": 0,
+      "numericNodes": 7,
+      "tabularNumericNodes": 2,
+      "textNodes": 87,
+      "controls": 9,
+      "ornamentCount": 2,
+      "monoShare": 0.29
+    }
+  },
+  "sheet": {
+    "states": {
+      "hover": true,
+      "focusVisible": true,
+      "active": true,
+      "disabled": true,
+      "loading": true,
+      "empty": true,
+      "error": true,
+      "success": true
+    },
+    "reducedMotion": true,
+    "forcedColors": true,
+    "darkMode": true,
+    "containerOrMedia": true,
+    "heavyTransitions": [],
+    "heavyTransitionCount": 0,
+    "rawColors": 0,
+    "rawSamples": [],
+    "blockedSheets": 0
+  },
+  "motion": {
+    "durations": {
+      "count": 51,
+      "min": 60,
+      "median": 120,
+      "max": 120
+    },
+    "infiniteLoops": []
+  },
+  "layout": {
+    "desktop": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": 77,
+      "bodyFontPx": 15
+    },
+    "mobile": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": 45,
+      "bodyFontPx": 15
+    }
+  },
+  "a11y": {
+    "target": "http://127.0.0.1:8790/examples/fix-vibecoded/v2-flightdeck/index.html?theme=flight-deck-night",
+    "score": 96,
+    "bySeverity": {
+      "critical": 0,
+      "serious": 0,
+      "moderate": 0,
+      "minor": 4,
+      "info": 0
+    },
+    "issues": [
+      {
+        "severity": "minor",
+        "rule": "tiny-text",
+        "message": "Text at 11px is hard to read",
+        "sample": "<small#link-sub> hermes-pop"
+      },
+      {
+        "severity": "minor",
+        "rule": "tiny-text",
+        "message": "Text at 11px is hard to read",
+        "sample": "<small#sb-sub> run-7f3a"
+      },
+      {
+        "severity": "minor",
+        "rule": "tiny-text",
+        "message": "Text at 11px is hard to read",
+        "sample": "<small#tests-sub> 47/47"
+      },
+      {
+        "severity": "minor",
+        "rule": "tiny-text",
+        "message": "Text at 11px is hard to read",
+        "sample": "<kbd> Enter"
+      }
+    ],
+    "auditedAt": "2026-11-09T23:20:06.980Z"
+  },
+  "consoleErrors": [],
+  "craft": {
+    "textNodes": 93,
+    "apcaFails": 0,
+    "apcaSamples": [],
+    "capsTight": 0,
+    "capsSamples": [],
+    "lineHeightBad": 0,
+    "lineHeightSamples": [],
+    "radii": 4,
+    "shadows": 8,
+    "zIndexes": 0,
+    "weights": 3,
+    "notes": [
+      "8 unique shadows (budget 4) (−6)"
+    ]
+  },
+  "expression": {
+    "colorfulness": 30.6,
+    "colorShare": 4.3,
+    "hueFamilies": 2,
+    "regions": 15,
+    "samples": [
+      "<section.du>",
+      "<div.screen>",
+      "<pre.out>",
+      "<summary>",
+      "<pre.out>"
+    ],
+    "notes": []
+  },
+  "screenshots": [
+    "desktop-fold.png",
+    "desktop-full.png",
+    "mobile-full.png",
+    "squint.png"
+  ]
+}

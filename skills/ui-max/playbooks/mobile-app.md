@@ -12,4 +12,7 @@ keywords: mobile, ios, android, phone, app screen, bottom nav, touch, pwa, swipe
 
 **Slop risks:** desktop layout squeezed; hover-only affordances.
 
+**Concepts & themes**
+- Same theme as desktop with light/dark following the OS; check every theme at 390 px. Decisions float within thumb reach.
+
 **Astryx:** shells `shell-nav`, `shell-side-nav`, `shell-top-nav`, `messaging-shell`; verify every template at 390 px with `omni check`.

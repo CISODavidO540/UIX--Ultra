@@ -24,6 +24,8 @@ that is productive, usable and alive, and he judges by looking, fast.
 - **Restraint without color**: graphite + one accent used only for status reads unfinished, not "clean". (2026-11-09, fix-vibecoded after.html: "lacks color")
 - **Default-looking controls**: rounded outline buttons, plain text tabs, stock textarea + Send/Stop. If the controls could come from any component kit, they read vibe coded. (2026-11-09: "the buttons and settings are vibecoded")
 
+- **Sprinkled color**: colored text/lines floating on gray with hex values scattered through components. Color must be grounded in surfaces and roles. (2026-11-09, v2: "needs better theme management and colors… a little more grounding")
+
 ## Always
 
 - Start from the real product: real screens, real data, the 5 most frequent tasks.
@@ -34,6 +36,9 @@ that is productive, usable and alive, and he judges by looking, fast.
 - **Aim for flex-worthy**: impressive at first glance *and* usable. Clean-but-plain is a fail, the same as pretty-but-unusable. (2026-11-09: "not good enough to flex")
 - **Color with a job, in quantity**: zones, states and controls carry color; not a single accent sprinkled on neutrals. (2026-11-09)
 - **Visible structure**: clear regions, framed panels, a grid you can see; a document column with a sidebar isn't enough structure. (2026-11-09)
+- **Grounded color**: status and accent colors come with their own tinted surface, border and solid variant; panels sit on a visible elevation ladder (inset wells, raised panels). (2026-11-09)
+- **Managed themes**: every color is a semantic role from a generated theme (light + dark + high contrast), contrast-checked; components never hold raw hex. (2026-11-09)
+- **Concept fits the use case**: pick the concept/theme from the use case (long agent runs ≠ high-stakes approvals ≠ dashboards), and say why. No single look for everything. (2026-11-09: "it depends on the use case")
 - **Controls designed from the concept** (physical-feeling keys, indicators, legends), never kit defaults. (2026-11-09)
 
 ## Open questions (ask when relevant, then move the answer up)
@@ -46,6 +51,7 @@ that is productive, usable and alive, and he judges by looking, fast.
 
 Format: `date · artifact · verdict (his words) · rule it implies`
 
+- 2026-11-09 · `v2-flightdeck` + `v2-mixer` · "good upgrade but it needs better theme management and colors and a little everywhere it just needs a little more grounding… it can work but it depends on usecase" · new: grounded color, managed themes, concept fits use case; Never: sprinkled color.
 - 2026-11-09 · `examples/fix-vibecoded/after.html` (scored 100 S) · "somewhat of a improvement but it lacks color and enough structure and the buttons and settings are vibecoded… right track… not good enough to flex" · new Never: restraint without color, default-looking controls; new Always: flex-worthy, color with a job, visible structure, concept-designed controls. **The stat sheet said 100 S and David said no: the score measures hygiene, not impressiveness.**
 - 2026-11-09 · `examples/fix-vibecoded/before.html` · "definitely vibe coded" · confirms the slop tells (34 F).
 

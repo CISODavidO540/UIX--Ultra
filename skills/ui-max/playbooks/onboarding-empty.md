@@ -15,4 +15,7 @@ keywords: onboarding, first run, welcome, empty state, getting started, tutorial
 
 **Slop risks:** 3-slide carousel with illustrations; "Welcome to X! 🎉"; confetti.
 
+**Concepts & themes**
+- Use the product's theme; the empty state should already look like the working product (no separate "welcome" style).
+
 **Astryx:** `ai-chat-landing` (composer + suggestion chips zero state), `library` (card grid with a real empty state), `login`, `login-card`, `login-split`, `login-sso`.

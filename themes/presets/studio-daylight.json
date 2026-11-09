@@ -1,0 +1,6 @@
+{ "name": "studio-daylight", "label": "Studio · daylight", "mode": "light",
+  "base": { "hue": 270, "chroma": 0.008 },
+  "accent": { "hue": 65, "chroma": 0.17, "meaning": "waiting for TAKE" },
+  "status": { "ok": 145, "warn": 65, "danger": 27, "info": 250, "active": 27 },
+  "concept": "Mixer in a lit room",
+  "usecases": ["agent-chat"] }

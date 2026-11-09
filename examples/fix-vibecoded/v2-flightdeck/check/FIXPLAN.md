@@ -1,6 +1,6 @@
 # Fix plan — examples/fix-vibecoded/v2-flightdeck/index.html
 
-Now: **95 S**, gate **PASS**, 0 slop tells, a11y 96/100.
+Now: **95 S**, gate **PASS**, 0 slop tells, a11y 94/100.
 
 Use case: **AI chat / agent console** (playbook `agent-chat`, matched: agent, chat, hermes, tool call).
 
@@ -8,8 +8,13 @@ Work top to bottom. After each block, re-run `omni check` and look at the screen
 
 ## P1 — why it reads as vibe coded
 
-1. **expression** — colorfulness 23.4 (low; 25+ wanted). Give color a job (zones, states, controls) and make regions visible — see taste.md 2026-11-09.  
+1. **expression** — colorfulness 22.7 (low; 25+ wanted). Give color a job (zones, states, controls) and make regions visible — see taste.md 2026-11-09.  
    _verify: expression ≥ 70_
+
+## P2 — craft and polish
+
+1. **craft** — 9 unique shadows (budget 4) (−6)  
+   _verify: craft note gone_
 
 ## Use-case must-haves (not machine-checkable — confirm by hand)
 
