@@ -124,3 +124,11 @@ Next:
 - David's verdict on B1 → `taste.md` + `results.csv`.
 - Run B2–B5; the skill counts as maxed after 5 consecutive runs with gate PASS, rank ≥ A and David ≥ 4.
 - Capture the real Hermes desktop (CDP, see Hermes skill `inspecting-hermes-desktop-dom`) and run `omni full` on it before redesigning the real thing.
+
+## Update (Nov 9): taste research + craft probe
+
+- Report: `reports/Building UI taste beyond generic.md` (notes in `research_notes/Building UI taste beyond generic/`).
+- Added `src/craft.js` to `omni check`: APCA contrast per text element (non-body allowance for short labels), all-caps tracking, paragraph line-height, unique radii/shadows/z-index/weights budgets (budgets are inferred, not published norms), and `squint.png`.
+- B1 benchmark now reads craft 76: ~30% of text (dim secondary labels, kbd hints, status text) is below APCA targets on the dark theme, though WCAG 2 passes it. That gap is the known WCAG-2-on-dark weakness.
+- Report's top recommendations not built yet: reference lock in the skill, `omni judge a b` (pairwise, region-cited, no 1–10 score), `--direction DIRECTION.md` conformance check, dated slop tells + cross-run sameness tracking, record the owner's verdict per benchmark to calibrate the stat sheet.
+- Astra was requested again but no Astra session/agent was reachable from the cloud session.
