@@ -132,3 +132,9 @@ Next:
 - B1 benchmark now reads craft 76: ~30% of text (dim secondary labels, kbd hints, status text) is below APCA targets on the dark theme, though WCAG 2 passes it. That gap is the known WCAG-2-on-dark weakness.
 - Report's top recommendations not built yet: reference lock in the skill, `omni judge a b` (pairwise, region-cited, no 1–10 score), `--direction DIRECTION.md` conformance check, dated slop tells + cross-run sameness tracking, record the owner's verdict per benchmark to calibrate the stat sheet.
 - Astra was requested again but no Astra session/agent was reachable from the cloud session.
+
+## Update (Nov 9, later): REA-style toolkit + Astryx
+
+- "Astra" was most likely **Astryx** (facebook/astryx), Meta's agent-ready React design system. Verified with CLI 0.7.11: it has an `ai-chat` page template, tool-call blocks, `astryx build "<task>"` template router, and `astryx init --agent hermes`.
+- Added: MCP server (`bin/omni-mcp.js`, tools ui_route, ui_playbook, ui_reference, ui_capture, ui_check, ui_audit, ui_diff, ui_verdict, ui_evidence, astryx), `omni setup [--write]`, plugin auto-registration, use-case router + 9 playbooks mapped to real Astryx template ids, evidence log (`.omni/evidence.jsonl`, `omni verdict`, `omni evidence`), `references/astryx.md`.
+- Not done: B1 rebuilt on Astryx `ai-chat` + custom theme and compared with `omni diff`; example library of good/bad pairs per playbook; `omni judge`.

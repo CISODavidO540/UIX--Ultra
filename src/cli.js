@@ -44,6 +44,24 @@ USAGE
       STATS.md, check.json and screenshots at 1440 and 390. Exit 1 on FAIL.
       --states screenshots <target>?state=<name> for each, desktop + mobile.
 
+  omni route    "<what you're building>"
+      Pick the use-case playbook(s) for a task (agent chat, dashboard, table…).
+
+  omni playbook <id>
+      Print a use-case playbook.
+
+  omni verdict  <target> keep|reject "<reason>" [--property type|color|spacing|ornament|motion|copy|layout|states] [--check dir] [--playbook id]
+      Log a human verdict to .omni/evidence.jsonl (how the toolkit learns your taste).
+
+  omni evidence
+      Summarize the evidence log and whether the stat sheet agrees with your verdicts.
+
+  omni setup    [--client claude-code|cursor|claude-desktop|all] [--write]
+      Register the UI-MAX MCP server and link the skill. Dry run unless --write.
+
+  omni mcp
+      Run the MCP server on stdio (what agent clients launch).
+
   omni diff     <before> <after> [--out dir]
       Check both, write DIFF.md (stat deltas, tells removed/introduced,
       regressions) and compare.png side by side.
@@ -177,6 +195,46 @@ export async function run(argv) {
       const out = path.resolve(args.out || path.join('omni-out', 'diff'));
       const r = await diff(a, b, { out, viewport: args.viewport });
       console.log(`before ${r.before.overall} (${r.before.rank}) → after ${r.after.overall} (${r.after.rank})${r.regressions.length ? `  regressions: ${r.regressions.join(', ')}` : ''}\n  → ${out}/DIFF.md`);
+      return;
+    }
+    case 'route': {
+      const { route } = await import('./route.js');
+      const task = args._.slice(1).join(' ');
+      if (!task) throw new Error('"route" needs a task description.');
+      const r = await route(task);
+      if (!r.length) { console.log('No playbook matched. See: omni playbook list'); return; }
+      for (const b of r) console.log(`${b.id.padEnd(20)} ${b.title}  [${b.surface}]  matched: ${b.hits.join(', ')}`);
+      return;
+    }
+    case 'playbook': {
+      const { playbook, loadPlaybooks } = await import('./route.js');
+      if (!target || target === 'list') { for (const b of await loadPlaybooks()) console.log(`${b.id.padEnd(20)} ${b.title}`); return; }
+      console.log((await playbook(target)).body);
+      return;
+    }
+    case 'verdict': {
+      const ev = await import('./evidence.js');
+      const [, t, v, ...reason] = args._;
+      if (!t || !v) throw new Error('usage: omni verdict <target> keep|reject "<reason>" [--property p] [--check dir]');
+      const row = await ev.verdict({ target: t, verdict: v, reason: reason.join(' '), property: args.property, checkDir: args.check, playbook: args.playbook });
+      console.log(`✔ logged ${row.verdict} → ${ev.evidencePath()}`);
+      return;
+    }
+    case 'evidence': {
+      const ev = await import('./evidence.js');
+      const rows = await ev.read(); const ag = await ev.agreement();
+      console.log(`${rows.length} entries · ${ag.verdicts} verdicts · stat-sheet agrees with you ${ag.agree}/${ag.verdicts}${ag.rate != null ? ` (${ag.rate})` : ''}`);
+      if (Object.keys(ag.rejectionsByProperty).length) console.log('rejections by property:', ag.rejectionsByProperty);
+      return;
+    }
+    case 'setup': {
+      const { setup } = await import('./setup.js');
+      console.log(await setup({ client: args.client || 'all', write: !!args.write }));
+      return;
+    }
+    case 'mcp': {
+      await import('./mcp.js');
+      await new Promise(() => {}); // serve until stdin closes
       return;
     }
     case 'theme': {

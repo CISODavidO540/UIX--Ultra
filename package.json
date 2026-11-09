@@ -4,7 +4,8 @@
   "description": "Super UI UX OMNI Pro Max Ultra Supreme: capture any UI's design DNA, audit its UX, and generate the parts most redesigns skip (skeletons, transitions, empty/error states, focus, reduced motion).",
   "type": "module",
   "bin": {
-    "omni": "bin/omni.js"
+    "omni": "bin/omni.js",
+    "omni-mcp": "bin/omni-mcp.js"
   },
   "scripts": {
     "test": "node --test test/*.test.js"

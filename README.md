@@ -103,6 +103,30 @@ To use only the skill, copy `skills/ui-max/` into `~/.claude/skills/`.
 
 Options: `--out <dir>`, `--viewport 1440x900`, `--mobile`. Set `OMNI_CHROMIUM=/path/to/chrome` to use a specific browser binary.
 
+## Toolkit mode (REA-style)
+
+UI-MAX installs like a toolkit, not just a prompt:
+
+```bash
+git clone https://github.com/CISODavidO540/UIX--Ultra && cd UIX--Ultra
+npm i && npx playwright install chromium
+node bin/omni.js setup            # dry run: shows what it will register
+node bin/omni.js setup --write    # links the skill, registers the MCP server (Claude Code, Cursor, Claude Desktop)
+```
+
+Installed as a Claude Code plugin, the MCP server is registered automatically (`.claude-plugin/plugin.json`).
+
+| MCP tool | Does |
+|---|---|
+| `ui_route` / `ui_playbook` | Task → use-case playbook (agent chat, dashboard, data table, forms/settings, detail, onboarding, landing, mobile, stylized/FUI) |
+| `ui_capture` | Design DNA + tokens + screenshots of an existing UI |
+| `ui_check` / `ui_audit` / `ui_diff` | Stat sheet (Access, Originality, States, Motion, Responsive, Craft), a11y, before/after |
+| `ui_verdict` / `ui_evidence` | Log your keep/reject verdicts with the deciding property; see whether the gate agrees with you |
+| `astryx` | Read-only queries to Meta's [Astryx](https://github.com/facebook/astryx) design system (templates, components, tokens, build kits) |
+| `ui_reference` | Taste, direction, craft, critique, motion, states and other references |
+
+How it gets better without retraining: playbooks say what each use case needs, Astryx supplies real components instead of invented ones, `ui_check` grades the result, and your verdicts in `.omni/evidence.jsonl` become taste rules.
+
 ## Themes: stylized and still usable
 
 ```bash

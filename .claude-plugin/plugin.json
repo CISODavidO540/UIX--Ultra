@@ -2,7 +2,24 @@
   "name": "ui-max",
   "version": "0.1.0",
   "description": "Super UI UX OMNI Pro Max Ultra Supreme: capture a UI's design DNA, audit its UX, and build the full experience (skeletons, transitions, every state).",
-  "author": { "name": "David Olson" },
+  "author": {
+    "name": "David Olson"
+  },
   "license": "MIT",
-  "keywords": ["ui", "ux", "design-system", "accessibility", "motion", "skeleton"]
+  "keywords": [
+    "ui",
+    "ux",
+    "design-system",
+    "accessibility",
+    "motion",
+    "skeleton"
+  ],
+  "mcpServers": {
+    "ui-max": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/bin/omni-mcp.js"
+      ]
+    }
+  }
 }
