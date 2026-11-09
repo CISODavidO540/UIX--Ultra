@@ -8,6 +8,9 @@ import { audit } from '../src/audit.js';
 import { buildTokens } from '../src/tokens.js';
 import { scaffold } from '../src/scaffold.js';
 import os from 'node:os';
+import { check } from '../src/check.js';
+import { withPage } from '../src/browser.js';
+import { slopInPage } from '../src/slop.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixture = path.join(here, 'fixtures', 'sample.html');
@@ -36,4 +39,22 @@ test('full pipeline on fixture', async () => {
   const files = scaffold(json, { framework: 'react' });
   assert.ok(files['css/skeleton.css'].includes('aria') || files['css/skeleton.css'].includes('.sk'));
   assert.ok(files['react/AsyncView.tsx']);
+});
+
+test('slop detector fires on a planted template page', async () => {
+  const r = await withPage(path.join(here, 'fixtures', 'slop.html'), {}, (page) => page.evaluate(slopInPage));
+  const ids = new Set(r.tells.map((t) => t.id));
+  for (const id of [1, 2, 3, 4, 5, 6, 7, 8, 9]) assert.ok(ids.has(id), `expected tell ${id}, got ${[...ids]}`);
+});
+
+test('audit reads OKLCH colors (no vacuous pass)', async () => {
+  const r = await audit(path.join(here, 'fixtures', 'oklch.html'));
+  assert.ok(r.issues.some((i) => i.rule === 'contrast' && /faint|muted/.test(i.sample || '')), 'low-contrast oklch text must be flagged');
+});
+
+test('check: B1 benchmark passes the gate (positive control)', async () => {
+  const out = path.join(os.tmpdir(), `omni-check-${process.pid}`);
+  const r = await check(path.join(here, '..', 'benchmarks', 'runs', '2026-11-08-B1', 'index.html'), { out });
+  assert.equal(r.pass, true, JSON.stringify(r.gate.filter((g) => !g.ok)));
+  assert.equal(r.slop.tells.length, 0);
 });

@@ -1,3 +1,43 @@
+# UI-MAX
+
+*(repo: UIX Ultra — "super UI UX OMNI Pro Max Ultra Supreme")*
+
+A UI/UX skill plus a verification tool, built so an AI agent makes UI that has a
+point of view, works in every state, and is checked by **looking at it** before
+anyone else does.
+
+- **`skills/ui-max/`** — the skill (Hermes + Claude Code). Loop: taste → brief → surface → direction → system → states → build → **verify** → deliver, and a taste log that learns from David's verdicts.
+- **`omni check`** — the UI stat sheet: Access, Originality (15 slop tells), States, Motion, Responsive, Craft → rank S–F and a pass/fail gate, with screenshots and forced-state contact sheets for visual critique.
+- **`omni diff`** — before/after proof for redesigns.
+- **UI/UX Pro Max** (MIT, v2.15) vendored in `skills/ui-max/vendor/` as a lookup database (UX rules, fonts, charts, stack gotchas). Not used for direction: see `references/pro-max.md` for why.
+- **`benchmarks/`** — fixed briefs and `results.csv` to measure whether output quality is actually improving.
+
+```bash
+omni check page.html --states empty,error,loading     # stat sheet + screenshots
+omni diff old.html new.html                            # did the redesign improve it?
+```
+
+```
+✘ FAIL  overall 84 (B)  access 99 · originality 52 · …   themes/cyberpunk/demo.html ("too vibe coded")
+  tell 2: Default accent hue · tell 11: Shouty labels · tell 12: Mono as texture · tell 13: Ornament everywhere
+✔ PASS  overall 100 (S)  …                                 benchmarks/runs/2026-11-08-B1 (strip-bay agent console)
+```
+
+A perfect script score means the script found nothing, not that it's good. The
+skill requires a screenshot critique (`references/critique.md`) on top.
+
+### Install the skill
+
+```bash
+git clone git@github.com:CISODavidO540/UIX--Ultra ~/Projects/UIX--Ultra && cd ~/Projects/UIX--Ultra
+npm i && npx playwright install chromium
+ln -s ~/Projects/UIX--Ultra/skills/ui-max ~/.hermes/skills/creative/ui-max   # Hermes
+ln -s ~/Projects/UIX--Ultra/skills/ui-max ~/.claude/skills/ui-max            # Claude Code
+printf '#!/usr/bin/env bash\nexec node "$HOME/Projects/UIX--Ultra/bin/omni.js" "$@"\n' > ~/.local/bin/omni && chmod +x ~/.local/bin/omni
+```
+
+---
+
 # super UI UX OMNI Pro Max Ultra Supreme
 
 A UI/UX tool and Claude skill that doesn't stop at "pretty".
@@ -40,13 +80,13 @@ npm link          # makes `omni` available everywhere
 
 ```
 /plugin marketplace add CISODavidO540/UIX--Ultra
-/plugin install super-uiux-omni@super-uiux-omni
+/plugin install ui-max@ui-max
 ```
 
 Then ask Claude things like "audit the UI of localhost:3000 and add proper
 loading and empty states", or run `/omni https://example.com make it feel premium`.
 
-To use only the skill, copy `skills/super-uiux-omni/` into `~/.claude/skills/`.
+To use only the skill, copy `skills/ui-max/` into `~/.claude/skills/`.
 
 ## Commands
 
@@ -57,6 +97,8 @@ To use only the skill, copy `skills/super-uiux-omni/` into `~/.claude/skills/`.
 | `omni tokens <dir>` | `ui-dna.json` → `tokens.json` + `tokens.css` |
 | `omni scaffold <dir> [--framework css\|react\|tailwind]` | Skeletons, motion, state styles, state sheet |
 | `omni full <url\|file>` | All of the above + `REPORT.md` |
+| `omni check <url\|file> [--states a,b]` | UI stat sheet + gate + screenshots + forced-state contact sheets (exit 1 on FAIL) |
+| `omni diff <before> <after>` | Stat deltas, slop tells removed/introduced, regressions, `compare.png` |
 | `omni theme <name> [--out dir]` | Copy a theme pack (`cyberpunk`) into your project |
 
 Options: `--out <dir>`, `--viewport 1440x900`, `--mobile`. Set `OMNI_CHROMIUM=/path/to/chrome` to use a specific browser binary.
@@ -73,21 +115,21 @@ omni theme cyberpunk --out src/theme
 - `fx.js`: an effects dial (Full / Subtle / Off), text decode for short labels, assemble-in on first view, event-only glitch and success ping, opt-in synthesized UI sounds, stick-to-bottom streaming with a "New output" pill, and a Ctrl/Cmd+K palette. No dependencies.
 - `demo.html`: a working agent console (streaming, tool calls, approval, failure, palette). Serve the folder (`npx serve themes/cyberpunk`) and open it.
 
-The rule behind it: **animate the chrome, never the work** — every effect reports real state. Research: [reports/Stylized UI that stays usable.md](reports/Stylized%20UI%20that%20stays%20usable.md), rules: [stylized-themes.md](skills/super-uiux-omni/references/stylized-themes.md).
+The rule behind it: **animate the chrome, never the work** — every effect reports real state. Research: [reports/Stylized UI that stays usable.md](reports/Stylized%20UI%20that%20stays%20usable.md), rules: [stylized-themes.md](skills/ui-max/references/stylized-themes.md).
 
 ## What "beyond pretty" means here
 
-- **States**: every control and data view gets the full matrix ([state-matrix.md](skills/super-uiux-omni/references/state-matrix.md)).
-- **Skeletons**: same box as the real content, delayed 150ms, `aria-busy`, no layout shift ([skeletons.md](skills/super-uiux-omni/references/skeletons.md)).
-- **Motion**: duration/easing tokens, exits faster than entrances, View Transitions, reduced motion ([motion.md](skills/super-uiux-omni/references/motion.md)).
-- **Verification**: re-audit, keyboard pass, slow-network pass, 390px and 1440px screenshots ([ux-heuristics.md](skills/super-uiux-omni/references/ux-heuristics.md)).
+- **States**: every control and data view gets the full matrix ([state-matrix.md](skills/ui-max/references/state-matrix.md)).
+- **Skeletons**: same box as the real content, delayed 150ms, `aria-busy`, no layout shift ([skeletons.md](skills/ui-max/references/skeletons.md)).
+- **Motion**: duration/easing tokens, exits faster than entrances, View Transitions, reduced motion ([motion.md](skills/ui-max/references/motion.md)).
+- **Verification**: re-audit, keyboard pass, slow-network pass, 390px and 1440px screenshots ([ux-heuristics.md](skills/ui-max/references/ux-heuristics.md)).
 
 ## Use it for good
 
 OMNI reads what any browser already renders. Use it to learn from good UI, audit
 and improve products you own or work on, and build design systems. Don't use it
 to clone someone's brand or impersonate a site. See
-[ethics.md](skills/super-uiux-omni/references/ethics.md).
+[ethics.md](skills/ui-max/references/ethics.md).
 
 ## Develop
 

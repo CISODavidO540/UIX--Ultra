@@ -1,5 +1,5 @@
 {
-  "name": "super-uiux-omni",
+  "name": "ui-max",
   "version": "0.1.0",
   "description": "Super UI UX OMNI Pro Max Ultra Supreme: capture any UI's design DNA, audit its UX, and generate the parts most redesigns skip (skeletons, transitions, empty/error states, focus, reduced motion).",
   "type": "module",
@@ -16,8 +16,22 @@
     "playwright": ">=1.40.0"
   },
   "peerDependenciesMeta": {
-    "playwright": { "optional": false }
+    "playwright": {
+      "optional": false
+    }
   },
-  "keywords": ["ui", "ux", "design-tokens", "accessibility", "skeleton", "motion", "claude-code", "skill"],
-  "license": "MIT"
+  "keywords": [
+    "ui",
+    "ux",
+    "design-tokens",
+    "accessibility",
+    "skeleton",
+    "motion",
+    "claude-code",
+    "skill"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.65.0"
+  }
 }

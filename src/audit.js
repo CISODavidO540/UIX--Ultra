@@ -14,13 +14,35 @@ function staticChecks() {
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none'; };
 
   // --- color contrast (WCAG 2.x) ---
-  const parse = (c) => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const [r, g, b, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r, g, b, a }; };
+  const _cv = document.createElement('canvas'); _cv.width = _cv.height = 1;
+  const _cx = _cv.getContext('2d', { willReadFrequently: true }); const _cc = new Map();
+  // Any CSS color (rgb, oklch, lab, color()) → {r,g,b,a} via a 1px canvas, cached.
+  const parse = (c) => {
+    if (!c || c === 'none') return null;
+    const m = c.match(/^rgba?\(([^)]+)\)$/);
+    if (m) { const [r, g, b, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r, g, b, a }; }
+    if (_cc.has(c)) return _cc.get(c);
+    _cx.fillStyle = '#010203'; _cx.fillStyle = c;
+    if (_cx.fillStyle === '#010203' && !/^#010203$/i.test(c)) { _cc.set(c, null); return null; }
+    _cx.clearRect(0, 0, 1, 1); _cx.fillRect(0, 0, 1, 1);
+    const d = _cx.getImageData(0, 0, 1, 1).data; const v = { r: d[0], g: d[1], b: d[2], a: d[3] / 255 };
+    _cc.set(c, v); return v;
+  };
   const lum = ({ r, g, b }) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
   const bgOf = (el) => {
     for (let n = el; n; n = n.parentElement) {
       const cs = getComputedStyle(n);
       if (cs.backgroundImage !== 'none') return null; // gradient/image: can't know
+      // Chamfered/clip-path panels paint the border color on the element and the
+      // fill on an inset ::before. Text sits on the ::before fill, so check it first.
+      const pb = getComputedStyle(n, '::before');
+      const covers = pb.content !== 'none' && pb.position === 'absolute' && pb.backgroundImage === 'none'
+        && parseFloat(pb.width) >= n.getBoundingClientRect().width - 6 && parseFloat(pb.height) >= n.getBoundingClientRect().height - 6;
+      if (covers) {
+        const pc = parse(pb.backgroundColor);
+        if (pc && pc.a > 0.9) return pc;
+      }
       const c = parse(cs.backgroundColor);
       if (c && c.a > 0.9) return c;
     }
@@ -67,6 +89,9 @@ function staticChecks() {
     const r = el.getBoundingClientRect();
     const inline = getComputedStyle(el).display === 'inline' && el.tagName === 'A' && el.closest('p, li');
     if (inline) return; // inline links in prose are exempt
+    // A control wrapped in (or tied to) a label that is itself ≥ 24px: the label is the hit target.
+    const lab = el.closest('label') || (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`));
+    if (lab) { const lr = lab.getBoundingClientRect(); if (lr.width >= 24 && lr.height >= 24) return; }
     if (r.width < 24 || r.height < 24) { small++; if (small <= 5) add('serious', 'tap-target', `Target is ${Math.round(r.width)}×${Math.round(r.height)}px (min 24, ideal 44)`, describe(el)); }
   });
 

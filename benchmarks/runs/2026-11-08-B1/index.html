@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en" data-fx="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes · Strip bay — Vendor UI/UX Pro Max into UI-MAX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Tokens — concept: tool calls are flight strips in a bay.
+   One accent (signal amber) = "needs your clearance". Nothing else uses it.
+   ============================================================ */
+:root {
+  color-scheme: dark;
+  /* bay (dark room) */
+  --bay-0: oklch(0.17 0.007 75);
+  --bay-1: oklch(0.205 0.008 75);
+  --bay-2: oklch(0.24 0.009 75);
+  --bay-3: oklch(0.285 0.01 75);
+  --text: oklch(0.93 0.012 85);
+  --muted: oklch(0.74 0.012 80);
+  --faint: oklch(0.6 0.01 80);
+  --line: oklch(0.93 0.012 85 / 0.1);
+  --line-strong: oklch(0.93 0.012 85 / 0.18);
+  /* strip paper */
+  --paper: oklch(0.935 0.028 86);
+  --paper-2: oklch(0.9 0.03 84);
+  --paper-dim: oklch(0.8 0.02 82);
+  --ink: oklch(0.24 0.012 70);
+  --ink-muted: oklch(0.45 0.014 70);
+  --ink-line: oklch(0.24 0.012 70 / 0.16);
+  /* the one accent */
+  --signal: oklch(0.8 0.15 72);
+  --signal-ink: oklch(0.47 0.12 60);
+  --signal-wash: oklch(0.8 0.15 72 / 0.14);
+  /* status only */
+  --fail: oklch(0.47 0.16 28);
+  --fail-on-dark: oklch(0.72 0.14 28);
+  --fail-wash: oklch(0.62 0.17 28 / 0.12);
+  --focus: var(--text);
+
+  --font: "Barlow", ui-sans-serif, sans-serif;
+  --font-cond: "Barlow Semi Condensed", "Barlow", ui-sans-serif, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  /* type scale 1.2 */
+  --t-xs: 12px; --t-sm: 13px; --t-md: 15px; --t-lg: 18px; --t-xl: 22px;
+
+  --r-strip: 3px; --r-ctl: 6px;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --d-fast: 120ms; --d-enter: 200ms; --d-cock: 240ms; --d-stamp: 160ms;
+  --cock: -14px;
+}
+html[data-fx="off"] { --d-enter: 0ms; --d-cock: 0ms; --d-stamp: 0ms; --cock: 0px; }
+@media (prefers-reduced-motion: reduce) {
+  :root { --d-enter: 0ms; --d-cock: 0ms; --d-stamp: 0ms; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bay-0); color: var(--text);
+  font: 400 var(--t-md)/1.5 var(--font);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+code, kbd, .mono { font-family: var(--mono); font-size: 0.93em; font-variant-numeric: tabular-nums slashed-zero; }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 8px; top: -48px; z-index: 10; background: var(--text); color: var(--bay-0); padding: 8px 12px; border-radius: var(--r-ctl); }
+.skip:focus { top: 8px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ============================================================ layout */
+.app {
+  height: 100dvh; display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(420px, 34vw, 520px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: "head head" "log bay" "comp bay";
+}
+.head { grid-area: head; }
+.log-wrap { grid-area: log; }
+.bay { grid-area: bay; }
+.dock { grid-area: dock; }
+.composer { grid-area: comp; }
+.tabs { display: none; }
+
+/* ============================================================ header */
+.head {
+  display: flex; align-items: center; gap: 24px;
+  padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--bay-1);
+}
+.brand { font-weight: 600; font-size: var(--t-md); letter-spacing: -0.005em; color: var(--text); }
+.brand::after { content: ""; display: inline-block; width: 1px; height: 16px; background: var(--line-strong); margin-left: 24px; vertical-align: -3px; }
+.run { min-width: 0; flex: 1; }
+.run h1 { margin: 0; font-size: var(--t-md); font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.run p { margin: 0; font-size: var(--t-sm); color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.conn { display: inline-flex; align-items: center; gap: 6px; }
+.conn::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+[data-conn="live"] .conn::before { background: var(--text); }
+[data-conn="lost"] .conn { color: var(--fail-on-dark); }
+[data-conn="lost"] .conn::before { background: var(--fail-on-dark); }
+.dot { color: var(--faint); }
+
+.ctx { display: grid; grid-template-columns: auto 96px; gap: 2px 10px; align-items: center; font-size: var(--t-xs); color: var(--muted); }
+.ctx-bar { height: 4px; border-radius: 2px; background: var(--bay-3); overflow: hidden; }
+.ctx-bar i { display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(var(--v)); background: var(--muted); transition: transform var(--d-enter) var(--ease-out); }
+.ctx[data-level="warn"] .ctx-bar i { background: var(--text); }
+.ctx[data-level="crit"] .ctx-bar i { background: var(--fail-on-dark); }
+.ctx .mono { grid-column: 2; font-size: var(--t-xs); }
+
+/* ============================================================ buttons */
+.btn {
+  appearance: none; font: 500 var(--t-sm)/1 var(--font); color: var(--text);
+  background: var(--bay-2); border: 1px solid var(--line-strong); border-radius: var(--r-ctl);
+  min-height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  transition: background var(--d-fast) var(--ease-out), border-color var(--d-fast) var(--ease-out);
+}
+.btn:hover { background: var(--bay-3); border-color: oklch(0.93 0.012 85 / 0.28); }
+.btn:active { transform: translateY(1px); }
+.btn:is(:disabled, [aria-disabled="true"]) { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn kbd { font-size: 12px; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 4px; line-height: 1.4; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { background: var(--bay-2); color: var(--text); }
+.btn-ghost[aria-pressed="false"] { text-decoration: line-through; text-decoration-color: var(--faint); }
+.btn-allow { background: var(--signal); color: var(--ink); border-color: var(--signal); font-weight: 600; }
+.btn-allow:hover { background: oklch(0.85 0.14 74); border-color: oklch(0.85 0.14 74); }
+.btn-allow kbd { color: var(--ink); border-color: oklch(0.24 0.012 70 / 0.3); }
+.btn-allow:focus-visible { outline-color: var(--text); }
+
+/* ============================================================ transcript */
+.log-wrap { position: relative; min-height: 0; display: flex; }
+.log { flex: 1; overflow-y: auto; padding: 28px 32px 40px; scroll-behavior: auto; }
+.log:focus-visible { outline-offset: -2px; }
+.msgs { max-width: 68ch; margin: 0; padding: 0; list-style: none; display: grid; gap: 28px; }
+.msg-by { margin: 0 0 4px; font-size: var(--t-sm); color: var(--muted); display: flex; gap: 8px; }
+.msg-by b { font-weight: 600; color: var(--text); }
+.msg-body p { margin: 0 0 8px; text-wrap: pretty; }
+.msg-body p:last-child { margin-bottom: 0; }
+.msg[data-by="you"] .msg-body { background: var(--bay-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; }
+.msg[data-queued] .msg-by::after { content: "Queued · sends when the run is idle"; color: var(--muted); }
+.result { margin: 8px 0 0; display: inline-flex; gap: 12px; align-items: baseline; font-family: var(--mono); font-size: var(--t-sm); padding: 6px 10px; border-radius: var(--r-ctl); background: var(--bay-1); border: 1px solid var(--line); }
+.result .fail { color: var(--fail-on-dark); font-weight: 500; }
+.ref {
+  font: 500 var(--t-sm)/1 var(--font); color: var(--text); text-decoration: none;
+  border-bottom: 1px solid var(--line-strong); padding-bottom: 1px; cursor: pointer;
+}
+.ref:hover { border-bottom-color: var(--text); }
+.ref .mono { color: var(--muted); margin-right: 2px; }
+.caret { display: inline-block; width: 8px; height: 1.1em; vertical-align: -0.2em; background: var(--muted); margin-left: 2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+html[data-fx="off"] .caret { animation: none; }
+
+.pill {
+  position: absolute; left: 50%; bottom: 16px; transform: translate(-50%, 8px); opacity: 0; pointer-events: none;
+  transition: opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+  background: var(--text); color: var(--bay-0); border: 0; border-radius: 999px; min-height: 32px; padding: 0 14px; font: 500 var(--t-sm)/1 var(--font); cursor: pointer;
+}
+.pill[data-show] { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+
+.banner { max-width: 68ch; margin: 0 0 24px; padding: 12px 16px; border-radius: 8px; border: 1px solid oklch(0.72 0.14 28 / 0.4); background: var(--fail-wash); display: grid; gap: 8px; }
+.banner h2 { margin: 0; font-size: var(--t-md); font-weight: 600; color: var(--fail-on-dark); }
+.banner p { margin: 0; color: var(--text); }
+.banner .btn { justify-self: start; }
+
+.empty { max-width: 52ch; padding-top: 12vh; }
+.empty h2 { margin: 0 0 8px; font-size: var(--t-xl); font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+.empty p { margin: 0 0 20px; color: var(--muted); text-wrap: pretty; }
+.suggest { display: grid; gap: 8px; justify-items: start; }
+
+/* ============================================================ bay + strips */
+.bay { min-height: 0; display: flex; flex-direction: column; background: var(--bay-1); border-left: 1px solid var(--line); }
+.bay-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--line); }
+.bay-head h2 { margin: 0; font-size: var(--t-md); font-weight: 600; }
+.bay-head p { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+.bay-head p b { color: var(--signal); font-weight: 600; }
+.strips { list-style: none; margin: 0; padding: 12px 20px 20px 28px; overflow-y: auto; display: grid; gap: 6px; align-content: start; flex: 1; }
+
+.strip {
+  --focus: var(--ink);
+  background: var(--paper); color: var(--ink); border-radius: var(--r-strip);
+  box-shadow: 0 1px 0 oklch(0 0 0 / 0.35), 0 0 0 1px oklch(0 0 0 / 0.25);
+  transition: transform var(--d-cock) var(--ease-out), background var(--d-fast) var(--ease-out);
+  animation: strip-in var(--d-enter) var(--ease-out) both;
+}
+@keyframes strip-in { from { opacity: 0; transform: translateY(6px); } }
+.strip > summary {
+  list-style: none; cursor: pointer; display: grid; align-items: stretch;
+  grid-template-columns: 30px 52px minmax(0, 1fr) 76px; min-height: 48px;
+}
+.strip > summary::-webkit-details-marker { display: none; }
+.strip > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; border-radius: var(--r-strip); }
+.strip > summary > * { padding: 8px; border-right: 1px solid var(--ink-line); min-width: 0; }
+.strip > summary > :last-child { border-right: 0; }
+.s-seq { font: 500 var(--t-xs)/1.6 var(--mono); color: var(--ink-muted); padding-left: 8px; }
+.s-tool { font: 600 var(--t-xs)/1.3 var(--font-cond); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); padding-top: 8px; }
+.s-body { display: grid; gap: 2px; align-content: center; }
+.s-body code { font-size: var(--t-sm); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.s-note { font-size: var(--t-xs); color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-state { display: grid; align-content: center; justify-items: start; gap: 1px; font-size: var(--t-xs); position: relative; overflow: hidden; }
+.s-state b { font-weight: 600; font-size: var(--t-sm); line-height: 1.2; }
+.s-state .num { color: var(--ink-muted); font-family: var(--mono); font-size: var(--t-xs); }
+.strip:hover { background: oklch(0.955 0.024 86); }
+
+/* the stamp: lands once */
+.stamp { display: inline-block; color: var(--ink); border: 1.5px solid currentColor; border-radius: 2px; padding: 0 4px; font: 600 var(--t-xs)/1.4 var(--font-cond); letter-spacing: 0.04em; transform: rotate(-4deg); }
+.strip[data-s="done"] .stamp { animation: stamp var(--d-stamp) var(--ease-out) both; }
+@keyframes stamp { from { opacity: 0; transform: rotate(-4deg) scale(1.35); } }
+
+/* queued: printed but not active */
+.strip[data-s="queued"] { background: var(--paper-dim); box-shadow: 0 0 0 1px oklch(0 0 0 / 0.25); }
+.strip[data-s="queued"] .s-state b { color: var(--ink-muted); font-weight: 500; }
+.strip[data-s="queued"] { --ink-muted: oklch(0.38 0.014 70); }
+
+/* running: the one ambient loop, only while live */
+.strip[data-s="run"] .s-state::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--ink) 40%, transparent 80%);
+  background-size: 200% 100%; animation: sweep 1.1s linear infinite; opacity: 0.7;
+}
+@keyframes sweep { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+html[data-fx="off"] .strip[data-s="run"] .s-state::after { animation: none; background: var(--ink); opacity: 0.35; }
+
+/* hold: the cocked strip — sticks out of the bay */
+.strip[data-s="hold"] { transform: translateX(var(--cock)); box-shadow: 0 2px 0 oklch(0 0 0 / 0.4), 0 0 0 1px oklch(0 0 0 / 0.3), 0 0 0 3px var(--signal); }
+.strip[data-s="hold"] .s-state { background: var(--signal); }
+.strip[data-s="hold"] .s-state b { color: var(--ink); }
+.strip[data-s="hold"] .s-state .num { color: var(--ink); }
+
+/* failed / denied */
+.strip[data-s="err"] .s-state b { color: var(--fail); }
+.strip[data-s="err"] .s-note { color: var(--fail); }
+.strip[data-s="deny"] code, .strip[data-s="stop"] code { text-decoration: line-through; text-decoration-color: var(--ink-muted); }
+.strip[data-s="deny"] .s-state b, .strip[data-s="stop"] .s-state b { color: var(--ink-muted); }
+
+.s-out { border-top: 1px solid var(--ink-line); padding: 10px 12px 12px 36px; display: grid; gap: 8px; }
+.s-out pre { margin: 0; font: 400 12px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; color: var(--ink); max-height: 220px; overflow: auto; }
+.s-out .meta { font-size: var(--t-xs); color: var(--ink-muted); }
+
+.strip.flash { background: oklch(0.97 0.02 86); }
+
+/* skeletons (loading) */
+.sk { background: var(--bay-2); border-radius: 4px; position: relative; overflow: hidden; }
+.sk::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.05), transparent); transform: translateX(-100%); animation: sk 1.4s var(--ease-out) infinite; }
+@keyframes sk { to { transform: translateX(100%); } }
+.sk-strip { height: 48px; border-radius: var(--r-strip); background: var(--bay-3); }
+.sk-line { height: 12px; margin: 8px 0; }
+
+.bay-empty { color: var(--muted); font-size: var(--t-sm); max-width: 40ch; }
+
+/* ============================================================ clearance dock */
+.dock { background: var(--bay-1); border-top: 1px solid var(--line); padding: 16px 20px; }
+.bay > .dock { flex: none; }
+.clear { display: grid; gap: 10px; }
+.clear-k { margin: 0; font-size: var(--t-sm); font-weight: 600; color: var(--signal); display: flex; justify-content: space-between; gap: 12px; }
+.clear-k .num { color: var(--muted); font-weight: 400; font-family: var(--mono); font-size: var(--t-xs); }
+.clear-cmd { margin: 0; font: 500 var(--t-sm)/1.5 var(--mono); background: var(--bay-0); border: 1px solid var(--line-strong); border-radius: var(--r-ctl); padding: 8px 12px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
+.clear-radius { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: var(--t-sm); }
+.clear-radius dt { color: var(--muted); }
+.clear-radius dd { margin: 0; }
+.clear-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-sm); color: var(--muted); margin-left: auto; min-height: 32px; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--signal); margin: 0; }
+.dock-quiet { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+.dock-quiet b { color: var(--text); font-weight: 500; }
+
+/* ============================================================ composer */
+.composer { border-top: 1px solid var(--line); padding: 12px 20px 16px; background: var(--bay-0); display: grid; gap: 6px; }
+.composer .row { display: flex; gap: 8px; align-items: flex-end; max-width: calc(68ch + 34px); }
+.composer textarea {
+  flex: 1; resize: none; min-height: 44px; max-height: 160px; font: 400 var(--t-md)/1.45 var(--font); color: var(--text);
+  background: var(--bay-1); border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px;
+  transition: border-color var(--d-fast) var(--ease-out);
+}
+.composer textarea::placeholder { color: var(--faint); }
+.composer textarea:hover { border-color: oklch(0.93 0.012 85 / 0.28); }
+.composer textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; border-color: transparent; }
+.composer .btn { min-height: 44px; }
+.hint { margin: 0; font-size: var(--t-xs); color: var(--muted); }
+
+/* ============================================================ narrow: one column + tabs */
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto auto; grid-template-areas: "head" "tabs" "main" "dock" "comp"; }
+  .log-wrap, .bay { grid-area: main; }
+  .app[data-tab="log"] .bay, .app[data-tab="bay"] .log-wrap { display: none; }
+  .bay { border-left: 0; }
+  .dock { border-left: 0; padding: 12px 16px; }
+  .dock:has(.dock-quiet) { display: none; }
+  .head { gap: 12px; padding: 10px 16px; flex-wrap: wrap; }
+  .brand::after { margin-left: 12px; }
+  .ctx { order: 3; width: 100%; grid-template-columns: auto 1fr auto; }
+  .ctx .mono { grid-column: 3; grid-row: 1; }
+  .head .btn-ghost, .head .wide { display: none; }
+  .run p { flex-wrap: nowrap; white-space: nowrap; overflow: hidden; }
+  .run p > span { overflow: hidden; text-overflow: ellipsis; flex: none; }
+  .run p > #runStatus { flex: none; }
+  .run p > .conn { flex: 0 1 auto; min-width: 0; }
+  .brand { display: none; }
+  .app > .dock { grid-area: dock; }
+  .tabs { display: flex; border-bottom: 1px solid var(--line); background: var(--bay-1); padding: 0 8px; }
+  .tabs button { appearance: none; background: none; border: 0; color: var(--muted); font: 500 var(--t-sm)/1 var(--font); min-height: 44px; padding: 0 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); }
+  .tabs button b { color: var(--signal); font-weight: 600; }
+  .log { padding: 20px 16px 32px; }
+  .strips { padding: 4px 16px 16px 24px; }
+  .composer { padding: 10px 16px 12px; }
+  .check { margin-left: 0; }
+  .empty { padding-top: 4vh; }
+}
+@media (max-width: 420px) {
+  .strip > summary { grid-template-columns: 26px 48px minmax(0, 1fr) 70px; }
+  .s-out { padding-left: 12px; }
+}
+
+/* forced colors: keep structure and the cocked offset readable */
+@media (forced-colors: active) {
+  .strip { border: 1px solid CanvasText; }
+  .strip[data-s="hold"] { outline: 3px solid Highlight; }
+  .strip[data-s="hold"] .s-state { background: Highlight; color: HighlightText; }
+  .btn-allow { border: 2px solid ButtonText; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#log">Skip to transcript</a>
+<div class="app" id="app" data-tab="log">
+  <header class="head" id="head">
+    <div class="brand">Hermes</div>
+    <div class="run">
+      <h1 id="runTitle">Vendor UI/UX Pro Max into UI-MAX</h1>
+      <p><span class="conn" id="conn">Connected to hermes-pop</span><span class="dot wide" aria-hidden="true">·</span><span class="mono wide">claude-opus-5-5</span><span class="dot" aria-hidden="true">·</span><span id="runStatus">Running <span class="num mono" id="elapsed">4:12</span></span></p>
+    </div>
+    <div class="ctx" id="ctx" role="meter" aria-label="Context used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="38">
+      <span>Context</span><div class="ctx-bar"><i id="ctxBar" style="--v: 0.38"></i></div>
+      <span></span><span class="mono" id="ctxText">76k / 200k</span>
+    </div>
+    <button class="btn btn-ghost" id="fx" type="button" aria-pressed="true" title="Strip motion and the running indicator">Effects <span id="fxState">on</span></button>
+    <button class="btn" id="stop" type="button">Stop <kbd>Esc</kbd></button>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button role="tab" id="tab-log" aria-controls="log" aria-selected="true" type="button">Transcript</button>
+    <button role="tab" id="tab-bay" aria-controls="bay" aria-selected="false" type="button">Strips <span id="tabCount" class="num"></span></button>
+  </div>
+
+  <div class="log-wrap">
+    <main class="log" id="log" tabindex="-1" aria-label="Transcript">
+      <div id="banner"></div>
+      <ol class="msgs" id="msgs" aria-live="polite"></ol>
+    </main>
+    <button class="pill" id="pill" type="button">New output ↓</button>
+  </div>
+
+  <section class="bay" id="bay" aria-labelledby="bayTitle">
+    <header class="bay-head"><h2 id="bayTitle">Strips</h2><p id="baySummary"></p></header>
+    <ol class="strips" id="strips"></ol>
+  </section>
+
+  <section class="dock" id="dock" aria-label="Clearance"></section>
+
+  <form class="composer" id="composer">
+    <label class="sr" for="input">Message Hermes</label>
+    <div class="row">
+      <textarea id="input" rows="1" placeholder="Message Hermes"></textarea>
+      <button class="btn" type="submit" id="send">Send <kbd>Ctrl ⏎</kbd></button>
+    </div>
+    <p class="hint" id="hint">Hermes is running. Messages you send now are queued until it's idle.</p>
+  </form>
+</div>
+
+<script>
+/* Real content: tool calls from the 2026-11-08 session that built UI-MAX. */
+const STRIPS = [
+  { id: '01', tool: 'Shell', cmd: 'vault read Research/areas/current-truth.md', note: 'Read current truth before touching memory', s: 'done', t: '0.4s', out: '# Current truth\n## Now — what David is actually on\n- Harvis is active and David builds it alone …' },
+  { id: '02', tool: 'Shell', cmd: 'gh repo list CISODavidO540 --limit 50', note: 'gh: command not found', s: 'err', t: 'exit 127', out: '/usr/bin/bash: line 7: gh: command not found', meta: 'Recovered in strip 03 with the GitHub REST API.' },
+  { id: '03', tool: 'Shell', cmd: 'curl api.github.com/users/CISODavidO540/repos', note: '4 repos · no UI-MAX · UIX--Ultra updated 02:39', s: 'done', t: '0.8s', out: "[('Calamity-Fly', False), ('scout-up-recon', False), ('test1', False), ('UIX--Ultra', False, '2026-11-09T02:39:45Z')]" },
+  { id: '04', tool: 'Shell', cmd: 'git clone https://github.com/CISODavidO540/UIX--Ultra', note: '6 commits · main @ 4d9a531', s: 'done', t: '1.1s', out: '4d9a531 Add CONTEXT.md handoff for local work\n7e3132e Add cyberpunk theme pack, stylized-theme research and guidance\n…' },
+  { id: '05', tool: 'Shell', cmd: 'npm i -D playwright && npx playwright install chromium', note: 'Chrome Headless Shell 158 · tests 2/2 pass', s: 'done', t: '38s', out: 'added 2 packages, and audited 3 packages in 2s\nfound 0 vulnerabilities\n# pass 2\n# fail 0' },
+  { id: '06', tool: 'Write', cmd: 'src/slop.js', note: '15 tells · 14.7 kB', s: 'done', t: '0.1s', out: 'bytes_written: 14674 · lint: ok' },
+  { id: '07', tool: 'Shell', cmd: 'omni check themes/cyberpunk/demo.html', note: 'FAIL · 84 B · 4 tells', s: 'done', t: '9.6s', out: '✘ FAIL  overall 84 (B)  access 99 · originality 52 · states 100\n  tell 2: Default accent hue\n  tell 11: Shouty labels\n  tell 12: Mono as texture\n  tell 13: Ornament everywhere' },
+  { id: '08', tool: 'Shell', cmd: 'rm -rf skills/ui-max/vendor/ui-ux-pro-max/scripts/tests', note: 'Flagged: recursive delete', s: 'hold', t: '' },
+  { id: '09', tool: 'Shell', cmd: 'hermes skills list | grep ui-max', note: 'Confirm the skill registers', s: 'queued', t: '' },
+];
+const MSGS = [
+  { by: 'you', at: '02:40', html: '<p>youre going to help me max out your UI stats, i need you to be able to make intricate and meaningful UI UX and GUI. take info from UIUX promax. i made a github called UI-MAX</p>' },
+  { by: 'hermes', at: '02:41', html: '<p>There’s no repo called UI-MAX on your account. <code>UIX--Ultra</code> was updated two minutes before your message, so I’m treating that as the one. <a class="ref" href="#s-02" data-ref="02"><span class="mono">02</span> failed</a> because <code>gh</code> isn’t installed; <a class="ref" href="#s-03" data-ref="03"><span class="mono">03</span></a> used the API instead.</p>' },
+  { by: 'hermes', at: '02:47', html: '<p>The slop detector now reproduces your verdict on the old cyberpunk theme: stock palette, uppercase mono labels, ornament everywhere.</p><p class="result"><span class="fail">FAIL</span><span>84 B</span><span>originality 52</span><span>4 tells</span></p>' },
+  { by: 'hermes', at: '02:49', live: true, html: '<p>Vendoring Pro Max 2.15 into the skill. Its test fixtures aren’t needed there, so I want to delete them. That needs your clearance on <a class="ref" href="#s-08" data-ref="08"><span class="mono">08</span></a>.<span class="caret" aria-hidden="true"></span></p>' },
+];
+const HOLD = {
+  id: '08', cmd: 'rm -rf skills/ui-max/vendor/ui-ux-pro-max/scripts/tests',
+  radius: 'Two test-fixture folders inside the repo, about 40 kB. Tracked by git, so <code>git checkout</code> restores them. Nothing outside <code>~/Projects/UIX--Ultra</code>.',
+  why: 'Smart approval: recursive delete',
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const app = $('#app'), stripsEl = $('#strips'), msgsEl = $('#msgs'), log = $('#log'), dock = $('#dock'), pill = $('#pill');
+const params = new URLSearchParams(location.search);
+const view = params.get('state') || 'live';
+let strips = structuredClone(STRIPS), running = true, seconds = 252, atBottom = true;
+
+/* ---------- rendering ---------- */
+const STATE = { done: ['Cleared', true], err: ['Failed', false], hold: ['Needs you', false], run: ['Running', false], queued: ['Queued', false], deny: ['Denied', false], stop: ['Stopped', false] };
+function stripHTML(x) {
+  const [label, stamp] = STATE[x.s];
+  const state = stamp ? `<span class="stamp">${label}</span>` : `<b>${label}</b>`;
+  const open = x.s === 'err' ? ' open' : '';
+  const out = x.out ? `<div class="s-out"><pre>${esc(x.out)}</pre>${x.meta ? `<p class="meta">${x.meta}</p>` : ''}</div>`
+    : `<div class="s-out"><p class="meta">${x.s === 'hold' ? 'Waiting for your clearance below.' : x.s === 'queued' ? 'Runs after strip ' + String(+x.id - 1).padStart(2, '0') + '.' : 'No output.'}</p></div>`;
+  return `<li><details class="strip" id="s-${x.id}" data-s="${x.s}"${open}>
+    <summary aria-label="Step ${x.id}, ${x.tool}: ${esc(x.cmd)}. ${label}">
+      <span class="s-seq">${x.id}</span><span class="s-tool">${x.tool}</span>
+      <span class="s-body"><code title="${esc(x.cmd)}">${esc(x.cmd)}</code><span class="s-note">${esc(x.note)}</span></span>
+      <span class="s-state">${state}${x.t ? `<span class="num">${x.t}</span>` : ''}</span>
+    </summary>${out}</details></li>`;
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function renderStrips() {
+  stripsEl.innerHTML = strips.map(stripHTML).join('');
+  const hold = strips.filter((x) => x.s === 'hold').length;
+  $('#baySummary').innerHTML = `${strips.length} steps${hold ? ` · <b>${hold} needs clearance</b>` : ''}`;
+  $('#tabCount').innerHTML = hold ? `· <b>${hold} needs you</b>` : `· ${strips.length}`;
+  requestAnimationFrame(() => typeof followActive === 'function' && followActive());
+}
+function renderMsgs(list) {
+  msgsEl.innerHTML = list.map((m) => `<li class="msg" data-by="${m.by}"${m.queued ? ' data-queued' : ''}>
+    <p class="msg-by"><b>${m.by === 'you' ? 'You' : 'Hermes'}</b><span class="num">${m.at}</span></p>
+    <div class="msg-body">${m.html}</div></li>`).join('');
+}
+function renderDock() {
+  const h = strips.find((x) => x.s === 'hold');
+  if (!strips.length) { dock.innerHTML = '<p class="dock-quiet">Risky commands wait here for your clearance, with their blast radius.</p>'; return; }
+  if (!h) {
+    const done = strips.filter((x) => x.s === 'done').length;
+    dock.innerHTML = running
+      ? `<p class="dock-quiet">No clearance needed right now. Hermes asks here before anything risky.</p>`
+      : `<p class="dock-quiet"><b>${done} of ${strips.length} cleared</b> · ${strips.filter((x) => x.s === 'err').length} failed and recovered · nothing waiting.</p>`;
+    return;
+  }
+  dock.innerHTML = `<div class="clear" role="group" aria-labelledby="clearK">
+    <p class="clear-k" id="clearK">Strip ${h.id} needs your clearance <span class="num">waiting <span id="wait">0:00</span></span></p>
+    <pre class="clear-cmd">${esc(HOLD.cmd).replace(/\//g, '/<wbr>')}</pre>
+    <dl class="clear-radius"><dt>Blast radius</dt><dd>${HOLD.radius}</dd><dt>Flagged by</dt><dd>${HOLD.why}</dd></dl>
+    <div class="clear-actions">
+      <button class="btn btn-allow" id="allow" type="button">Allow <kbd>⏎</kbd></button>
+      <button class="btn" id="deny" type="button">Deny</button>
+      <label class="check"><input type="checkbox" id="always"> Allow <code>rm -rf</code> in this repo for the session</label>
+    </div></div>`;
+  $('#allow').onclick = () => decide(true);
+  $('#deny').onclick = () => decide(false);
+}
+
+/* ---------- behavior ---------- */
+function setStrip(id, patch) { strips = strips.map((x) => (x.id === id ? { ...x, ...patch } : x)); renderStrips(); }
+function addMsg(m) {
+  MSGS_LIVE.forEach((x) => { x.html = x.html.replace(/<span class="caret"[^>]*><\/span>/, ''); });
+  MSGS_LIVE.push(m); renderMsgs(MSGS_LIVE);
+  if (atBottom) log.scrollTop = log.scrollHeight; else pill.setAttribute('data-show', '');
+}
+let MSGS_LIVE = structuredClone(MSGS);
+function decide(ok) {
+  if (ok) {
+    setStrip('08', { s: 'run', note: 'Deleting 2 folders', t: '' });
+    renderDock();
+    setTimeout(() => {
+      setStrip('08', { s: 'done', note: '2 folders removed · 41 kB', t: '0.2s', out: "removed 'scripts/tests/fixtures/catalogs'\nremoved 'scripts/tests'" });
+      runNext();
+    }, 900);
+  } else {
+    setStrip('08', { s: 'deny', note: 'You denied this. Fixtures stay.', t: '' });
+    renderDock();
+    addMsg({ by: 'hermes', at: '02:50', html: '<p>Understood, leaving the fixtures in place. They’re 40 kB and harmless. Moving on to <a class="ref" href="#s-09" data-ref="09"><span class="mono">09</span></a>.</p>' });
+    runNext();
+  }
+}
+function runNext() {
+  setStrip('09', { s: 'run', note: 'Confirm the skill registers' });
+  setTimeout(() => {
+    if (!running) return;
+    setStrip('09', { s: 'done', note: 'ui-max · creative · enabled', t: '1.4s', out: '│ ui-max │ creative │ local │ local │ enabled │' });
+    running = false; finish('Run complete');
+    addMsg({ by: 'hermes', at: '02:51', html: '<p>Done. <code>ui-max</code> is registered in Hermes and Claude Code. Next I’d run benchmark B1 through the full loop and show you the stat sheet.</p>' });
+  }, 1400);
+}
+function finish(label) {
+  $('#runStatus').innerHTML = `${label} <span class="num mono">${fmt(seconds)}</span>`;
+  $('#hint').textContent = 'Ctrl+Enter to send.';
+  $('#stop').setAttribute('aria-disabled', 'true');
+  renderDock();
+}
+function stop() {
+  if (!running) return;
+  running = false;
+  strips = strips.map((x) => (['run', 'queued', 'hold'].includes(x.s) ? { ...x, s: 'stop', note: 'Stopped by you · work so far kept' } : x));
+  renderStrips();
+  finish('Stopped · work kept');
+  addMsg({ by: 'hermes', at: '02:50', html: '<p>Stopped. Everything up to strip 07 is kept; nothing was deleted.</p>' });
+}
+const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+/* ---------- wiring ---------- */
+stripsEl.addEventListener('toggle', () => {}, true);
+document.addEventListener('click', (e) => {
+  const r = e.target.closest('.ref'); if (!r) return;
+  e.preventDefault();
+  const el = $('#s-' + r.dataset.ref); if (!el) return;
+  if (matchMedia('(max-width: 860px)').matches) selectTab('bay');
+  el.open = true;
+  stripsEl.scrollTo({ top: el.offsetTop - stripsEl.offsetTop - 8 });
+  el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 600);
+  el.querySelector('summary').focus({ preventScroll: true });
+});
+log.addEventListener('scroll', () => {
+  atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 24;
+  if (atBottom) pill.removeAttribute('data-show');
+});
+pill.onclick = () => { log.scrollTop = log.scrollHeight; pill.removeAttribute('data-show'); };
+$('#stop').onclick = stop;
+$('#fx').onclick = (e) => {
+  const on = document.documentElement.dataset.fx !== 'off';
+  document.documentElement.dataset.fx = on ? 'off' : 'full';
+  e.currentTarget.setAttribute('aria-pressed', String(!on));
+  $('#fxState').textContent = on ? 'off' : 'on';
+};
+/* The clearance dock lives in the bay on wide screens and above the composer on
+   narrow ones, so on mobile it's visible from both tabs. */
+const narrow = matchMedia('(max-width: 860px)');
+function placeDock() { if (narrow.matches) app.insertBefore(dock, $('#composer')); else $('#bay').appendChild(dock); }
+narrow.addEventListener('change', placeDock); placeDock();
+/* Keep the strip that matters in view: hold first, then running. */
+let bayFollow = true;
+stripsEl.addEventListener('scroll', () => { bayFollow = false; clearTimeout(stripsEl._t); stripsEl._t = setTimeout(() => (bayFollow = true), 4000); }, { passive: true });
+function followActive() {
+  const el = stripsEl.querySelector('[data-s="hold"]') || stripsEl.querySelector('[data-s="run"]');
+  if (!el || !bayFollow) return;
+  const li = el.parentElement, top = li.offsetTop - stripsEl.offsetTop, bottom = top + li.offsetHeight;
+  if (bottom > stripsEl.scrollTop + stripsEl.clientHeight || top < stripsEl.scrollTop) stripsEl.scrollTop = bottom - stripsEl.clientHeight + 16;
+}
+function selectTab(t) {
+  app.dataset.tab = t;
+  $('#tab-log').setAttribute('aria-selected', String(t === 'log'));
+  $('#tab-bay').setAttribute('aria-selected', String(t === 'bay'));
+}
+$('#tab-log').onclick = () => selectTab('log');
+$('#tab-bay').onclick = () => selectTab('bay');
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !e.target.closest('textarea')) stop();
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'input') { e.preventDefault(); $('#composer').requestSubmit(); }
+});
+$('#composer').onsubmit = (e) => {
+  e.preventDefault();
+  const v = $('#input').value.trim(); if (!v) { $('#input').focus(); return; }
+  addMsg({ by: 'you', at: '02:50', html: `<p>${esc(v)}</p>`, queued: running });
+  $('#input').value = '';
+};
+$('#input').addEventListener('input', (e) => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'; });
+setInterval(() => {
+  if (!running) return;
+  seconds++; const el = $('#elapsed'); if (el) el.textContent = fmt(seconds);
+  const w = $('#wait'); if (w) { w.dataset.s = (+w.dataset.s || 0) + 1; w.textContent = fmt(+w.dataset.s); }
+}, 1000);
+function setCtx(pct, text) {
+  $('#ctx').setAttribute('aria-valuenow', pct); $('#ctxBar').style.setProperty('--v', pct / 100); $('#ctxText').textContent = text;
+  $('#ctx').dataset.level = pct >= 90 ? 'crit' : pct >= 70 ? 'warn' : 'ok';
+}
+
+/* ---------- states (verify every one: ?state=live|empty|loading|error|done) ---------- */
+function boot() {
+  document.body.dataset.view = view;
+  head.dataset.conn = 'live';
+  setCtx(38, '76k / 200k');
+  if (view === 'loading') {
+    running = false;
+    $('#runTitle').textContent = 'Loading run…'; $('#runStatus').textContent = 'Fetching from hermes-pop';
+    log.setAttribute('aria-busy', 'true'); $('#bay').setAttribute('aria-busy', 'true');
+    msgsEl.innerHTML = [72, 90, 60].map((w) => `<li><div class="sk sk-line" style="width:120px"></div><div class="sk sk-line" style="width:${w}%"></div><div class="sk sk-line" style="width:${w - 20}%"></div></li>`).join('');
+    stripsEl.innerHTML = Array.from({ length: 6 }, () => '<li class="sk sk-strip"></li>').join('');
+    $('#baySummary').textContent = ''; dock.innerHTML = '<p class="dock-quiet">Loading…</p>';
+    $('#stop').setAttribute('aria-disabled', 'true'); $('#hint').textContent = 'You can type while it loads.';
+    return;
+  }
+  if (view === 'empty') {
+    running = false; strips = [];
+    $('#runTitle').textContent = 'New session'; $('#runStatus').textContent = 'Idle';
+    setCtx(0, '0 / 200k');
+    msgsEl.innerHTML = `<li class="empty"><h2>Nothing running</h2><p>Ask for something. Every tool Hermes calls lands in the bay as a strip, and anything risky waits here for your clearance.</p>
+      <div class="suggest"><button class="btn" type="button">Check last night’s pve backups</button><button class="btn" type="button">Run omni check on the Harvis UI</button><button class="btn" type="button">Summarize my todo board</button></div></li>`;
+    renderStrips(); $('#baySummary').textContent = '';
+    stripsEl.innerHTML = '<li class="bay-empty">No strips yet. They appear the moment Hermes calls a tool.</li>';
+    $('#tabCount').textContent = '';
+    renderDock(); $('#stop').setAttribute('aria-disabled', 'true'); $('#hint').textContent = 'Ctrl+Enter to send.';
+    document.querySelectorAll('.suggest .btn').forEach((b) => (b.onclick = () => { $('#input').value = b.textContent; $('#input').focus(); }));
+    return;
+  }
+  renderStrips(); renderMsgs(MSGS_LIVE); renderDock();
+  if (view === 'error') {
+    head.dataset.conn = 'lost';
+    $('#conn').textContent = 'Reconnecting to hermes-pop · try 3 of 5';
+    $('#banner').innerHTML = `<div class="banner" role="alert"><h2>Lost connection to hermes-pop</h2><p>The run keeps going on the server and nothing is lost. Output resumes here when the connection is back.</p><button class="btn" type="button" id="retry">Retry now</button></div>`;
+    $('#retry').onclick = () => { location.search = ''; };
+  }
+  if (view === 'done') {
+    strips = strips.map((x) => (x.s === 'hold' || x.s === 'queued' ? { ...x, s: 'done', t: x.id === '08' ? '0.2s' : '1.4s', note: x.id === '08' ? '2 folders removed · 41 kB' : 'ui-max · creative · enabled' } : x));
+    MSGS_LIVE[3].html = MSGS_LIVE[3].html.replace(/<span class="caret"[^>]*><\/span>/, '');
+    MSGS_LIVE[3].html = '<p>Vendoring Pro Max 2.15 into the skill. Its test fixtures aren’t needed there, so I deleted them after your clearance on <a class="ref" href="#s-08" data-ref="08"><span class="mono">08</span></a>.</p>';
+    MSGS_LIVE.push({ by: 'hermes', at: '02:51', html: '<p>Done. <code>ui-max</code> is registered in Hermes and Claude Code. Next I’d run benchmark B1 through the full loop and show you the stat sheet.</p>' });
+    renderStrips(); renderMsgs(MSGS_LIVE); running = false; seconds = 362; finish('Run complete'); setCtx(74, '148k / 200k');
+  }
+  log.scrollTop = log.scrollHeight;
+  if (view === 'live') setTimeout(() => $('#allow')?.focus({ preventScroll: true }), 0);
+}
+const head = $('#head');
+boot();
+</script>
+</body>
+</html>

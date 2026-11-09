@@ -1,9 +1,9 @@
 {
-  "name": "super-uiux-omni",
+  "name": "ui-max",
   "owner": { "name": "David Olson" },
   "plugins": [
     {
-      "name": "super-uiux-omni",
+      "name": "ui-max",
       "source": "./",
       "description": "Capture, audit and level up any UI: tokens, states, skeletons, motion."
     }

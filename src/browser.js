@@ -18,7 +18,7 @@ export function parseViewport(v, fallback = { width: 1440, height: 900 }) {
   return w && h ? { width: w, height: h } : fallback;
 }
 
-export async function withPage(target, { viewport, reducedMotion } = {}, fn) {
+export async function withPage(target, { viewport, reducedMotion, before, deviceScaleFactor } = {}, fn) {
   let playwright;
   try { playwright = require('playwright'); }
   catch { throw new Error('Playwright is required: npm i -D playwright && npx playwright install chromium'); }
@@ -31,8 +31,10 @@ export async function withPage(target, { viewport, reducedMotion } = {}, fn) {
       viewport: parseViewport(viewport),
       reducedMotion: reducedMotion || 'no-preference',
       userAgent: 'super-uiux-omni/0.1 (+design audit tool)',
+      ...(deviceScaleFactor ? { deviceScaleFactor } : {}),
     });
     const page = await context.newPage();
+    if (before) await before(page, context);
     await page.goto(resolveTarget(target), { waitUntil: 'networkidle', timeout: 45000 }).catch(async (e) => {
       // networkidle can hang on sites with long-polling; fall back to load.
       if (!/Timeout/.test(e.message)) throw e;

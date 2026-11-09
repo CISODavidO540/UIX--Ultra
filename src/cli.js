@@ -5,6 +5,8 @@ import { audit } from './audit.js';
 import { buildTokens } from './tokens.js';
 import { scaffold } from './scaffold.js';
 import { renderReport } from './report.js';
+import { check } from './check.js';
+import { diff } from './diff.js';
 import { fileURLToPath } from 'node:url';
 
 const THEMES_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'themes');
@@ -35,6 +37,16 @@ USAGE
 
   omni full     <url|file.html> [--out dir] [--framework ...]
       capture → audit → tokens → scaffold → REPORT.md, all in one.
+
+  omni check    <url|file.html> [--out dir] [--json] [--states empty,error,loading]
+      The UI stat sheet: Access, Originality (slop tells), States, Motion,
+      Responsive, Craft → overall rank S–F and a pass/fail gate. Writes
+      STATS.md, check.json and screenshots at 1440 and 390. Exit 1 on FAIL.
+      --states screenshots <target>?state=<name> for each, desktop + mobile.
+
+  omni diff     <before> <after> [--out dir]
+      Check both, write DIFF.md (stat deltas, tells removed/introduced,
+      regressions) and compare.png side by side.
 
 OPTIONS
   --out <dir>        Output directory (default: ./omni-out/<host>)
@@ -143,6 +155,28 @@ export async function run(argv) {
       }
       await fs.writeFile(path.join(out, 'REPORT.md'), renderReport({ dna, audit: result, tokens: json, files: Object.keys(files) }));
       console.log(`✔ done → ${out}/REPORT.md  (audit ${result.score}/100)`);
+      return;
+    }
+    case 'check': {
+      needTarget();
+      const out = path.resolve(args.out || defaultOut(target));
+      const r = await check(target, { out, viewport: args.viewport, states: typeof args.states === 'string' ? args.states.split(',').map((s) => s.trim()).filter(Boolean) : [] });
+      if (args.json) console.log(JSON.stringify({ overall: r.overall, rank: r.rank, pass: r.pass, stats: r.stats, tells: r.slop.tells.map((t) => t.name), gate: r.gate }, null, 2));
+      else {
+        console.log(`${r.pass ? '✔ PASS' : '✘ FAIL'}  overall ${r.overall} (${r.rank})  ` + Object.entries(r.stats).map(([k, v]) => `${k} ${v}`).join(' · '));
+        for (const g of r.gate.filter((g) => !g.ok)) console.log(`  ✘ ${g.name}`);
+        for (const t of r.slop.tells) console.log(`  tell ${t.id}: ${t.name}`);
+        console.log(`  → ${out}/STATS.md`);
+      }
+      if (!r.pass) process.exitCode = 1;
+      return;
+    }
+    case 'diff': {
+      const [, a, b] = args._;
+      if (!a || !b) throw new Error('"diff" needs <before> <after>.');
+      const out = path.resolve(args.out || path.join('omni-out', 'diff'));
+      const r = await diff(a, b, { out, viewport: args.viewport });
+      console.log(`before ${r.before.overall} (${r.before.rank}) → after ${r.after.overall} (${r.after.rank})${r.regressions.length ? `  regressions: ${r.regressions.join(', ')}` : ''}\n  → ${out}/DIFF.md`);
       return;
     }
     case 'theme': {

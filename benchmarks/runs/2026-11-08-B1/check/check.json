@@ -1,0 +1,147 @@
+{
+  "target": "benchmarks/runs/2026-11-08-B1/index.html",
+  "label": "benchmarks/runs/2026-11-08-B1/index.html",
+  "checkedAt": "2026-11-09T03:40:38.666Z",
+  "overall": 100,
+  "rank": "S",
+  "pass": true,
+  "stats": {
+    "access": 100,
+    "originality": 100,
+    "states": 100,
+    "motion": 100,
+    "responsive": 100,
+    "craft": 100
+  },
+  "gate": [
+    {
+      "name": "No critical/serious a11y findings",
+      "ok": true
+    },
+    {
+      "name": "No compositional slop tells (3, 8, 10)",
+      "ok": true
+    },
+    {
+      "name": "At most 1 slop tell",
+      "ok": true
+    },
+    {
+      "name": "No horizontal scroll at 390px",
+      "ok": true
+    },
+    {
+      "name": "No console errors",
+      "ok": true
+    },
+    {
+      "name": "State coverage ≥ 6/8",
+      "ok": true
+    },
+    {
+      "name": "prefers-reduced-motion handled (if animated)",
+      "ok": true
+    }
+  ],
+  "slop": {
+    "tells": [],
+    "slopScore": 0,
+    "system": {
+      "fontSizes": 5,
+      "fontFamilies": [
+        "Barlow",
+        "\"IBM Plex Mono\"",
+        "\"Barlow Semi Condensed\""
+      ],
+      "accentHueBuckets": 2,
+      "offGridSpacingRatio": 0,
+      "numericNodes": 25,
+      "tabularNumericNodes": 22,
+      "textNodes": 118,
+      "controls": 7,
+      "ornamentCount": 0,
+      "monoShare": 0.09
+    }
+  },
+  "sheet": {
+    "states": {
+      "hover": true,
+      "focusVisible": true,
+      "active": true,
+      "disabled": true,
+      "loading": true,
+      "empty": true,
+      "error": true,
+      "success": true
+    },
+    "reducedMotion": true,
+    "forcedColors": true,
+    "darkMode": false,
+    "containerOrMedia": true,
+    "heavyTransitions": [],
+    "heavyTransitionCount": 0,
+    "blockedSheets": 1
+  },
+  "motion": {
+    "durations": {
+      "count": 32,
+      "min": 120,
+      "median": 120,
+      "max": 240
+    },
+    "infiniteLoops": [
+      "<span.caret> blink"
+    ]
+  },
+  "layout": {
+    "desktop": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": 73,
+      "bodyFontPx": 15
+    },
+    "mobile": {
+      "overflowPx": 0,
+      "offenders": [],
+      "maxCharsPerLine": 48,
+      "bodyFontPx": 15
+    }
+  },
+  "a11y": {
+    "target": "benchmarks/runs/2026-11-08-B1/index.html",
+    "score": 100,
+    "bySeverity": {
+      "critical": 0,
+      "serious": 0,
+      "moderate": 0,
+      "minor": 0,
+      "info": 1
+    },
+    "issues": [
+      {
+        "severity": "info",
+        "rule": "loading-states",
+        "message": "No skeleton/aria-busy patterns found in the initial DOM — check async views have loading states"
+      }
+    ],
+    "auditedAt": "2026-11-09T03:40:20.690Z"
+  },
+  "consoleErrors": [],
+  "screenshots": [
+    "desktop-fold.png",
+    "desktop-full.png",
+    "mobile-full.png",
+    "state-live-desktop.png",
+    "state-live-mobile.png",
+    "state-empty-desktop.png",
+    "state-empty-mobile.png",
+    "state-loading-desktop.png",
+    "state-loading-mobile.png",
+    "state-error-desktop.png",
+    "state-error-mobile.png",
+    "state-done-desktop.png",
+    "state-done-mobile.png",
+    "states-desktop.png",
+    "states-mobile.png"
+  ]
+}

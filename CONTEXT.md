@@ -23,7 +23,7 @@ and alive.
 | `src/tokens.js` | Clusters colors, assigns roles (bg from body bg, surface, text, muted, border, primary = most-used saturated color), type scale named relative to body size, spacing base 4/8, radii, shadows, motion tokens with defaults. Emits `tokens.json` + `tokens.css`. |
 | `src/scaffold.js` | Generates skeleton.css, motion.css, states.css, state-sheet.html; React (AsyncView, AsyncButton, Skeleton, useViewTransition) or a Tailwind preset. |
 | `src/report.js` | REPORT.md: DNA table, observed hover/focus changes, "missing beyond pretty" list, findings. |
-| `skills/super-uiux-omni/` | Claude skill: SKILL.md (OBTAIN → UNDERSTAND → AUDIT → DESIGN STATES → BUILD → VERIFY) + references: state-matrix, motion, skeletons, ux-heuristics, ethics, stylized-themes |
+| `skills/ui-max/` | Claude skill: SKILL.md (OBTAIN → UNDERSTAND → AUDIT → DESIGN STATES → BUILD → VERIFY) + references: state-matrix, motion, skeletons, ux-heuristics, ethics, stylized-themes |
 | `.claude-plugin/`, `commands/omni.md` | Plugin + marketplace manifest, `/omni` command |
 | `themes/cyberpunk/` | cyber.css (tokens + components), fx.js (runtime), demo.html (mock agent console), screenshot.png |
 | `research_notes/Stylized UI that stays usable/` | 4 researcher notes with sources |
@@ -105,3 +105,22 @@ Known gaps in the research: no controlled study on neon-glow legibility (glow va
 
 - Built in a Claude Code cloud session (Nov 6, 2026). Tried to "ask Astra" as requested, but no Astra agent was reachable and the Harvis/Hermes repo wasn't attached, so nothing was applied to Hermes.
 - GitHub initially refused pushes until the Claude GitHub App was granted access; it works now.
+
+
+---
+
+## Session 2 (local, 2026-11-08): UI-MAX
+
+Done:
+- Skill renamed `super-uiux-omni` → **`ui-max`** and rewritten around a mandatory verify-by-looking loop. New references: `taste.md` (David's verdict log + Never list), `direction.md` (concept from the world, ornament budget), `craft.md`, `critique.md`, `pro-max.md`.
+- UI/UX Pro Max v2.15 vendored (MIT) at `skills/ui-max/vendor/ui-ux-pro-max` (its SKILL.md renamed PROMAX.md so it doesn't register twice). Its `--design-system` gave an agent console a "FAQ landing" + Tailwind slate/green, so it's a lookup DB only.
+- `src/slop.js`: 15 tells (claude-design's 10 + shouty labels, mono as texture, ornament everywhere, emoji icons, halation). Flags the old cyberpunk demo with 2, 11, 12, 13, matching David's verdict.
+- `omni check` (stat sheet, gate, `--states` contact sheets) and `omni diff`.
+- Fixed: audit now reads OKLCH/any CSS color (was a silent pass); contrast reads chamfered `::before` fills; labels ≥24px count as the tap target.
+- Benchmarks B1–B5 in `benchmarks/README.md`. B1 (strip-bay agent console) built through the full loop: gate PASS, 8/8 interaction tests, 3 critique fixes that the script couldn't see.
+- Installed: symlinks in `~/.hermes/skills/creative/ui-max` and `~/.claude/skills/ui-max`; `omni` wrapper in `~/.local/bin`.
+
+Next:
+- David's verdict on B1 → `taste.md` + `results.csv`.
+- Run B2–B5; the skill counts as maxed after 5 consecutive runs with gate PASS, rank ≥ A and David ≥ 4.
+- Capture the real Hermes desktop (CDP, see Hermes skill `inspecting-hermes-desktop-dom`) and run `omni full` on it before redesigning the real thing.
