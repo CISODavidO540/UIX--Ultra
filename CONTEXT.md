@@ -151,3 +151,10 @@ Next:
 - David on v2: "needs better theme management and colors… more grounding… depends on use case".
 - `src/theme-engine.js` + `omni themegen` + MCP `ui_themegen`; presets in `themes/presets/` (each tagged with use cases); output `themes/omni-themes.css`; doc `skills/ui-max/references/themes.md`.
 - Both v2 pages are on roles (0 raw colors) with theme switchers. Waiting on David's pick between flight deck and mixer, and on whether the grounding reads right now.
+
+## Update (Nov 10, round 4): complete theme contract + visual test
+
+- Research: `reports/Complete theme systems.md` (token tiers/modes/DTCG 2025.10, beyond-color scope with M3/Carbon/Radix numbers, theme QA).
+- `omni specimen`: every component × state × theme, APCA + a11y per theme, missing roles as hazard stripes, forced-colors render. Baseline found 21 missing roles; now 0 in all 7 themes.
+- Engine now emits state layers, elevation, shape, type, motion, data viz, syntax, link, scrim, focus geometry; reduced-motion + full forced-colors mapping; checks WCAG 2 placeholder/legends, viz ≥3:1, syntax Lc 60, OKLab ΔE between families (caught lookalikes in ledger/master-control/studio). DTCG 2025.10 export (`themegen --dtcg`) + no-flash boot snippet.
+- Next (from the report): independent mode axes (contrast/colorblind/density/motion) instead of one data-theme; a primitive OKLCH tier; derive radius/type/motion from the concept; Playwright baselines per theme in CI; colorblind-simulation captures; lint SVG/chart colors; checked-box glyph in forced colors.

@@ -50,7 +50,7 @@ USAGE
   omni playbook <id>
       Print a use-case playbook.
 
-  omni themegen [preset.json ...] [--out themes.css] [--for <playbook>]
+  omni themegen [preset.json ...] [--out themes.css] [--for <playbook>] [--dtcg [dir]]
       Generate semantic color roles (surfaces, text, grounded status/accent
       families) from OKLCH presets, light/dark/high-contrast, APCA-validated.
       No args = all presets in themes/presets. --for lists presets fit for a use case.
@@ -223,6 +223,9 @@ export async function run(argv) {
       }
       const themes = presets.map(generate);
       let bad = 0;
+      // Contract: every theme exposes exactly the same role names.
+      const ref = Object.keys(themes[0]?.roles || {}).sort().join(',');
+      for (const t of themes) if (Object.keys(t.roles).sort().join(',') !== ref) { bad++; console.log(`✘ ${t.name}: role names differ from ${themes[0].name}`); }
       for (const t of themes) {
         const f = t.report.fails;
         bad += f.length;
@@ -234,6 +237,14 @@ export async function run(argv) {
       const boot = out.replace(/\.css$/, '') + '.boot.html';
       await fs.writeFile(boot, `<!-- Paste inline in <head>, before stylesheets: applies the theme before first paint. -->\n<meta name="color-scheme" content="dark light">\n${bootScript(themes, { storageKey: args.key || 'theme' })}\n`);
       console.log(`→ ${out}\n→ ${boot} (no-flash boot snippet)`);
+      if (args.dtcg) {
+        const { toDTCG, toResolver } = await import('./theme-engine.js');
+        const dir = path.resolve(typeof args.dtcg === 'string' ? args.dtcg : path.join(path.dirname(out), 'tokens'));
+        await fs.mkdir(dir, { recursive: true });
+        for (const t of themes) await fs.writeFile(path.join(dir, `${t.name}.tokens.json`), JSON.stringify(toDTCG(t), null, 2));
+        await fs.writeFile(path.join(dir, 'omni.resolver.json'), JSON.stringify(toResolver(themes), null, 2));
+        console.log(`→ ${dir}/*.tokens.json + omni.resolver.json (DTCG 2025.10)`);
+      }
       if (bad) process.exitCode = 1;
       return;
     }

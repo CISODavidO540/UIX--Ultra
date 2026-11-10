@@ -16,12 +16,18 @@
     "warn": 70,
     "danger": 25,
     "info": 215,
-    "active": 255
+    "active": 300
   },
   "concept": "Accounting ledger: ruled, quiet, numbers first; for tables, admin, settings",
   "usecases": [
     "data-table-admin",
     "forms-settings",
     "detail-page"
-  ]
+  ],
+  "shape": "soft",
+  "motion": "calm",
+  "font": {
+    "sans": "\"IBM Plex Sans\", system-ui, sans-serif",
+    "mono": "\"IBM Plex Mono\", ui-monospace, monospace"
+  }
 }

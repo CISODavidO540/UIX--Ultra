@@ -1,0 +1,446 @@
+{
+  "color": {
+    "surface": {
+      "0": {
+        "$type": "color",
+        "$value": "#0b1314"
+      },
+      "1": {
+        "$type": "color",
+        "$value": "#131b1c"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#1b2324"
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#232c2c"
+      },
+      "inset": {
+        "$type": "color",
+        "$value": "#060d0d"
+      }
+    },
+    "border": {
+      "1": {
+        "$type": "color",
+        "$value": "#2c3535"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#464f50"
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "#788283"
+      }
+    },
+    "text": {
+      "1": {
+        "$type": "color",
+        "$value": "#e3e9ea"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#ccd2d3"
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#a0a6a6"
+      }
+    },
+    "ok": {
+      "bg": {
+        "$type": "color",
+        "$value": "#0c2513"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#2f7442"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#67d283"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#5bcc79"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#0b1314"
+        }
+      }
+    },
+    "warn": {
+      "bg": {
+        "$type": "color",
+        "$value": "#2c1b02"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#865901"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#f2ab35"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#eea319"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#0b1314"
+        }
+      }
+    },
+    "danger": {
+      "bg": {
+        "$type": "color",
+        "$value": "#331513"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#964944"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#fda19a"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#ff968e"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#0b1314"
+        }
+      }
+    },
+    "info": {
+      "bg": {
+        "$type": "color",
+        "$value": "#032526"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#007176"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#17d0d8"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#11c9d1"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#0b1314"
+        }
+      }
+    },
+    "active": {
+      "bg": {
+        "$type": "color",
+        "$value": "#1d1b35"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#5e599c"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#b3b1ff"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#b0adfd"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#0b1314"
+        }
+      }
+    },
+    "accent": {
+      "bg": {
+        "$type": "color",
+        "$value": "#2d1b01"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#875808"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#faa617"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#f3a009"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#0b1314"
+        }
+      }
+    },
+    "focus": {
+      "$type": "color",
+      "$value": "#f3a009"
+    },
+    "state": {
+      "hover": {
+        "$type": "color",
+        "$value": "#e3e9ea14",
+        "$description": "8% overlay of #e3e9ea"
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "#e3e9ea1a",
+        "$description": "10% overlay of #e3e9ea"
+      },
+      "pressed": {
+        "$type": "color",
+        "$value": "#e3e9ea1f",
+        "$description": "12% overlay of #e3e9ea"
+      },
+      "dragged": {
+        "$type": "color",
+        "$value": "#e3e9ea29",
+        "$description": "16% overlay of #e3e9ea"
+      },
+      "selected": {
+        "$type": "color",
+        "$value": "#11c9d12e",
+        "$description": "18% overlay of #11c9d1"
+      }
+    },
+    "syntax": {
+      "keyword": {
+        "$type": "color",
+        "$value": "#b0adfe"
+      },
+      "string": {
+        "$type": "color",
+        "$value": "#82cb92"
+      },
+      "number": {
+        "$type": "color",
+        "$value": "#e4ac59"
+      },
+      "function": {
+        "$type": "color",
+        "$value": "#4eccd3"
+      },
+      "type": {
+        "$type": "color",
+        "$value": "#79c0f1"
+      },
+      "comment": {
+        "$type": "color",
+        "$value": "#ccd2d3"
+      },
+      "plain": {
+        "$type": "color",
+        "$value": "#e3e9ea"
+      }
+    },
+    "link": {
+      "$type": "color",
+      "$value": "#17d0d8",
+      "visited": {
+        "$type": "color",
+        "$value": "#b3b1ff"
+      }
+    },
+    "viz": {
+      "1": {
+        "$type": "color",
+        "$value": "#6aa7f4"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#df8f48"
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#62bb78"
+      },
+      "4": {
+        "$type": "color",
+        "$value": "#de82b7"
+      },
+      "5": {
+        "$type": "color",
+        "$value": "#16bbbc"
+      },
+      "6": {
+        "$type": "color",
+        "$value": "#eb827b"
+      },
+      "7": {
+        "$type": "color",
+        "$value": "#b1a93a"
+      },
+      "8": {
+        "$type": "color",
+        "$value": "#ab93ed"
+      }
+    }
+  },
+  "opacity": {
+    "disabled": {
+      "$type": "number",
+      "$value": 0.38
+    }
+  },
+  "other": {
+    "shadow-1": {
+      "$value": "0 1px 2px rgba(0, 0, 0, 0.5)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    },
+    "shadow-2": {
+      "$value": "0 4px 12px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    },
+    "shadow-3": {
+      "$value": "0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.4)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    },
+    "scrim": {
+      "$value": "rgba(0, 0, 0, 0.6)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    }
+  },
+  "dimension": {
+    "radius": {
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": {
+          "value": 3,
+          "unit": "px"
+        }
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": {
+          "value": 6,
+          "unit": "px"
+        }
+      },
+      "full": {
+        "$type": "dimension",
+        "$value": {
+          "value": 999,
+          "unit": "px"
+        }
+      }
+    },
+    "focus": {
+      "width": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      },
+      "offset": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      }
+    }
+  },
+  "font": {
+    "sans": {
+      "$type": "fontFamily",
+      "$value": [
+        "system-ui",
+        "-apple-system",
+        "Segoe UI",
+        "sans-serif"
+      ]
+    },
+    "mono": {
+      "$type": "fontFamily",
+      "$value": [
+        "ui-monospace",
+        "SFMono-Regular",
+        "Menlo",
+        "monospace"
+      ]
+    }
+  },
+  "duration": {
+    "fast": {
+      "$type": "duration",
+      "$value": {
+        "value": 90,
+        "unit": "ms"
+      }
+    },
+    "base": {
+      "$type": "duration",
+      "$value": {
+        "value": 160,
+        "unit": "ms"
+      }
+    },
+    "slow": {
+      "$type": "duration",
+      "$value": {
+        "value": 240,
+        "unit": "ms"
+      }
+    }
+  },
+  "easing": {
+    "standard": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.2,
+        0,
+        0,
+        1
+      ]
+    },
+    "enter": {
+      "$type": "cubicBezier",
+      "$value": [
+        0,
+        0,
+        0.2,
+        1
+      ]
+    },
+    "exit": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.4,
+        0,
+        1,
+        1
+      ]
+    }
+  },
+  "$description": "Master control (monitoring) · dark · generated by omni themegen"
+}

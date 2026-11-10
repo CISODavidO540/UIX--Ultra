@@ -20,6 +20,7 @@ export const REQUIRED_ROLES = [
   'viz-1', 'viz-2', 'viz-3', 'viz-4', 'viz-5', 'viz-6',
   'radius-sm', 'radius-md', 'radius-lg', 'shadow-1', 'shadow-2', 'shadow-3',
   'font-sans', 'font-mono', 'duration-fast', 'duration-base', 'ease-standard',
+  'syntax-keyword', 'syntax-string', 'syntax-number', 'syntax-function', 'syntax-comment', 'link', 'scrim', 'focus-width',
 ];
 
 const R = (name) => `var(--${name}, var(--missing))`;
@@ -47,7 +48,7 @@ export function specimenHTML(themeCssHref) {
   .btn { min-height: 32px; padding: 0 12px; border-radius: var(--radius-md, 0); border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text-1); font: inherit; font-weight: 500; position: relative; }
   .btn::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: transparent; }
   .btn.is-hover::after { background: ${R('state-hover')}; } .btn.is-pressed::after { background: ${R('state-pressed')}; }
-  .btn.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .btn.is-focus { outline: var(--focus-width, 2px) solid var(--focus); outline-offset: var(--focus-offset, 2px); }
   .btn.is-disabled { opacity: var(--state-disabled-opacity, .4); }
   .btn.primary { background: var(--accent-solid); color: var(--accent-on-solid); border-color: var(--accent-solid); }
   .btn.danger { background: var(--danger-solid); color: var(--danger-on-solid); border-color: var(--danger-solid); }
@@ -55,7 +56,7 @@ export function specimenHTML(themeCssHref) {
   /* inputs */
   .in { width: 100%; min-height: 32px; padding: 6px 10px; background: var(--surface-inset); color: var(--text-1); border: 1px solid var(--border-2); border-radius: var(--radius-sm, 0); font: inherit; }
   .in::placeholder { color: var(--text-3); } .in.is-focus { outline: 2px solid var(--focus); outline-offset: 0; }
-  .in.is-invalid { border-color: var(--danger-solid); background: var(--danger-bg); } .in:disabled { opacity: var(--state-disabled-opacity, .4); }
+  .in.is-invalid { border-color: var(--danger-border); border-width: 2px; background: var(--danger-bg); } .in:disabled { opacity: var(--state-disabled-opacity, .4); }
   .help { font-size: 12px; color: var(--text-2); } .err { font-size: 12px; color: var(--danger-fg); }
   /* status families, grounded */
   .alert { display: flex; gap: 8px; padding: 8px 10px; border: 1px solid; border-radius: var(--radius-sm, 0); margin-bottom: 6px; }
@@ -81,19 +82,22 @@ export function specimenHTML(themeCssHref) {
   .e0 { background: var(--surface-inset); } .e1 { background: var(--surface-1); box-shadow: ${R('shadow-1')}; } .e2 { background: var(--surface-2); box-shadow: ${R('shadow-2')}; } .e3 { background: var(--surface-3); box-shadow: ${R('shadow-3')}; }
   /* data viz */
   .bars { display: flex; align-items: end; gap: 6px; height: 90px; padding-top: 6px; }
-  .bars i { flex: 1; border-radius: 2px 2px 0 0; }
+  .bars i { flex: 1; border-radius: 2px 2px 0 0; forced-color-adjust: none; } /* data marks keep their colors in High Contrast */
+  .legend span::before { forced-color-adjust: none; }
+  @media (forced-colors: active) { .btn.primary, .btn.danger, .tag { border: 1px solid ButtonText; } .sw { border: 1px solid CanvasText; background: Canvas !important; } .sw.on { background: Highlight !important; } .sw::after { background: CanvasText !important; } .sw.on::after { background: HighlightText !important; } .box.on { background: Highlight !important; color: HighlightText !important; border-color: Highlight !important; } }
   ${[1, 2, 3, 4, 5, 6].map((n) => `.v${n} { background: ${R(`viz-${n}`)}; }`).join(' ')}
   .legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--text-2); margin-top: 6px; } .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; background: var(--c); }
   /* code, toast, skeleton */
   pre { margin: 0; padding: 10px; background: var(--surface-inset); border: 1px solid var(--border-1); border-radius: var(--radius-sm, 0); font: 12px/1.6 var(--font-mono, monospace); overflow: auto; }
-  .k { color: var(--active-fg); } .s { color: var(--ok-fg); } .c { color: var(--text-3); } .n { color: var(--warn-fg); }
+  .k { color: var(--syntax-keyword); } .s { color: var(--syntax-string); } .c { color: var(--syntax-comment); } .n { color: var(--syntax-number); } .f { color: var(--syntax-function); }
   .toast { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; background: var(--surface-3); border: 1px solid var(--border-2); border-radius: var(--radius-md, 0); box-shadow: ${R('shadow-3')}; }
   .sk { height: 10px; border-radius: 2px; background: var(--surface-2); margin: 6px 0; }
-  a { color: var(--info-fg); } ::selection { background: var(--accent-bg); }
+  a { color: var(--link); } a:visited { color: var(--link-visited); } ::selection { background: var(--accent-bg); }
   .motion { font: 12px var(--font-mono, monospace); color: var(--text-2); }
 </style>
 </head>
 <body>
+<main>
 <h1>Theme specimen</h1>
 <p class="meta" id="meta"></p>
 <div class="grid">
@@ -130,7 +134,7 @@ export function specimenHTML(themeCssHref) {
     <p class="motion" id="motion"></p>
   </section>
   <section class="card"><h2>Code · links · selection</h2>
-<pre><span class="k">await</span> cache.set(KEY, fresh); <span class="c">// retry reads new token</span>
+<pre><span class="k">await</span> cache.<span class="f">set</span>(KEY, fresh); <span class="c">// retry reads new token</span>
 <span class="k">const</span> msg = <span class="s">"47 passed"</span>; <span class="k">let</span> n = <span class="n">47</span>;</pre>
     <p>Read the <a href="#">run log</a> or <mark style="background:var(--accent-bg);color:var(--text-1)">selected text</mark>.</p>
   </section>
@@ -141,9 +145,10 @@ export function specimenHTML(themeCssHref) {
   <section class="card"><h2>Text ladder</h2>
     <p style="margin:0;color:var(--text-1)">text-1 · Body text, the thing people read.</p>
     <p style="margin:0;color:var(--text-2)">text-2 · Secondary, metadata, labels.</p>
-    <p style="margin:0;color:var(--text-3)">text-3 · Placeholder and disabled only.</p>
+    <p style="margin:0;color:var(--text-3)" aria-disabled="true">text-3 · Placeholder and disabled only.</p>
   </section>
 </div>
+</main>
 <script>
   const t = new URLSearchParams(location.search).get('theme');
   if (t) document.documentElement.dataset.theme = t;

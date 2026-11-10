@@ -1,0 +1,51 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
+  "name": "omni-themes",
+  "modifiers": {
+    "theme": {
+      "contexts": {
+        "flight-deck-day": [
+          {
+            "$ref": "./flight-deck-day.tokens.json"
+          }
+        ],
+        "flight-deck-hc": [
+          {
+            "$ref": "./flight-deck-hc.tokens.json"
+          }
+        ],
+        "flight-deck-night": [
+          {
+            "$ref": "./flight-deck-night.tokens.json"
+          }
+        ],
+        "ledger": [
+          {
+            "$ref": "./ledger.tokens.json"
+          }
+        ],
+        "master-control": [
+          {
+            "$ref": "./master-control.tokens.json"
+          }
+        ],
+        "studio-daylight": [
+          {
+            "$ref": "./studio-daylight.tokens.json"
+          }
+        ],
+        "studio": [
+          {
+            "$ref": "./studio.tokens.json"
+          }
+        ]
+      },
+      "default": "flight-deck-hc"
+    }
+  },
+  "resolutionOrder": [
+    {
+      "$ref": "#/modifiers/theme"
+    }
+  ]
+}
