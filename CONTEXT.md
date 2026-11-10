@@ -158,3 +158,9 @@ Next:
 - `omni specimen`: every component × state × theme, APCA + a11y per theme, missing roles as hazard stripes, forced-colors render. Baseline found 21 missing roles; now 0 in all 7 themes.
 - Engine now emits state layers, elevation, shape, type, motion, data viz, syntax, link, scrim, focus geometry; reduced-motion + full forced-colors mapping; checks WCAG 2 placeholder/legends, viz ≥3:1, syntax Lc 60, OKLab ΔE between families (caught lookalikes in ledger/master-control/studio). DTCG 2025.10 export (`themegen --dtcg`) + no-flash boot snippet.
 - Next (from the report): independent mode axes (contrast/colorblind/density/motion) instead of one data-theme; a primitive OKLCH tier; derive radius/type/motion from the concept; Playwright baselines per theme in CI; colorblind-simulation captures; lint SVG/chart colors; checked-box glyph in forced colors.
+
+## Update (Nov 10, review): UI-MAX vs Astryx, tested for real
+
+- Built Astryx `ai-chat` (React 19) and ran `omni check`: found 3 checker bugs (translucent backgrounds, sr-only text, token definitions outside :root); fixed. Stock Astryx: 71 C → 80 B, Expression 35.
+- `omni themegen --astryx`: OMNI theme pairs as Astryx token overrides. Works, but a palette swap barely changes the look: identity is in components.
+- Full findings and next step: `examples/astryx-review/REVIEW.md`.

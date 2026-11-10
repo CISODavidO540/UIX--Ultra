@@ -50,7 +50,7 @@ USAGE
   omni playbook <id>
       Print a use-case playbook.
 
-  omni themegen [preset.json ...] [--out themes.css] [--for <playbook>] [--dtcg [dir]]
+  omni themegen [preset.json ...] [--out themes.css] [--for <playbook>] [--dtcg [dir]] [--astryx [dir]]
       Generate semantic color roles (surfaces, text, grounded status/accent
       families) from OKLCH presets, light/dark/high-contrast, APCA-validated.
       No args = all presets in themes/presets. --for lists presets fit for a use case.
@@ -237,6 +237,20 @@ export async function run(argv) {
       const boot = out.replace(/\.css$/, '') + '.boot.html';
       await fs.writeFile(boot, `<!-- Paste inline in <head>, before stylesheets: applies the theme before first paint. -->\n<meta name="color-scheme" content="dark light">\n${bootScript(themes, { storageKey: args.key || 'theme' })}\n`);
       console.log(`→ ${out}\n→ ${boot} (no-flash boot snippet)`);
+      if (args.astryx) {
+        // Pair themes by family: "<family>-day|daylight|light" with "<family>-night|dark" (or the bare family name as dark).
+        const { toAstryxCSS } = await import('./theme-engine.js');
+        const dir = path.resolve(typeof args.astryx === 'string' ? args.astryx : path.join(path.dirname(out), 'astryx'));
+        await fs.mkdir(dir, { recursive: true });
+        const fam = (n) => n.replace(/-(day|daylight|light|night|dark)$/, '');
+        const fams = [...new Set(themes.filter((t) => t.contrast !== 'high').map((t) => fam(t.name)))];
+        for (const f of fams) {
+          const group = themes.filter((t) => fam(t.name) === f && t.contrast !== 'high');
+          const light = group.find((t) => t.mode === 'light'), dark = group.find((t) => t.mode === 'dark');
+          await fs.writeFile(path.join(dir, `astryx-${f}.css`), toAstryxCSS(light || dark, dark || light, { name: f }));
+        }
+        console.log(`→ ${dir}/astryx-<family>.css (OMNI themes as Astryx token overrides: ${fams.join(', ')})`);
+      }
       if (args.dtcg) {
         const { toDTCG, toResolver } = await import('./theme-engine.js');
         const dir = path.resolve(typeof args.dtcg === 'string' ? args.dtcg : path.join(path.dirname(out), 'tokens'));

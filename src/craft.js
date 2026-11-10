@@ -30,24 +30,33 @@ export function craftProbe() {
   // Required Lc by size/weight (APCA readability guide, simplified).
   const needLc = (px, w) => (px >= 36 || (px >= 24 && w >= 700) ? 45 : px >= 24 || (px >= 16 && w >= 700) ? 60 : 75);
 
+  const canvasColor = () => {
+    for (const n of [document.body, document.documentElement]) { const c = toRGB(getComputedStyle(n).backgroundColor); if (c && c.a > 0.9) return c; }
+    const scheme = getComputedStyle(document.documentElement).colorScheme || '';
+    return /dark/.test(scheme) && !/light/.test(scheme) ? { r: 18, g: 18, b: 18, a: 1 } : { r: 255, g: 255, b: 255, a: 1 };
+  };
+  const over = (top, base) => ({ r: top.r * top.a + base.r * (1 - top.a), g: top.g * top.a + base.g * (1 - top.a), b: top.b * top.a + base.b * (1 - top.a), a: 1 });
+  // Composite translucent layers (rgba overlays) down to the first opaque ancestor or the canvas.
   const bgOf = (el) => {
+    const layers = [];
     for (let n = el; n; n = n.parentElement) {
       const cs = getComputedStyle(n);
       if (cs.backgroundImage && cs.backgroundImage !== 'none' && !/gradient/.test(cs.backgroundImage)) return null;
-      const c = toRGB(cs.backgroundColor);
-      if (c && c.a > 0.9) return c;
-      // Chamfered panels paint their fill on ::before; only count it if it covers the box
-      // (a small ::before like a status dot is not the background).
+      let c = toRGB(cs.backgroundColor);
+      // Chamfered panels paint their fill on ::before; only count it if it covers the box.
       const ps = getComputedStyle(n, '::before');
       if (ps.content !== 'none') {
         const pre = toRGB(ps.backgroundColor), nb = n.getBoundingClientRect();
-        if (pre && pre.a > 0.9 && parseFloat(ps.width) >= nb.width * 0.9 && parseFloat(ps.height) >= nb.height * 0.9) return pre;
+        if (pre && pre.a > 0.9 && parseFloat(ps.width) >= nb.width * 0.9 && parseFloat(ps.height) >= nb.height * 0.9) c = pre;
       }
+      if (c && c.a > 0.02) { layers.push(c); if (c.a > 0.98) break; }
     }
-    return toRGB(getComputedStyle(document.documentElement).backgroundColor) || { r: 255, g: 255, b: 255, a: 1 };
+    let base = layers.length && layers[layers.length - 1].a > 0.98 ? layers.pop() : canvasColor();
+    for (let i = layers.length - 1; i >= 0; i--) base = over(layers[i], base);
+    return base;
   };
   const desc = (el) => `<${el.tagName.toLowerCase()}${typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/)[0] : ''}> ${(el.innerText || '').trim().slice(0, 40)}`;
-  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) > 0; };
+  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && cs.display !== 'none' && Number(cs.opacity) > 0; };
 
   const lowLc = []; let textNodes = 0;
   const capsTight = []; const lhBad = [];

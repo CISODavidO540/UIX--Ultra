@@ -40,7 +40,11 @@ function stylesheetProbe() {
     for (const r of rules) {
       if (r.cssRules && !r.selectorText) { scan(r.cssRules); continue; }
       if (!r.selectorText || /(^|,)\s*(:root|html|\[data-theme)/.test(r.selectorText)) continue;
-      const decl = r.style ? r.style.cssText : '';
+      // Custom-property declarations ARE the token layer wherever they live
+      // (Astryx scopes them under :where([data-astryx-media])); only count literals
+      // used directly in real properties.
+      let decl = '';
+      if (r.style) for (let i = 0; i < r.style.length; i++) { const k = r.style[i]; if (!String(k).startsWith('--')) decl += `${k}:${r.style.getPropertyValue(k)};`; }
       const hits = (decl.match(COLOR) || []).filter((c) => !neutral(c));
       if (hits.length) { rawColors += hits.length; if (rawSamples.length < 5) rawSamples.push(`${r.selectorText.slice(0, 40)} { ${hits[0]} }`); }
     }

@@ -55,3 +55,13 @@ theme, template into a path) go through the normal shell so the user approves.
 - Stack isn't React 19 (use it as a pattern reference only; template descriptions are good specs).
 - Tailwind-only or CSS-in-JS teams that can't adopt StyleX (cascade-order issues reported).
 - Production apps that can't absorb beta API churn.
+
+## Verified by building it (Nov 2026)
+
+See `examples/astryx-review/REVIEW.md`. Short version:
+
+- Stock `ai-chat` scores ~80 B with `omni check`: hygiene is free, Expression is 35 (monochrome). Expect to add color jobs and structure.
+- **Attribute collision:** Astryx owns `data-theme="light|dark"` on `<html>`. Don't load `themes/omni-themes.css` (keyed on `data-theme="<name>"`) in an Astryx app. Use the bridge: `omni themegen --astryx` → `themes/astryx/astryx-<family>.css`, loaded after Astryx's CSS.
+- The bridge maps color only, and Astryx has no `active` status (use `--omni-active-*`). A palette swap barely changes the look; identity needs `defineTheme({ components })` overrides, custom variants, or your own blocks on Astryx primitives.
+- The `ai-chat` template lacks: approval prompt, stop control, context meter, empty and loading states. Add them from the agent-chat playbook.
+- Astryx guarantees WCAG 2 (4.5:1); `omni check` also wants APCA Lc 60 on secondary text.

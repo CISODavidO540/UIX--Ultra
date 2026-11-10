@@ -11,7 +11,9 @@ function staticChecks() {
     const cls = typeof el.className === 'string' && el.className.trim() ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}` : '';
     return `<${el.tagName.toLowerCase()}${id}${cls}> ${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 50)}`;
   };
-  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none'; };
+  // Screen-reader-only text (1px clipped boxes) is not visible: don't measure its contrast or size.
+  const srOnly = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return (r.width <= 2 || r.height <= 2) && (cs.position === 'absolute' || cs.clipPath !== 'none' || cs.overflow === 'hidden'); };
+  const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && !srOnly(el); };
 
   // --- color contrast (WCAG 2.x) ---
   const _cv = document.createElement('canvas'); _cv.width = _cv.height = 1;
@@ -30,23 +32,31 @@ function staticChecks() {
   };
   const lum = ({ r, g, b }) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  // Effective background: composite every translucent layer from the page canvas up
+  // to the element. (Design systems like Astryx use rgba overlays everywhere; treating
+  // them as "no background" made white-on-dark read as white-on-white.)
+  const canvasColor = () => {
+    for (const n of [document.body, document.documentElement]) { const c = parse(getComputedStyle(n).backgroundColor); if (c && c.a > 0.9) return c; }
+    const scheme = getComputedStyle(document.documentElement).colorScheme || '';
+    return /dark/.test(scheme) && !/light/.test(scheme) ? { r: 18, g: 18, b: 18, a: 1 } : { r: 255, g: 255, b: 255, a: 1 };
+  };
+  const over = (top, base) => ({ r: top.r * top.a + base.r * (1 - top.a), g: top.g * top.a + base.g * (1 - top.a), b: top.b * top.a + base.b * (1 - top.a), a: 1 });
   const bgOf = (el) => {
+    const layers = [];
     for (let n = el; n; n = n.parentElement) {
       const cs = getComputedStyle(n);
       if (cs.backgroundImage !== 'none') return null; // gradient/image: can't know
-      // Chamfered/clip-path panels paint the border color on the element and the
-      // fill on an inset ::before. Text sits on the ::before fill, so check it first.
+      // Chamfered/clip-path panels paint the fill on an inset ::before; text sits on it.
       const pb = getComputedStyle(n, '::before');
       const covers = pb.content !== 'none' && pb.position === 'absolute' && pb.backgroundImage === 'none'
         && parseFloat(pb.width) >= n.getBoundingClientRect().width - 6 && parseFloat(pb.height) >= n.getBoundingClientRect().height - 6;
-      if (covers) {
-        const pc = parse(pb.backgroundColor);
-        if (pc && pc.a > 0.9) return pc;
-      }
-      const c = parse(cs.backgroundColor);
-      if (c && c.a > 0.9) return c;
+      const pc = covers ? parse(pb.backgroundColor) : null;
+      const c = pc && pc.a > 0.02 ? pc : parse(cs.backgroundColor);
+      if (c && c.a > 0.02) { layers.push(c); if (c.a > 0.98) break; }
     }
-    return { r: 255, g: 255, b: 255, a: 1 };
+    let base = layers.length && layers[layers.length - 1].a > 0.98 ? layers.pop() : canvasColor();
+    for (let i = layers.length - 1; i >= 0; i--) base = over(layers[i], base);
+    return base;
   };
   let contrastFails = 0;
   const seen = new Set();
@@ -87,6 +97,7 @@ function staticChecks() {
   document.querySelectorAll('button, a[href], input, select, textarea, [role=button], [tabindex]:not([tabindex="-1"])').forEach((el) => {
     if (!visible(el)) return;
     const r = el.getBoundingClientRect();
+    if (el.getAttribute('role') === 'separator' || el.closest('[role=separator]')) return; // drag handles: thin by design, hit area is padded
     const inline = getComputedStyle(el).display === 'inline' && el.tagName === 'A' && el.closest('p, li');
     if (inline) return; // inline links in prose are exempt
     // A control wrapped in (or tied to) a label that is itself ≥ 24px: the label is the hit target.
