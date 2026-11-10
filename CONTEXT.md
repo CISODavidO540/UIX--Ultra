@@ -1,5 +1,7 @@
 # Handoff context: UIX Ultra (super UI UX OMNI Pro Max Ultra Supreme)
 
+> **Current state and next step: see `HANDOFF.md` (2026-11-10).** This file is the running history.
+
 This is everything from the cloud session that built this repo, so you can
 continue locally. Repo: https://github.com/CISODavidO540/UIX--Ultra (branch `main`).
 
