@@ -52,6 +52,7 @@ that is productive, usable and alive, and he judges by looking, fast.
 
 Format: `date · artifact · verdict (his words) · rule it implies`
 
+- 2026-11-10 · B6 depth study (Rajdhani everywhere, bezel + panel, fills, light, traces, ghost frame) · **keep** "now that is what im talking about that is what we like to see" · a stylized theme needs layered depth (atmosphere → bezel → filled panel → lit tiles → light) and one genre font for words and chrome alike.
 - 2026-11-10 · B6 v3 Night City (type pass) · **revise** "font still needs work, the word style doesnt match … its basic in its depth, just a box around a word or a simple banner, no visual depth" · the reading text must speak the genre too (not a neutral corporate face); depth comes from layers, fills and light, not from outlines.
 - 2026-11-10 · B6 v2 Night City · **4/5** "its a lot better theme wise but word font probably needs some work" · reference-driven genre rules work (red chrome, cyan = selected, yellow = needs you); typography is the next lever.
 - 2026-11-10 · B6 v1 hazard label · **3/5** "the blue one is way too everywhere and the other stuff is kinda bland and does not fit cyberpunk" · one hue on every edge reads as noise; stylized themes must come from real genre references.
