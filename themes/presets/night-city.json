@@ -1,0 +1,34 @@
+{
+  "name": "night-city",
+  "label": "Night City (cyberpunk \u00b7 street ops, dark only)",
+  "mode": "dark",
+  "base": {
+    "hue": 330,
+    "chroma": 0.018
+  },
+  "accent": {
+    "hue": 102,
+    "chroma": 0.19,
+    "bright": true,
+    "meaning": "operator action (acid yellow, black legend)"
+  },
+  "status": {
+    "ok": 155,
+    "warn": 75,
+    "danger": 32,
+    "info": 352,
+    "active": 195
+  },
+  "concept": "Cyberpunk street ops: ink-violet night, hot crimson-pink signal for Hermes and its documents, acid yellow only for operator action, cyan only for live. Comic-print hard shadows, cut corners, slanted condensed display type. No glow, no gradients.",
+  "usecases": [
+    "agent-chat",
+    "game-fui"
+  ],
+  "shape": "sharp",
+  "motion": "snappy",
+  "font": {
+    "sans": "\"IBM Plex Sans\", system-ui, sans-serif",
+    "mono": "\"IBM Plex Mono\", ui-monospace, monospace",
+    "display": "\"Barlow Condensed\", \"IBM Plex Sans\", system-ui, sans-serif"
+  }
+}

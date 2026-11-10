@@ -2,5 +2,5 @@ date,brief,run,overall,rank,pass,access,originality,states,motion,responsive,cra
 2026-11-08,B1,2026-11-08-B1,100,S,true,100,100,100,100,100,100,13,,first run; 3 critique iterations (hidden hold strip, dead composer band, mobile header overlap) fixed before showing
 2026-11-10,B6,stock (Astryx ai-chat neutral),82,B,PASS,98,100,100,80,100,55,,,baseline; expression 35
 2026-11-10,B6,naive (palette-swap cyberpunk control),69,C,FAIL,98,52,100,80,100,76,,,4 slop tells (default accent; shouty labels; mono as texture; ornament everywhere); expression capped 40
-2026-11-10,B6,directed (hazard label; netrunner theme; dark),88,A,PASS,95,100,100,80,100,77,,,expression 55; awaiting David
-2026-11-10,B6,directed (hazard label; netrunner-day),88,A,PASS,95,100,100,80,100,77,,,expression 55; awaiting David
+2026-11-10,B6,directed (hazard label; netrunner theme; dark),88,A,PASS,95,100,100,80,100,77,,,expression 55; David 3/5: "the blue one is way too everywhere… kinda bland… does not fit cyberpunk"
+2026-11-10,B6,directed (hazard label; netrunner-day),88,A,PASS,95,100,100,80,100,77,,,expression 55; David 3/5: "the blue one is way too everywhere… kinda bland… does not fit cyberpunk"

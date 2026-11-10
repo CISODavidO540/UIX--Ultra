@@ -39,6 +39,11 @@
             "$ref": "./netrunner.tokens.json"
           }
         ],
+        "night-city": [
+          {
+            "$ref": "./night-city.tokens.json"
+          }
+        ],
         "studio-daylight": [
           {
             "$ref": "./studio-daylight.tokens.json"

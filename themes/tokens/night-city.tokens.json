@@ -1,0 +1,477 @@
+{
+  "color": {
+    "surface": {
+      "0": {
+        "$type": "color",
+        "$value": "#160f15"
+      },
+      "1": {
+        "$type": "color",
+        "$value": "#1e161d"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#271f26"
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#2f272e"
+      },
+      "inset": {
+        "$type": "color",
+        "$value": "#10080f"
+      }
+    },
+    "border": {
+      "1": {
+        "$type": "color",
+        "$value": "#383037"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#534a52"
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "#877c85"
+      }
+    },
+    "text": {
+      "1": {
+        "$type": "color",
+        "$value": "#ece5eb"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#d8d2d8"
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#aca5ab"
+      }
+    },
+    "ok": {
+      "bg": {
+        "$type": "color",
+        "$value": "#082615"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#247448"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#59d38c"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#4ace84"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#160f15"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#10ae65"
+      }
+    },
+    "warn": {
+      "bg": {
+        "$type": "color",
+        "$value": "#2c1b02"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#865901"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#f2ab35"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#eea319"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#160f15"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#c28412"
+      }
+    },
+    "danger": {
+      "bg": {
+        "$type": "color",
+        "$value": "#331610"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#964a3c"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#ffa28f"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#fe9783"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#160f15"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#fe4527"
+      }
+    },
+    "info": {
+      "bg": {
+        "$type": "color",
+        "$value": "#301522"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#8f4869"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#fd9ac6"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#fd94c4"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#160f15"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#fe19a3"
+      }
+    },
+    "active": {
+      "bg": {
+        "$type": "color",
+        "$value": "#032525"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#017272"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#1ad1d1"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#14caca"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#160f15"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#12a7a7"
+      }
+    },
+    "accent": {
+      "bg": {
+        "$type": "color",
+        "$value": "#242000"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#6f6505"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#ccba14"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#f0da1e"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#120a11"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#a3940f"
+      }
+    },
+    "focus": {
+      "$type": "color",
+      "$value": "#f0da1e"
+    },
+    "state": {
+      "hover": {
+        "$type": "color",
+        "$value": "#ece5eb14",
+        "$description": "8% overlay of #ece5eb"
+      },
+      "focus": {
+        "$type": "color",
+        "$value": "#ece5eb1a",
+        "$description": "10% overlay of #ece5eb"
+      },
+      "pressed": {
+        "$type": "color",
+        "$value": "#ece5eb1f",
+        "$description": "12% overlay of #ece5eb"
+      },
+      "dragged": {
+        "$type": "color",
+        "$value": "#ece5eb29",
+        "$description": "16% overlay of #ece5eb"
+      },
+      "selected": {
+        "$type": "color",
+        "$value": "#fd94c42e",
+        "$description": "18% overlay of #fd94c4"
+      }
+    },
+    "syntax": {
+      "keyword": {
+        "$type": "color",
+        "$value": "#3bcfcf"
+      },
+      "string": {
+        "$type": "color",
+        "$value": "#7bcc98"
+      },
+      "number": {
+        "$type": "color",
+        "$value": "#e4ac59"
+      },
+      "function": {
+        "$type": "color",
+        "$value": "#f19dc2"
+      },
+      "type": {
+        "$type": "color",
+        "$value": "#f0a08f"
+      },
+      "comment": {
+        "$type": "color",
+        "$value": "#d8d2d8"
+      },
+      "plain": {
+        "$type": "color",
+        "$value": "#ece5eb"
+      }
+    },
+    "link": {
+      "$type": "color",
+      "$value": "#fd9ac6",
+      "visited": {
+        "$type": "color",
+        "$value": "#1ad1d1"
+      }
+    },
+    "viz": {
+      "1": {
+        "$type": "color",
+        "$value": "#6aa7f4"
+      },
+      "2": {
+        "$type": "color",
+        "$value": "#df8f48"
+      },
+      "3": {
+        "$type": "color",
+        "$value": "#62bb78"
+      },
+      "4": {
+        "$type": "color",
+        "$value": "#de82b7"
+      },
+      "5": {
+        "$type": "color",
+        "$value": "#16bbbc"
+      },
+      "6": {
+        "$type": "color",
+        "$value": "#eb827b"
+      },
+      "7": {
+        "$type": "color",
+        "$value": "#b1a93a"
+      },
+      "8": {
+        "$type": "color",
+        "$value": "#ab93ed"
+      }
+    }
+  },
+  "opacity": {
+    "disabled": {
+      "$type": "number",
+      "$value": 0.38
+    }
+  },
+  "other": {
+    "shadow-1": {
+      "$value": "0 1px 2px rgba(0, 0, 0, 0.5)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    },
+    "shadow-2": {
+      "$value": "0 4px 12px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.5)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    },
+    "shadow-3": {
+      "$value": "0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.4)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    },
+    "scrim": {
+      "$value": "rgba(0, 0, 0, 0.6)",
+      "$description": "CSS value (not a DTCG primitive type)"
+    }
+  },
+  "dimension": {
+    "radius": {
+      "sm": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": {
+          "value": 3,
+          "unit": "px"
+        }
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": {
+          "value": 6,
+          "unit": "px"
+        }
+      },
+      "full": {
+        "$type": "dimension",
+        "$value": {
+          "value": 999,
+          "unit": "px"
+        }
+      }
+    },
+    "focus": {
+      "width": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      },
+      "offset": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      }
+    }
+  },
+  "font": {
+    "sans": {
+      "$type": "fontFamily",
+      "$value": [
+        "IBM Plex Sans",
+        "system-ui",
+        "sans-serif"
+      ]
+    },
+    "display": {
+      "$type": "fontFamily",
+      "$value": [
+        "Barlow Condensed",
+        "IBM Plex Sans",
+        "system-ui",
+        "sans-serif"
+      ]
+    },
+    "mono": {
+      "$type": "fontFamily",
+      "$value": [
+        "IBM Plex Mono",
+        "ui-monospace",
+        "monospace"
+      ]
+    }
+  },
+  "duration": {
+    "fast": {
+      "$type": "duration",
+      "$value": {
+        "value": 90,
+        "unit": "ms"
+      }
+    },
+    "base": {
+      "$type": "duration",
+      "$value": {
+        "value": 160,
+        "unit": "ms"
+      }
+    },
+    "slow": {
+      "$type": "duration",
+      "$value": {
+        "value": 240,
+        "unit": "ms"
+      }
+    }
+  },
+  "easing": {
+    "standard": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.2,
+        0,
+        0,
+        1
+      ]
+    },
+    "enter": {
+      "$type": "cubicBezier",
+      "$value": [
+        0,
+        0,
+        0.2,
+        1
+      ]
+    },
+    "exit": {
+      "$type": "cubicBezier",
+      "$value": [
+        0.4,
+        0,
+        1,
+        1
+      ]
+    }
+  },
+  "$description": "Night City (cyberpunk · street ops, dark only) · dark · generated by omni themegen"
+}

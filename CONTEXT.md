@@ -135,7 +135,7 @@ Next:
 
 ## Update (Nov 9, later): REA-style toolkit + Astryx
 
-- "Astra" was most likely **Astryx** (facebook/astryx), Meta's agent-ready React design system. Verified with CLI 0.7.11: it has an `ai-chat` page template, tool-call blocks, `astryx build "<task>"` template router, and `astryx init --agent hermes`.
+- Correction (Nov 10): **Astra is David's GPT-6 assistant, not Astryx.** Astryx (facebook/astryx) is Meta's agent-ready React design system and is a separate thing. Verified with CLI 0.7.11: it has an `ai-chat` page template, tool-call blocks, `astryx build "<task>"` template router, and `astryx init --agent hermes`.
 - Added: MCP server (`bin/omni-mcp.js`, tools ui_route, ui_playbook, ui_reference, ui_capture, ui_check, ui_audit, ui_diff, ui_verdict, ui_evidence, astryx), `omni setup [--write]`, plugin auto-registration, use-case router + 9 playbooks mapped to real Astryx template ids, evidence log (`.omni/evidence.jsonl`, `omni verdict`, `omni evidence`), `references/astryx.md`.
 - Not done: B1 rebuilt on Astryx `ai-chat` + custom theme and compared with `omni diff`; example library of good/bad pairs per playbook; `omni judge`.
 
@@ -164,3 +164,7 @@ Next:
 - Built Astryx `ai-chat` (React 19) and ran `omni check`: found 3 checker bugs (translucent backgrounds, sr-only text, token definitions outside :root); fixed. Stock Astryx: 71 C → 80 B, Expression 35.
 - `omni themegen --astryx`: OMNI theme pairs as Astryx token overrides. Works, but a palette swap barely changes the look: identity is in components.
 - Full findings and next step: `examples/astryx-review/REVIEW.md`.
+
+## Correction (Nov 10)
+
+**Astra ≠ Astryx.** Astra is David's GPT-6-based assistant; it is not reachable from cloud sessions. When David says "ask Astra", hand him a prompt to run and fold the answer back in. Astryx is Meta's design system (facebook/astryx).

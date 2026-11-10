@@ -72,6 +72,10 @@
           "$type": "color",
           "$value": "#ffffff"
         }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#089428"
       }
     },
     "warn": {
@@ -96,6 +100,10 @@
           "$type": "color",
           "$value": "#ffffff"
         }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#97750d"
       }
     },
     "danger": {
@@ -120,6 +128,10 @@
           "$type": "color",
           "$value": "#ffffff"
         }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#c65102"
       }
     },
     "info": {
@@ -144,6 +156,10 @@
           "$type": "color",
           "$value": "#ffffff"
         }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#0d7dd4"
       }
     },
     "active": {
@@ -168,6 +184,10 @@
           "$type": "color",
           "$value": "#ffffff"
         }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#dc0075"
       }
     },
     "accent": {
@@ -192,6 +212,10 @@
           "$type": "color",
           "$value": "#ffffff"
         }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#97750d"
       }
     },
     "focus": {
