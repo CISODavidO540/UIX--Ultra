@@ -1,6 +1,6 @@
 # Theme management
 
-Rule (taste.md 2026-11-09): **every color is a semantic role from a generated
+Rule (taste/examples/david.md, 2026-11-09): **every color is a semantic role from a generated
 theme**. Components never hold raw hex. Color is grounded: a status is a family
 (fg + tinted bg + border + solid + on-solid), not a colored word.
 

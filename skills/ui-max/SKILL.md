@@ -12,22 +12,25 @@ metadata:
 
 # UI-MAX
 
-The goal: whatever David asks for, the first version he sees is already good.
+The goal: whatever the user asks for, the first version they see is already good.
 "Good" means four things, all checkable:
 
 1. **It has a point of view.** One idea, derived from the product and real-world references. Not a mood board of web tropes.
 2. **It works in every state.** Loading, empty, error, partial, success, disabled, focus. Not just the happy screenshot.
 3. **It passes the stat gate.** `omni check` → gate PASS (a11y, slop tells, states, motion, 390px).
-4. **It survives its own screenshots.** You look at what you made, critique it with the rubric, and fix the three worst things before David sees it.
+4. **It survives its own screenshots.** You look at what you made, critique it with the rubric, and fix the three worst things before the user sees it.
 
 You are blind to your own output until you render it. Most bad AI UI comes from
 never looking. Step 7 is not optional.
 
 ## Step 0: load taste (always)
 
-Read `references/taste.md`. It is David's verdict log. Its **Never** list
-overrides every other reference, including this file. If a direction you are
-about to take matches a past "no", change it before you build.
+Read the user's taste profile: `omni taste show` (MCP `ui_taste`). It starts
+from seed defaults and grows from their own verdicts; their **Never** and
+**Always** rules override every other reference, including this file. If a
+direction you are about to take matches a past "no", change it before you build.
+If it doesn't exist yet it is created from `taste/starter.md` on first read.
+`taste/examples/` has a real profile after two weeks of use, for reference.
 
 ## Fast path (small tweaks)
 
@@ -42,7 +45,7 @@ Each step leaves a written artifact. If you can't write it down, you haven't don
 ### 1. Brief
 
 Write five lines: who uses it, the **3–5 most frequent tasks**, what real content
-exists (screens, data, copy, repo), the stack, and the fidelity. Ask David at most
+exists (screens, data, copy, repo), the stack, and the fidelity. Ask the user at most
 3 questions, and only questions whose answer changes the composition. Otherwise
 state assumptions and go. He prefers you act.
 
@@ -130,9 +133,12 @@ Max 3 iterations; if still failing, ship with an honest note.
 
 Short: path (as `MEDIA:` or `::preview`), the stat line
 (`PASS · 92 A · access 98 · originality 100 · …`), what was not verified, and
-**one** question about taste. When David answers, append his verdict to
-`references/taste.md` (date, artifact, verdict, the rule it implies). This is
-how the consistency compounds.
+**one** question about taste. When the user answers, log it in their words:
+`omni verdict <page> keep|reject "<their words>" --property <what decided it>`
+(MCP `ui_verdict`). If it generalizes, add the rule it implies with
+`omni taste rule never|always "<rule>" --from "<their words>"` (MCP `ui_taste_rule`).
+Never invent a verdict or a rule the user didn't say. This is how their taste
+compounds across sessions and projects.
 
 ## Hard rules
 
@@ -159,19 +165,19 @@ how the consistency compounds.
 | `omni plan <target> --task "<what>"` | Fix plan for bad / vibe-coded UI: P0 → P1 → P2 + playbook must-haves (MCP `ui_fix_plan`). Example: `examples/fix-vibecoded/WALKTHROUGH.md` |
 | `omni themegen [--for <playbook>]` | Generate APCA-validated themes from OKLCH presets (MCP `ui_themegen`); see `references/themes.md` |
 | `omni route "<task>"` / `omni playbook <id>` | Use-case router and playbooks (with Astryx template ids) |
-| `omni verdict <target> keep\|reject "<reason>" --property p --check dir` | Log David's verdict; `omni evidence` shows whether the gate agrees with him |
+| `omni verdict <target> keep\|reject "<reason>" --property p --check dir` | Log the user's verdict (also written to their taste profile); `omni evidence` shows whether the gate agrees with them |
 | `omni setup [--write]` | Register the MCP server (Claude Code, Cursor, Claude Desktop) and link this skill |
 
-**MCP tools** (server `ui-max`, `bin/omni-mcp.js`): `ui_fix_plan`, `ui_themegen`, `ui_route`, `ui_playbook`,
+**MCP tools** (server `ui-max`, `bin/omni-mcp.js`): `ui_taste`, `ui_taste_rule`, `ui_fix_plan`, `ui_themegen`, `ui_route`, `ui_playbook`,
 `ui_reference`, `ui_capture`, `ui_check`, `ui_audit`, `ui_diff`, `ui_verdict`,
 `ui_evidence`, `astryx` (read-only Astryx CLI queries). Prefer them over shelling
-out when available. Only call `ui_verdict` with David's actual words.
+out when available. Only call `ui_verdict` and `ui_taste_rule` with the user's actual words.
 
 Local files that use ES modules or fetch need a server (`python3 -m http.server`); plain HTML can be checked by path.
 
 ## References
 
-- `references/taste.md` — David's verdicts and Never list (read first, write after)
+- Taste profile (`omni taste show` / `ui_taste`) — the user's rules and verdicts; read first, write after. Seed: `taste/starter.md`
 - `references/direction.md` — concept-first direction, reference sourcing, ornament budget
 - `references/craft.md` — the details that make UI feel intricate and finished
 - `references/critique.md` — rubric for looking at your own screenshots

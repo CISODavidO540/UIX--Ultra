@@ -1,6 +1,6 @@
 // Expression probe: the part of "good enough to flex" a script can measure.
 // Added after David rejected a 100 S page as "lacks color and enough structure"
-// (taste.md, 2026-11-09). Hygiene ≠ impressive.
+// (taste/examples/david.md, 2026-11-09). Hygiene ≠ impressive.
 //
 // - colorfulness: Hasler & Süsstrunk (2003) M on the first-viewport screenshot
 //   (<15 not colorful · 15–33 slightly · 33–45 moderately · 45–59 quite · 59+ highly)

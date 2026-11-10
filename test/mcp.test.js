@@ -15,7 +15,7 @@ test('router picks agent-chat for an agent console task', async () => {
 });
 
 function client(cwd) {
-  const p = spawn(process.execPath, [path.join(here, '..', 'bin', 'omni-mcp.js')], { cwd, stdio: ['pipe', 'pipe', 'inherit'] });
+  const p = spawn(process.execPath, [path.join(here, '..', 'bin', 'omni-mcp.js')], { cwd, stdio: ['pipe', 'pipe', 'inherit'], env: { ...process.env, UI_MAX_TASTE: path.join(cwd, 'taste.md') } });
   let buf = ''; const waiters = new Map(); let id = 0;
   p.stdout.on('data', (d) => { buf += d; let i; while ((i = buf.indexOf('\n')) >= 0) { const m = JSON.parse(buf.slice(0, i)); buf = buf.slice(i + 1); waiters.get(m.id)?.(m); } });
   return {

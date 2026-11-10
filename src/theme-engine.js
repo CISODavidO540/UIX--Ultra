@@ -1,7 +1,7 @@
 // Theme engine: a few OKLCH inputs → every semantic color role, light/dark,
 // contrast-validated with APCA. Components consume roles, never raw colors.
 //
-// Why (taste.md 2026-11-09): "needs better theme management and colors… more
+// Why (taste/examples/david.md, 2026-11-09): "needs better theme management and colors… more
 // grounding". Grounded = every status/accent comes with its own tinted surface,
 // border and solid; surfaces form a visible elevation ladder with inset wells.
 

@@ -112,6 +112,21 @@ omni plan before.html --task "Hermes agent chat with tool calls"   # → FIXPLAN
 omni diff before.html after.html                                   # → DIFF.md + compare.png
 ```
 
+## Your taste, not ours
+
+Every user gets their own taste profile. It starts from seed rules that are a
+decent default (so you don't start from zero) and grows from your own reactions:
+tell the AI what you like and don't, and it logs your words and turns them into
+Never/Always rules it reads before every design task.
+
+```bash
+omni taste show                                     # your profile (~/.config/ui-max/taste.md)
+omni verdict page.html reject "the blue is everywhere" --property color
+omni taste rule never "One hue on every edge, link and heading" --from "the blue is everywhere"
+```
+
+See [`skills/ui-max/taste/`](skills/ui-max/taste/README.md); `examples/david.md` is a real profile after two weeks.
+
 ## Toolkit mode (REA-style)
 
 UI-MAX installs like a toolkit, not just a prompt:

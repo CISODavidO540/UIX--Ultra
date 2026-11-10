@@ -226,7 +226,7 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   if (consoleErrors.length) craft -= Math.min(25, consoleErrors.length * 10);
   if (!desktop.sheet.forcedColors) craft -= 5;
   const [craftPen, craftNotes] = craftPenalty(desktop.craft);
-  // Sprinkled color (taste.md 2026-11-09): raw color literals in components instead of theme roles.
+  // Sprinkled color (taste/examples/david.md, 2026-11-09): raw color literals in components instead of theme roles.
   if (desktop.sheet.rawColors > 6) { const d = Math.min(15, Math.ceil((desktop.sheet.rawColors - 6) / 3)); craft -= d; craftNotes.push(`${desktop.sheet.rawColors} raw color literals in component CSS — use theme roles (omni themegen) (−${d})`); }
   craft -= craftPen;
   craft = clamp(craft);

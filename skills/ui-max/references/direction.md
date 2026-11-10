@@ -58,7 +58,7 @@ in `DIRECTION.md`. `omni check` tell 13 fires when ornament exceeds the budget.
 
 ## 5. Write what it is not
 
-List 3–5 tropes you refuse for this artifact, from `taste.md` Never plus
+List 3–5 tropes you refuse for this artifact, from the user's taste profile (`omni taste show`) Never list plus
 anything specific. This is the anti-default prompt: exclusions paired with the
 positive concept above.
 

@@ -38,7 +38,7 @@ export function buildPlan(r, book) {
   if (r.motion.durations.count && !r.sheet.reducedMotion) add('P1', 'motion', 'Animates but ignores prefers-reduced-motion. Add a reduce block that removes movement (keep opacity/color feedback).', 'check shows reduced motion: yes');
 
   // P1 — expression (what "not good enough to flex" measurably lacks)
-  for (const n of r.expression?.notes || []) add('P1', 'expression', `${n}. Give color a job (zones, states, controls) and make regions visible — see taste.md 2026-11-09.`, 'expression ≥ 70');
+  for (const n of r.expression?.notes || []) add('P1', 'expression', `${n}. Give color a job (zones, states, controls) and make regions visible (seed rule: color with a job, visible structure).`, 'expression ≥ 70');
 
   // P2 — craft and polish
   for (const n of r.craft?.notes || []) add('P2', 'craft', n, 'craft note gone');

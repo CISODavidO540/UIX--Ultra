@@ -63,6 +63,10 @@ USAGE
       Check the page and write FIXPLAN.md: P0 blockers, P1 vibe-coded tells and
       missing states, P2 craft — plus the use-case playbook's must-haves.
 
+  omni taste    [show|path|init [--from starter|david] [--project]|rule never|always "<rule>" --from "<your words>"]
+      Your taste profile: starts from a decent seed and grows from your verdicts.
+      Lives at ~/.config/ui-max/taste.md (or .omni/taste.md, or $UI_MAX_TASTE).
+
   omni verdict  <target> keep|reject "<reason>" [--property type|color|spacing|ornament|motion|copy|layout|states] [--check dir] [--playbook id]
       Log a human verdict to .omni/evidence.jsonl (how the toolkit learns your taste).
 
@@ -302,11 +306,25 @@ export async function run(argv) {
     }
     case 'verdict': {
       const ev = await import('./evidence.js');
+      const taste = await import('./taste.js');
       const [, t, v, ...reason] = args._;
       if (!t || !v) throw new Error('usage: omni verdict <target> keep|reject "<reason>" [--property p] [--check dir]');
       const row = await ev.verdict({ target: t, verdict: v, reason: reason.join(' '), property: args.property, checkDir: args.check, playbook: args.playbook });
-      console.log(`✔ logged ${row.verdict} → ${ev.evidencePath()}`);
+      const tv = await taste.logVerdict({ artifact: t, words: reason.join(' ') || v, property: [v, args.property].filter(Boolean).join(' · ') });
+      console.log(`✔ logged ${row.verdict} → ${ev.evidencePath()}\n✔ taste profile → ${tv.path}`);
       return;
+    }
+    case 'taste': {
+      const taste = await import('./taste.js');
+      const sub = target || 'show';
+      if (sub === 'path') { console.log(taste.profilePath()); return; }
+      if (sub === 'init') { const r = await taste.init({ from: typeof args.from === 'string' ? args.from : 'starter', project: !!args.project, force: !!args.force }); console.log(`${r.created ? '✔ created' : 'exists'} ${r.path}`); return; }
+      if (sub === 'rule') {
+        const [, , kind, ...words] = args._;
+        const r = await taste.addRule({ kind, rule: words.join(' '), from: typeof args.from === 'string' ? args.from : undefined });
+        console.log(`✔ ${kind}: ${r.line}\n  → ${r.path}`); return;
+      }
+      const r = await taste.read(); console.log(r.text); console.error(`(${r.path})`); return;
     }
     case 'evidence': {
       const ev = await import('./evidence.js');

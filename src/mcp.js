@@ -52,8 +52,20 @@ const TOOLS = [
     },
   },
   {
+    name: 'ui_taste',
+    description: "Read the user's taste profile (their Never/Always rules, seed defaults and verdict log). Read it before any design work; their rules override every reference.",
+    inputSchema: { type: 'object', properties: {} },
+    run: async () => { const taste = await import('./taste.js'); const r = await taste.read(); return `Profile: ${r.path}\n\n${r.text}`; },
+  },
+  {
+    name: 'ui_taste_rule',
+    description: "Add a Never or Always rule to the user's taste profile. Only when the user's own words imply it; quote them in `from`.",
+    inputSchema: { type: 'object', properties: { kind: { type: 'string', enum: ['never', 'always'] }, rule: str('The rule, phrased generally'), from: str("The user's words that imply it") }, required: ['kind', 'rule', 'from'] },
+    run: async (a) => { const taste = await import('./taste.js'); const r = await taste.addRule(a); return `Added ${a.kind}: ${r.line} → ${r.path}`; },
+  },
+  {
     name: 'ui_reference',
-    description: 'Read a UI-MAX reference doc: taste, direction, craft, critique, state-matrix, motion, skeletons, ux-heuristics, stylized-themes, astryx, ethics, pro-max.',
+    description: 'Read a UI-MAX reference doc: direction, craft, critique, state-matrix, motion, skeletons, ux-heuristics, stylized-themes, astryx, ethics, pro-max.',
     inputSchema: { type: 'object', properties: { name: str('Reference name without .md') }, required: ['name'] },
     run: async ({ name }) => fs.readFile(path.join(REF_DIR, `${String(name).replace(/[^a-z0-9-]/gi, '')}.md`), 'utf8'),
   },
@@ -130,7 +142,12 @@ const TOOLS = [
       },
       required: ['target', 'verdict', 'reason'],
     },
-    run: async (a) => { const row = await evidence.verdict(a); return `Logged ${row.verdict} for ${row.target}. Add the rule to references/taste.md if it generalizes.`; },
+    run: async (a) => {
+      const row = await evidence.verdict(a);
+      const taste = await import('./taste.js');
+      const tv = await taste.logVerdict({ artifact: a.target, words: a.reason, property: [a.verdict, a.property].filter(Boolean).join(' · ') });
+      return `Logged ${row.verdict} for ${row.target} in the user's taste profile (${tv.path}). If it generalizes, add a rule with ui_taste_rule, quoting their words.`;
+    },
   },
   {
     name: 'ui_evidence',
