@@ -434,7 +434,7 @@
     "display": {
       "$type": "fontFamily",
       "$value": [
-        "Barlow Condensed",
+        "Chakra Petch",
         "IBM Plex Sans",
         "system-ui",
         "sans-serif"

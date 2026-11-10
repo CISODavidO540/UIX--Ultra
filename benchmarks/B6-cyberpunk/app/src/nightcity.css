@@ -1,17 +1,31 @@
 /* B6 v2 · "Night City". Genre references: Cyberpunk 2077 menus (looked at, not copied).
    Rules from the references: coral-red chrome for frames, labels, tabs; cyan only for
    what is selected or live; notice yellow only for what needs you; category colors as
-   thin left-edge bars; hairline frames with ONE cut corner; condensed caps headers;
+   thin left-edge bars; hairline frames with ONE cut corner; chamfered caps headers;
    big numbers with small units; micro-data only at the edges.
+   v3 type system (David 4/5: "word font probably needs some work"):
+   three faces, one job each. Chakra Petch = chrome (its chamfered letters echo the cut corners),
+   IBM Plex Sans = reading, IBM Plex Mono = data. One caps tracking value. Fixed ramp; nothing
+   in caps below 13px; body 15/24 at most 68ch.
    Every color is a theme role (nightcity-theme.css, generated from themes/presets/night-city.json). */
 
 html[data-bench="nightcity"] {
-  --plate: "Barlow Condensed", "IBM Plex Sans", system-ui, sans-serif;
+  --plate: "Chakra Petch", "IBM Plex Sans", system-ui, sans-serif;
+  --caps: 0.08em;                               /* the only caps tracking */
+  --t-meta: 12px; --t-label: 13px; --t-body: 15px; --t-key: 15px; --t-h: 20px; --t-stat: 28px; --t-display: 32px;
   --cut: 10px;
   --chrome: var(--omni-brand-signal);          /* coral lines */
   --chrome-text: var(--omni-brand-fg);         /* coral labels (readable) */
   --live: var(--omni-active-fg);               /* cyan = selected / live */
   --notice: var(--color-accent);               /* yellow = needs you */
+}
+/* Astryx re-declares its type tokens on the theme element, so the reading sizes go there too.
+   (The Astryx-native route is defineTheme({typography: {base, ratio}}).) */
+html[data-bench="nightcity"] [data-astryx-theme] {
+  --text-body-size: 15px; --text-body-leading: 1.6;
+  --text-label-size: 15px; --text-label-leading: 1.6;
+  --text-supporting-size: 13px; --text-supporting-leading: 1.54;
+  --text-code-size: 14px; --text-code-leading: 1.6;
 }
 html[data-bench="nightcity"] body {
   background:
@@ -21,20 +35,20 @@ html[data-bench="nightcity"] body {
 
 /* ---------- deck: header bar ---------- */
 .nc-deck { position: relative; display: flex; align-items: flex-end; gap: 28px; padding: 10px 20px 0; border-bottom: 1px solid var(--chrome); }
-.nc-deck .nc-mark { margin: 0 0 8px; font: 700 26px/1 var(--plate); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-primary); }
+.nc-deck .nc-mark { margin: 14px 0 8px; font: 700 24px/1 var(--plate); letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-primary); }
 .nc-tabs { display: flex; gap: 2px; align-self: flex-end; }
-.nc-tab { position: relative; padding: 7px 22px 7px 14px; margin-bottom: -1px; font: 600 16px/1 var(--plate); letter-spacing: 0.06em; text-transform: uppercase; color: var(--chrome-text); background: transparent; border: 1px solid transparent; border-bottom: 0; cursor: pointer; transition: color 90ms, background-color 90ms; }
+.nc-tab { position: relative; padding: 7px 22px 7px 14px; margin-bottom: -1px; font: 600 var(--t-key)/1 var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--chrome-text); background: transparent; border: 1px solid transparent; border-bottom: 0; cursor: pointer; transition: color 90ms, background-color 90ms; }
 .nc-tab:hover { background: var(--omni-brand-bg); }
 .nc-tab:active { transform: translateY(1px); }
 .nc-tab[aria-current="page"] { color: var(--live); background: var(--omni-active-bg); border-color: var(--live); clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
 .nc-tab:focus-visible { outline: 2px solid var(--live); outline-offset: -4px; }
 .nc-stats { display: flex; gap: 22px; margin-left: auto; padding-bottom: 6px; }
 .nc-stat { display: grid; justify-items: end; }
-.nc-stat b { font: 600 24px/1 var(--plate); color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
-.nc-stat b small { font: 500 13px var(--plate); letter-spacing: 0.08em; color: var(--chrome-text); margin-left: 3px; }
-.nc-stat span { font: 500 11px/1.4 var(--font-family-code); letter-spacing: 0.04em; color: var(--color-text-secondary); text-transform: uppercase; }
+.nc-stat b { font: 600 var(--t-stat)/1 var(--plate); color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+.nc-stat b small { font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); color: var(--chrome-text); margin-left: 3px; }
+.nc-stat span { font: 600 var(--t-label)/1.4 var(--plate); letter-spacing: var(--caps); color: var(--color-text-secondary); text-transform: uppercase; }
 .nc-stat.attn b { color: var(--notice); }
-.nc-micro { position: absolute; right: 20px; top: 4px; font: 400 9px/1.2 var(--font-family-code); letter-spacing: 0.08em; color: var(--chrome-text); opacity: 0.55; text-transform: uppercase; pointer-events: none; }
+.nc-micro { position: absolute; left: 20px; top: 5px; font: 400 10px/1.2 var(--font-family-code); letter-spacing: 0.06em; color: var(--chrome-text); opacity: 0.55; text-transform: uppercase; pointer-events: none; }
 
 /* ---------- frames: hairline, one cut corner (bottom-right), corner ticks ---------- */
 html[data-bench="nightcity"] .astryx-chat-layout { position: relative; margin: 10px 0 12px 12px; border: 1px solid var(--omni-brand-border);
@@ -42,16 +56,20 @@ html[data-bench="nightcity"] .astryx-chat-layout { position: relative; margin: 1
 html[data-bench="nightcity"] .ai-chat-artifact-panel { margin: 10px 12px 12px 0; border: 1px solid var(--live);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%); }
 html[data-bench="nightcity"] .ai-chat-artifact-panel .astryx-heading,
-html[data-bench="nightcity"] .ai-chat-artifact-panel .astryx-markdown-heading { font-family: var(--plate); letter-spacing: 0.05em; }
-html[data-bench="nightcity"] .ai-chat-artifact-panel h1 { color: var(--live); text-transform: uppercase; letter-spacing: 0.05em; }
-html[data-bench="nightcity"] .ai-chat-artifact-panel h2 { color: var(--chrome-text); text-transform: uppercase; font-size: 18px; letter-spacing: 0.06em; }
+html[data-bench="nightcity"] .ai-chat-artifact-panel .astryx-markdown-heading { font-family: var(--plate); letter-spacing: 0.02em; }
+html[data-bench="nightcity"] .ai-chat-artifact-panel h1.astryx-markdown-heading, html[data-bench="nightcity"] .ai-chat-artifact-panel h1 { color: var(--live); text-transform: uppercase; letter-spacing: 0.04em; font-size: 24px; line-height: 1.25; }
+html[data-bench="nightcity"] .ai-chat-artifact-panel h2.astryx-markdown-heading, html[data-bench="nightcity"] .ai-chat-artifact-panel h2 { color: var(--chrome-text); text-transform: uppercase; font-size: var(--t-h); letter-spacing: var(--caps); }
 html[data-bench="nightcity"] .astryx-markdown a { color: var(--live); }
 html[data-bench="nightcity"] .astryx-resize-handle-pill { background: var(--chrome); }
 
 /* system message ("Changes saved…") as a plate label */
-html[data-bench="nightcity"] .astryx-chat-system-message { font: 500 12px var(--plate); letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-text); }
+html[data-bench="nightcity"] .astryx-chat-system-message { font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--chrome-text); }
 
 /* ---------- messages ---------- */
+/* reading: measure cap, mono tabular timestamps, the day divider as a chrome label */
+html[data-bench="nightcity"] .astryx-chat-message-bubble { max-inline-size: 68ch; }
+html[data-bench="nightcity"] .astryx-timestamp { font-family: var(--font-family-code); font-size: var(--t-meta); font-variant-numeric: tabular-nums; }
+html[data-bench="nightcity"] .astryx-divider > div { font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--chrome-text); }
 /* the user's own words: dark red plate with a coral edge bar (category-bar idiom) */
 html[data-bench="nightcity"] .astryx-chat-message-bubble[data-sender="user"],
 html[data-bench="nightcity"] .astryx-chat-message:has(> .astryx-chat-message-bubble) .astryx-chat-message-bubble:not([data-variant="ghost"]) {
@@ -60,15 +78,16 @@ html[data-bench="nightcity"] .nc-agent { display: grid; place-items: center; wid
 
 /* tool calls: a framed readout; rows get a left category bar by tool kind */
 html[data-bench="nightcity"] .astryx-chat-tool-calls { border-top: 1px solid var(--omni-brand-border); padding-top: 4px; }
-html[data-bench="nightcity"] .astryx-chat-tool-calls > [role="button"] { font: 600 13px var(--plate); letter-spacing: 0.08em; text-transform: uppercase; color: var(--chrome-text); }
+html[data-bench="nightcity"] .astryx-chat-tool-calls > [role="button"] { font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--chrome-text); }
+html[data-bench="nightcity"] .astryx-chat-tool-calls > [role="button"] span { font: inherit; letter-spacing: inherit; }
 html[data-bench="nightcity"] .astryx-badge { border-radius: 0; }
 
 /* code: a terminal readout in the well */
 html[data-bench="nightcity"] .astryx-code-block { border-radius: 0; border: 1px solid var(--color-border-emphasized); }
-html[data-bench="nightcity"] .astryx-code-block-header { font: 600 12px var(--plate); letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-text); }
+html[data-bench="nightcity"] .astryx-code-block-header { font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--chrome-text); }
 
 /* tables in the doc: coral header rule, cyan row hover */
-html[data-bench="nightcity"] .astryx-table-header-cell { font: 600 13px var(--plate); letter-spacing: 0.08em; text-transform: uppercase; color: var(--chrome-text); border-bottom: 1px solid var(--chrome); }
+html[data-bench="nightcity"] .astryx-table-header-cell { font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--chrome-text); border-bottom: 1px solid var(--chrome); }
 html[data-bench="nightcity"] .astryx-table-row:hover .astryx-table-cell { background: var(--omni-active-bg); }
 
 /* composer: hairline frame with a cut corner; send is the notice-yellow key */
@@ -83,10 +102,10 @@ html[data-bench="nightcity"] .astryx-button { border-radius: 0; }
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%); }
 .nc-notice .bang { display: grid; place-items: center; width: 26px; height: 26px; background: var(--notice); color: var(--color-on-accent); font: 700 18px/1 var(--plate);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
-.nc-notice .what { min-width: 0; font: 400 14px/1.4 var(--font-family-body); color: var(--color-text-primary); }
-.nc-notice .what b { display: block; font: 600 14px/1.2 var(--plate); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-accent); }
-.nc-notice code { font: 500 13px var(--font-family-code); }
-.nc-key { min-height: 40px; padding: 0 18px; border: 1px solid var(--chrome); background: transparent; color: var(--chrome-text); font: 600 16px/1 var(--plate); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+.nc-notice .what { min-width: 0; font: 400 var(--t-body)/1.5 var(--font-family-body); color: var(--color-text-primary); }
+.nc-notice .what b { display: block; margin-bottom: 2px; font: 600 var(--t-body)/1.2 var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--color-text-accent); }
+.nc-notice code { font: 500 14px var(--font-family-code); color: var(--color-text-primary); }
+.nc-key { min-height: 40px; padding: 0 18px; border: 1px solid var(--chrome); background: transparent; color: var(--chrome-text); font: 600 var(--t-key)/1 var(--plate); letter-spacing: var(--caps); text-transform: uppercase; cursor: pointer;
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); transition: background-color 90ms, color 90ms; }
 .nc-key:hover { background: var(--omni-brand-bg); }
 .nc-key:active { transform: translateY(1px); background: var(--omni-brand-border); color: var(--color-text-primary); }
@@ -94,18 +113,18 @@ html[data-bench="nightcity"] .astryx-button { border-radius: 0; }
 .nc-key.go { background: var(--notice); color: var(--color-on-accent); border-color: var(--notice); }
 .nc-key.go:hover { filter: brightness(1.08); }
 .nc-key.go:active { filter: brightness(0.92); }
-.nc-key kbd { margin-left: 8px; font: 500 11px var(--font-family-code); letter-spacing: 0; opacity: 0.75; }
+.nc-key kbd { margin-left: 8px; text-transform: none; font: 500 var(--t-meta) var(--font-family-code); letter-spacing: 0; opacity: 0.75; }
 .nc-row { display: flex; justify-content: flex-end; gap: 8px; }
-.nc-status { margin: 0; font: 600 13px var(--plate); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-success); }
+.nc-status { margin: 0; font: 600 var(--t-label) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--color-text-success); }
 
 /* ---------- states ---------- */
-.nc-banner { display: flex; align-items: center; gap: 12px; margin: 8px 0; padding: 10px 14px; border: 1px solid var(--color-border-error); background: var(--color-error-muted); color: var(--color-text-primary); font-size: 14px; animation: nc-glitch 240ms steps(3) 1; }
-.nc-banner b { font: 600 14px var(--plate); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-error); }
+.nc-banner { display: flex; align-items: center; gap: 12px; margin: 8px 0; padding: 10px 14px; border: 1px solid var(--color-border-error); background: var(--color-error-muted); color: var(--color-text-primary); font-size: var(--t-body); animation: nc-glitch 240ms steps(3) 1; }
+.nc-banner b { font: 600 var(--t-body) var(--plate); letter-spacing: var(--caps); text-transform: uppercase; color: var(--color-text-error); }
 .nc-banner p { margin: 0 auto 0 0; }
 @keyframes nc-glitch { 33% { transform: translate(-3px, 1px); } 66% { transform: translate(2px, -1px); } }
 .nc-empty { max-width: 54ch; padding: 56px 8px; }
-.nc-empty h2 { margin: 0 0 6px; font: 700 30px/1 var(--plate); letter-spacing: 0.06em; text-transform: uppercase; color: var(--chrome-text); }
-.nc-empty p { margin: 0 0 18px; color: var(--color-text-secondary); }
+.nc-empty h2 { margin: 0 0 8px; font: 700 var(--t-display)/1.1 var(--plate); letter-spacing: 0.04em; text-transform: uppercase; color: var(--chrome-text); }
+.nc-empty p { margin: 0 0 18px; font-size: var(--t-body); line-height: 1.6; color: var(--color-text-secondary); }
 .nc-empty .nc-row { justify-content: flex-start; flex-wrap: wrap; }
 .nc-sk { height: 14px; margin: 10px 0; background: var(--omni-brand-bg); opacity: 0; animation: nc-sk-in 1ms 150ms forwards; }
 @keyframes nc-sk-in { to { opacity: 1; } }
@@ -117,7 +136,9 @@ html[data-bench="nightcity"] .astryx-button { border-radius: 0; }
   .nc-deck { flex-wrap: wrap; gap: 8px 14px; padding: 8px 12px 0; }
   .nc-stats { width: 100%; justify-content: space-between; order: 3; padding-bottom: 6px; }
   .nc-micro { display: none; }
-  .nc-tab { padding: 7px 16px 7px 10px; font-size: 15px; }
+  .nc-tab { padding: 7px 14px 7px 10px; font-size: 14px; }
+  .nc-stat b { font-size: 24px; }
+  .nc-stat span { text-transform: none; letter-spacing: 0; white-space: nowrap; }
   html[data-bench="nightcity"] .astryx-chat-layout { margin: 8px; }
   .nc-notice { grid-template-columns: 26px 1fr 1fr; }
   .nc-notice .what { grid-column: 2 / -1; }

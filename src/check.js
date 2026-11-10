@@ -312,6 +312,8 @@ export function renderStats(r) {
     L.push(`APCA: ${c.apcaFails}/${c.textNodes} text elements below target. All-caps without tracking: ${c.capsTight}. Paragraph line-height out of 1.2–1.8: ${c.lineHeightBad}. Unique radii ${c.radii}, shadows ${c.shadows}, z-index ${c.zIndexes}, font weights ${c.weights}.`);
     for (const a of c.apcaSamples) L.push(`- Lc ${a.lc} (needs ${a.need}) \`${a.sample}\``);
     for (const x of c.capsSamples) L.push(`- caps, no tracking \`${x}\``);
+    if (c.reading) L.push(`Type system: reading text ${c.reading.px}px / ${c.reading.lh} in ${c.reading.family}; ${c.families} families (${(c.familyNames || []).join(', ')}); ${c.textStyles} distinct text styles; caps under 12px: ${c.tinyCaps}; condensed under 14px: ${c.smallCondensed}; paragraphs over 85ch: ${c.wideMeasure}.`);
+    for (const x of [...(c.tinyCapsSamples || []), ...(c.smallCondensedSamples || []), ...(c.wideMeasureSamples || [])]) L.push(`- type \`${x}\``);
     for (const n of c.notes) L.push(`- ${n}`);
   }
   if (r.expression) {

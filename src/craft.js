@@ -60,6 +60,9 @@ export function craftProbe() {
 
   const lowLc = []; let textNodes = 0;
   const capsTight = []; const lhBad = [];
+  // Type system: families, distinct styles, tiny caps, small condensed faces, reading size/measure.
+  const families = new Set(), styles = new Set(), tinyCaps = [], smallCondensed = [], wideMeasure = [];
+  const readChars = new Map(); // style key → chars, to find the dominant reading style
   const radii = new Set(), shadows = new Set(), zs = new Set(), weights = new Set();
   for (const el of document.querySelectorAll('body *')) {
     if (!visible(el)) continue;
@@ -84,6 +87,19 @@ export function craftProbe() {
     const caps = cs.textTransform === 'uppercase' || (ownText.length >= 4 && ownText === ownText.toUpperCase() && /[A-Z]{4}/.test(ownText));
     const track = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing) / px;
     if (caps && track < 0.04 && px < 24) capsTight.push(desc(el));
+    const fam = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim();
+    families.add(fam);
+    styles.add(`${fam}|${px}|${w}|${caps ? 'caps' : ''}`);
+    if (caps && px < 12 && ownText.length > 2) tinyCaps.push(`${px}px ${desc(el)}`);
+    const condensed = /condensed|narrow|compressed|rajdhani|oswald|bebas|teko/i.test(cs.fontFamily.split(',')[0]) || parseFloat(cs.fontStretch) < 100;
+    if (condensed && px < 14 && ownText.length > 3) smallCondensed.push(`${px}px ${fam} ${desc(el)}`);
+    const lhRatio = cs.lineHeight === 'normal' ? 1.2 : parseFloat(cs.lineHeight) / px;
+    const rk = `${px}|${lhRatio.toFixed(2)}|${fam}`;
+    readChars.set(rk, (readChars.get(rk) || 0) + ownText.length);
+    if (/^(P|LI|DD|BLOCKQUOTE)$/.test(el.tagName) && ownText.length > 160) {
+      const ch = el.getBoundingClientRect().width / (px * 0.5);
+      if (ch > 85) wideMeasure.push(`${Math.round(ch)}ch ${desc(el)}`);
+    }
     // Body line-height 1.2–1.8 for multi-line copy.
     if (/^(P|LI|DD|BLOCKQUOTE)$/.test(el.tagName) && ownText.length > 80) {
       const lh = cs.lineHeight === 'normal' ? 1.2 : parseFloat(cs.lineHeight) / px;
@@ -97,11 +113,16 @@ export function craftProbe() {
     capsTight: capsTight.length, capsSamples: [...new Set(capsTight)].slice(0, 4),
     lineHeightBad: lhBad.length, lineHeightSamples: lhBad.slice(0, 4),
     radii: radii.size, shadows: shadows.size, zIndexes: zs.size, weights: weights.size,
+    families: families.size, familyNames: [...families].slice(0, 6), textStyles: styles.size,
+    tinyCaps: tinyCaps.length, tinyCapsSamples: tinyCaps.slice(0, 3),
+    smallCondensed: smallCondensed.length, smallCondensedSamples: smallCondensed.slice(0, 3),
+    wideMeasure: wideMeasure.length, wideMeasureSamples: wideMeasure.slice(0, 3),
+    reading: (() => { const top = [...readChars].sort((a, b) => b[1] - a[1])[0]; if (!top) return null; const [px, lh, fam] = top[0].split('|'); return { px: +px, lh: +lh, family: fam }; })(),
   };
 }
 
 /** Budgets (inferred from M3 / iOS / Radix role counts). */
-export const CRAFT_BUDGET = { radii: 4, shadows: 4, zIndexes: 8, weights: 4 };
+export const CRAFT_BUDGET = { radii: 4, shadows: 4, zIndexes: 8, weights: 4, families: 3 };
 
 /** Score deductions for the Craft stat. Returns [penalty, notes]. */
 export function craftPenalty(c) {
@@ -110,6 +131,12 @@ export function craftPenalty(c) {
   if (c.apcaFails) { const d = Math.min(20, Math.ceil(ratio * 100) + 3); p += d; notes.push(`${c.apcaFails} text elements below APCA target (−${d})`); }
   if (c.capsTight) { const d = Math.min(8, c.capsTight * 2); p += d; notes.push(`${c.capsTight} all-caps labels without tracking (−${d})`); }
   if (c.lineHeightBad) { const d = Math.min(8, c.lineHeightBad * 2); p += d; notes.push(`${c.lineHeightBad} paragraphs with line-height outside 1.2–1.8 (−${d})`); }
+  // Type system (reports/UI formats.md): reading text, tiny caps, condensed faces at small sizes.
+  const r = c.reading;
+  if (r && (r.px < 14 || (r.px < 16 && r.lh < 1.5))) { p += 4; notes.push(`dominant reading text is ${r.px}px / ${r.lh} in ${r.family}: cramped (want ≥15px at ≥1.5) (−4)`); }
+  if (c.tinyCaps) { const d = Math.min(6, c.tinyCaps * 2); p += d; notes.push(`${c.tinyCaps} all-caps labels under 12px (−${d})`); }
+  if (c.smallCondensed) { const d = Math.min(6, c.smallCondensed); p += d; notes.push(`${c.smallCondensed} condensed-face texts under 14px: condensed faces are for display sizes (−${d})`); }
+  if (c.wideMeasure) { const d = Math.min(4, c.wideMeasure); p += d; notes.push(`${c.wideMeasure} paragraphs wider than ~85ch (−${d})`); }
   for (const k of Object.keys(CRAFT_BUDGET)) {
     if (c[k] > CRAFT_BUDGET[k]) { const d = Math.min(6, (c[k] - CRAFT_BUDGET[k]) * 2); p += d; notes.push(`${c[k]} unique ${k} (budget ${CRAFT_BUDGET[k]}) (−${d})`); }
   }

@@ -183,7 +183,8 @@ Local files that use ES modules or fetch need a server (`python3 -m http.server`
 - `references/critique.md` — rubric for looking at your own screenshots
 - `references/themes.md` — theme engine, semantic roles, grounding, switching (every color is a role)
 - `references/astryx.md` — Meta's agent-ready design system: when and how to use it with UI-MAX
-- `playbooks/` — one per use case (agent-chat, monitor-dashboard, data-table-admin, forms-settings, detail-page, onboarding-empty, landing-marketing, mobile-app, game-fui)
+- `playbooks/` — one per use case (agent-chat, monitor-dashboard, data-table-admin, forms-settings, detail-page, onboarding-empty, landing-marketing, mobile-app, game-fui, docs-editorial, slides-presentation, workspace-tool, terminal-tui, commerce)
+- `references/type-by-format.md` — reading size, scale ratio, measure and font roles per format (chat, docs, editorial, marketing, slides, tools, mobile, TV, game, TUI); stylized-theme type rules
 - `references/pro-max.md` — how to use the vendored UI/UX Pro Max database, and its blind spots
 - `references/state-matrix.md`, `motion.md`, `skeletons.md`, `ux-heuristics.md`, `stylized-themes.md`, `ethics.md`
 - `benchmarks/` in the repo — fixed briefs for measuring whether this skill is improving

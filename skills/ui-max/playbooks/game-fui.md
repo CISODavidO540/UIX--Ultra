@@ -8,6 +8,8 @@ keywords: cyberpunk, sci-fi, fui, hud, game, retro, terminal theme, neon, futuri
 
 Read `references/stylized-themes.md` first. Rule: animate the chrome, never the work; every effect reports real state.
 
+**Type:** display/condensed faces carry chrome only (numbers, ≤ 2-word labels, plates) at ≥ 16px, or ≥ 13px for caps labels with +0.08em tracking; reading text uses a plain face at ≥ 15px; ship a plain-font option (XAG 101); game/TV text floors are glyph height, 26px at 1080p console (18px PC). Night City v3 (`benchmarks/B6-cyberpunk`) is the worked example.
+
 **Must exist:** Effects Full / Subtle / Off; sound off by default; focus that survives clip-path and forced-colors; reading surfaces plain; one ambient loop max while live.
 
 **Slop risks:** cyan + magenta on near-black (now a recognized AI tell), `// LABEL` uppercase mono everywhere, brackets and scanlines on every panel. Derive the look from a concept and non-web references (instrument panels, signage, film FUI), per `references/direction.md`.

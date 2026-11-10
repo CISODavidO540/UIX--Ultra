@@ -65,3 +65,8 @@ See `examples/astryx-review/REVIEW.md`. Short version:
 - The bridge maps color only, and Astryx has no `active` status (use `--omni-active-*`). A palette swap barely changes the look; identity needs `defineTheme({ components })` overrides, custom variants, or your own blocks on Astryx primitives.
 - The `ai-chat` template lacks: approval prompt, stop control, context meter, empty and loading states. Add them from the agent-chat playbook.
 - Astryx guarantees WCAG 2 (4.5:1); `omni check` also wants APCA Lc 60 on secondary text.
+
+## Typography and format coverage (checked 2026-11-10)
+
+- Default body is 14px / 1.43 (dense). Raise it for reading surfaces with `defineTheme({typography: {base, ratio}})`. If you override tokens directly, set `--text-*` on `[data-astryx-theme]`: Astryx re-declares them there, so `:root`/`html` overrides do nothing.
+- Templates exist for chat, dashboards, tables, forms, settings, login, detail and commerce pages, IDE, canvas, kanban and docs. None exist for slides, blog/editorial, changelog, portfolio, onboarding, calendar view, mobile tab apps, game HUD or TV. `astryx build` falls back to `shell-top-nav` for these. It also misroutes "team messaging app" (use `messaging-shell`) and "e-commerce checkout" (use `checkout-wizard`). Full map: `reports/UI formats and Astryx.md`.

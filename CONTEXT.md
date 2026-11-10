@@ -175,3 +175,11 @@ Next:
 - Findings + patch: `examples/harvis-ui-audit/` — global "no focus rings" rule (WCAG 2.4.7 fail), no pressed state in Button, transition-all, boot bar stalls at 95%, blank main pane while connecting, skeletons never resolve on failure, 229 ad-hoc spinners, JS animations ignore reduced motion, a getSnapshot infinite loop.
 - Patch fixes focus, press, transitions, skeleton delay, Loader reduced motion. Not pushed (read-only access); David applies it.
 - New `omni audit` press-feedback check.
+
+## 2026-11-10: UI formats study + Night City v3 (type)
+- David graded Night City v2 **4/5**: "a lot better theme wise but word font probably needs some work". Logged in .omni/evidence.jsonl, the taste profile, results.csv and taste/examples/david.md.
+- Research: `research_notes/UI formats/` (chat, presentation-web, app-guis) → `reports/UI formats and Astryx.md`, `skills/ui-max/references/type-by-format.md`.
+- New playbooks: docs-editorial, slides-presentation, workspace-tool, terminal-tui, commerce. Router fixed for terminal and product page.
+- Astryx coverage: strong for chat, dashboards, tables, forms, workspace tools and commerce; none for slides, editorial, changelog, onboarding, calendar, mobile tabs, HUD, TV. Gotcha: `--text-*` must be overridden on `[data-astryx-theme]`.
+- craft probe now has a type system check: reading size/line-height, caps <12px, condensed <14px, measure >85ch, families ≤3.
+- Night City v3: Chakra Petch chrome, Plex 15/24 reading, one caps tracking. 94 A, craft 77. Awaiting David's grade (compare-v2-v3.png).

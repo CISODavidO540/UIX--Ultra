@@ -1,17 +1,17 @@
 {
-  "target": "http://127.0.0.1:8822/index.html?variant=nightcity",
-  "label": "http://127.0.0.1:8822/index.html?variant=nightcity",
-  "checkedAt": "2026-11-10T03:29:08.759Z",
-  "overall": 93,
+  "target": "http://localhost:8822/index.html?variant=nightcity",
+  "label": "http://localhost:8822/index.html?variant=nightcity",
+  "checkedAt": "2026-11-10T03:57:18.035Z",
+  "overall": 94,
   "rank": "A",
   "pass": true,
   "stats": {
-    "access": 97,
+    "access": 98,
     "originality": 100,
     "states": 100,
     "motion": 80,
     "responsive": 100,
-    "craft": 72,
+    "craft": 77,
     "expression": 100
   },
   "gate": [
@@ -48,20 +48,20 @@
     "tells": [],
     "slopScore": 0,
     "system": {
-      "fontSizes": 10,
+      "fontSizes": 9,
       "fontFamilies": [
-        "\"Barlow Condensed\"",
+        "\"Chakra Petch\"",
         "\"IBM Plex Mono\"",
         "\"IBM Plex Sans\""
       ],
       "accentHueBuckets": 7,
       "offGridSpacingRatio": 0.016,
       "numericNodes": 30,
-      "tabularNumericNodes": 2,
+      "tabularNumericNodes": 10,
       "textNodes": 198,
       "controls": 17,
       "ornamentCount": 8,
-      "monoShare": 0.04
+      "monoShare": 0.05
     }
   },
   "sheet": {
@@ -124,22 +124,16 @@
     }
   },
   "a11y": {
-    "target": "http://127.0.0.1:8822/index.html?variant=nightcity",
-    "score": 97,
+    "target": "http://localhost:8822/index.html?variant=nightcity",
+    "score": 98,
     "bySeverity": {
       "critical": 0,
       "serious": 0,
       "moderate": 0,
-      "minor": 3,
+      "minor": 2,
       "info": 1
     },
     "issues": [
-      {
-        "severity": "minor",
-        "rule": "tiny-text",
-        "message": "Text at 11px is hard to read",
-        "sample": "<kbd> ENTER"
-      },
       {
         "severity": "minor",
         "rule": "h1",
@@ -156,17 +150,15 @@
         "message": "No skeleton/aria-busy patterns found in the initial DOM — check async views have loading states"
       }
     ],
-    "auditedAt": "2026-11-10T03:28:48.199Z"
+    "auditedAt": "2026-11-10T03:56:57.061Z"
   },
   "consoleErrors": [],
   "craft": {
     "textNodes": 191,
     "apcaFails": 0,
     "apcaSamples": [],
-    "capsTight": 1,
-    "capsSamples": [
-      "<kbd> ENTER"
-    ],
+    "capsTight": 0,
+    "capsSamples": [],
     "lineHeightBad": 0,
     "lineHeightSamples": [],
     "radii": 5,
@@ -174,16 +166,15 @@
     "zIndexes": 3,
     "weights": 4,
     "notes": [
-      "1 all-caps labels without tracking (−2)",
       "5 unique radii (budget 4) (−2)",
       "9 raw color literals in component CSS — use theme roles (omni themegen) (−1)"
     ]
   },
   "expression": {
-    "colorfulness": 25.8,
-    "colorShare": 3.5,
+    "colorfulness": 25.9,
+    "colorShare": 3.7,
     "hueFamilies": 3,
-    "regions": 9,
+    "regions": 8,
     "samples": [
       "<div.astryx-chat-layout>",
       "<div.astryx-chat-message-bubble>",

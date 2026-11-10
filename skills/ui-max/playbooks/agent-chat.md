@@ -2,7 +2,7 @@
 id: agent-chat
 title: AI chat / agent console
 surface: Operate + Monitor
-keywords: agent, chat, llm, assistant, copilot, hermes, tool call, streaming, sandbox, prompt, conversation, terminal, console
+keywords: agent, chat, llm, assistant, copilot, hermes, tool call, streaming, sandbox, prompt, conversation, messaging, support widget
 ---
 # Agent chat / agent console
 
@@ -16,6 +16,8 @@ keywords: agent, chat, llm, assistant, copilot, hermes, tool call, streaming, sa
 - Streaming markdown that closes unfinished fences; code blocks with copy.
 - Context/token meter that warns at ~70% / 90%; per-message cost on hover.
 - States: empty session, first-run, thinking (label + elapsed), disconnected/retrying, rate-limited, long output (collapse), very long session (virtualize).
+
+**Type** (`references/type-by-format.md`; from the products' own CSS): body 15–16px at 1.5–1.6 (ChatGPT 16/24, Discord 16/22, Slack 15/22); paragraphs ≤ ~70ch while code and tables use the full column; headings inside answers ≤ 1.5× body (use weight, not size); a mono from the same family as the sans; composer ≥ 16px (iOS zooms below that); tabular timestamps. In a stylized theme the display face stays in the chrome (title, plates, step labels, empty state) and never sets the message body, composer, code or tables.
 
 **Effects budget:** one ambient signal while the agent works (on the active step only). Message text, code, diffs and the composer stay plain.
 

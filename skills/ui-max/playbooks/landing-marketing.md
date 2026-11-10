@@ -2,7 +2,7 @@
 id: landing-marketing
 title: Landing / marketing page
 surface: Decide/Learn
-keywords: landing, marketing, homepage, hero, pricing, product page, launch, waitlist, portfolio, website
+keywords: landing, marketing, homepage, hero, pricing, launch, waitlist, portfolio, website
 ---
 # Landing / marketing page
 

@@ -52,6 +52,9 @@ that is productive, usable and alive, and he judges by looking, fast.
 
 Format: `date · artifact · verdict (his words) · rule it implies`
 
+- 2026-11-10 · B6 v2 Night City · **4/5** "its a lot better theme wise but word font probably needs some work" · reference-driven genre rules work (red chrome, cyan = selected, yellow = needs you); typography is the next lever.
+- 2026-11-10 · B6 v1 hazard label · **3/5** "the blue one is way too everywhere and the other stuff is kinda bland and does not fit cyberpunk" · one hue on every edge reads as noise; stylized themes must come from real genre references.
+
 - 2026-11-10 · Astryx `ai-chat` template (stock, and with the flight-deck bridge) · "thats actually a pretty good UI i think were getting the hang of it" · Astryx's frame (transcript + artifact panel, real markdown/code, quiet chrome) is an accepted base. Build on it rather than hand-rolling layouts. Next ask: train/test on it, and benchmark **cyberpunk** as the hard case.
 
 - 2026-11-09 · `v2-flightdeck` + `v2-mixer` · "good upgrade but it needs better theme management and colors and a little everywhere it just needs a little more grounding… it can work but it depends on usecase" · new: grounded color, managed themes, concept fits use case; Never: sprinkled color.

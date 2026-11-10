@@ -8,6 +8,8 @@
 | naive: cyan/magenta, glow, uppercase mono, scanlines | 69 C | FAIL | 4 | 40 (capped) |
 | directed: "Hazard label", `netrunner` theme (dark) | 88 A | PASS | 0 | 55 |
 | directed: `netrunner-day` | 88 A | PASS | 0 | 55 |
+| v2 "Night City" (2077 menu references), `night-city` theme: David 4/5 | 93 A | PASS | 0 | 100 |
+| v3 Night City type pass (Chakra Petch chrome, Plex 15/24 reading) | 94 A | PASS | 0 | 100 |
 
 Direction: [DIRECTION.md](DIRECTION.md). Stat sheets and screenshots: `runs/`
 (`runs/directed/states-desktop.png` and `states-mobile.png` show all six states).
