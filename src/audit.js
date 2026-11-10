@@ -110,7 +110,7 @@ function staticChecks() {
       const box = { l: Math.min(r.left, cx - 12), r: Math.max(r.right, cx + 12), t: Math.min(r.top, cy - 12), b: Math.max(r.bottom, cy + 12) };
       const others = [...document.querySelectorAll('button, a[href], input, select, textarea, [role=button]')].filter((o) => o !== el && !el.contains(o) && !o.contains(el) && visible(o));
       const clash = others.some((o) => { const q = o.getBoundingClientRect(); return q.left < box.r && q.right > box.l && q.top < box.b && q.bottom > box.t; });
-      if (!clash && Math.min(r.width, r.height) >= 16) return;
+      if (!clash && Math.min(r.width, r.height) >= 20) return; // tiny (<20px) targets are flagged even when isolated
     }
     if (r.width < 24 || r.height < 24) { small++; if (small <= 5) add('serious', 'tap-target', `Target is ${Math.round(r.width)}×${Math.round(r.height)}px (min 24, ideal 44)`, describe(el)); }
   });
