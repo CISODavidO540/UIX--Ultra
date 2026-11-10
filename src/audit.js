@@ -63,6 +63,7 @@ function staticChecks() {
   for (const el of document.querySelectorAll('body *')) {
     if (!visible(el)) continue;
     if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+    if (el.closest('[aria-hidden="true"]')) continue; // decorative texture, not content
     const cs = getComputedStyle(el);
     const fg = parse(cs.color); const bg = bgOf(el);
     if (!fg || !bg) continue;

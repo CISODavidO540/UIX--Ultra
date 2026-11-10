@@ -3,79 +3,79 @@
     "surface": {
       "0": {
         "$type": "color",
-        "$value": "#160f15"
+        "$value": "#1a0e0e"
       },
       "1": {
         "$type": "color",
-        "$value": "#1e161d"
+        "$value": "#231516"
       },
       "2": {
         "$type": "color",
-        "$value": "#271f26"
+        "$value": "#2b1d1e"
       },
       "3": {
         "$type": "color",
-        "$value": "#2f272e"
+        "$value": "#342626"
       },
       "inset": {
         "$type": "color",
-        "$value": "#10080f"
+        "$value": "#130708"
       }
     },
     "border": {
       "1": {
         "$type": "color",
-        "$value": "#383037"
+        "$value": "#3d2e2f"
       },
       "2": {
         "$type": "color",
-        "$value": "#534a52"
+        "$value": "#594848"
       },
       "strong": {
         "$type": "color",
-        "$value": "#877c85"
+        "$value": "#8d7b7b"
       }
     },
     "text": {
       "1": {
         "$type": "color",
-        "$value": "#ece5eb"
+        "$value": "#f1e5e4"
       },
       "2": {
         "$type": "color",
-        "$value": "#d8d2d8"
+        "$value": "#dacece"
       },
       "3": {
         "$type": "color",
-        "$value": "#aca5ab"
+        "$value": "#b0a5a4"
       }
     },
     "ok": {
       "bg": {
         "$type": "color",
-        "$value": "#082615"
+        "$value": "#0c2513"
       },
       "border": {
         "$type": "color",
-        "$value": "#247448"
+        "$value": "#2f7442"
       },
       "fg": {
         "$type": "color",
-        "$value": "#59d38c"
+        "$value": "#67d283"
       },
       "solid": {
         "$type": "color",
-        "$value": "#4ace84"
+        "$value": "#5bcc79"
       },
       "on": {
         "solid": {
           "$type": "color",
-          "$value": "#160f15"
+          "$value": "#1a0e0e"
         }
       },
       "signal": {
         "$type": "color",
-        "$value": "#10ae65"
+        "$value": "#09af51"
       }
     },
     "warn": {
@@ -98,7 +98,7 @@
       "on": {
         "solid": {
           "$type": "color",
-          "$value": "#160f15"
+          "$value": "#1a0e0e"
         }
       },
       "signal": {
@@ -109,57 +109,57 @@
     "danger": {
       "bg": {
         "$type": "color",
-        "$value": "#331610"
+        "$value": "#2e1526"
       },
       "border": {
         "$type": "color",
-        "$value": "#964a3c"
+        "$value": "#8a4976"
       },
       "fg": {
         "$type": "color",
-        "$value": "#ffa28f"
+        "$value": "#fd95dc"
       },
       "solid": {
         "$type": "color",
-        "$value": "#fe9783"
+        "$value": "#fc90da"
       },
       "on": {
         "solid": {
           "$type": "color",
-          "$value": "#160f15"
+          "$value": "#1a0e0e"
         }
       },
       "signal": {
         "$type": "color",
-        "$value": "#fe4527"
+        "$value": "#f706c7"
       }
     },
     "info": {
       "bg": {
         "$type": "color",
-        "$value": "#301522"
+        "$value": "#231933"
       },
       "border": {
         "$type": "color",
-        "$value": "#8f4869"
+        "$value": "#6d5496"
       },
       "fg": {
         "$type": "color",
-        "$value": "#fd9ac6"
+        "$value": "#c9adfd"
       },
       "solid": {
         "$type": "color",
-        "$value": "#fd94c4"
+        "$value": "#c4a4fd"
       },
       "on": {
         "solid": {
           "$type": "color",
-          "$value": "#160f15"
+          "$value": "#1a0e0e"
         }
       },
       "signal": {
         "$type": "color",
-        "$value": "#fe19a3"
+        "$value": "#a86bfd"
       }
     },
     "active": {
@@ -169,94 +169,122 @@
       },
       "border": {
         "$type": "color",
-        "$value": "#017272"
+        "$value": "#017273"
       },
       "fg": {
         "$type": "color",
-        "$value": "#1ad1d1"
+        "$value": "#19d1d2"
       },
       "solid": {
         "$type": "color",
-        "$value": "#14caca"
+        "$value": "#13cacb"
       },
       "on": {
         "solid": {
           "$type": "color",
-          "$value": "#160f15"
+          "$value": "#1a0e0e"
         }
       },
       "signal": {
         "$type": "color",
-        "$value": "#12a7a7"
+        "$value": "#12a7a8"
       }
     },
     "accent": {
       "bg": {
         "$type": "color",
-        "$value": "#242000"
+        "$value": "#251f01"
       },
       "border": {
         "$type": "color",
-        "$value": "#6f6505"
+        "$value": "#736307"
       },
       "fg": {
         "$type": "color",
-        "$value": "#ccba14"
+        "$value": "#d3b708"
       },
       "solid": {
         "$type": "color",
-        "$value": "#f0da1e"
+        "$value": "#f7d715"
       },
       "on": {
         "solid": {
           "$type": "color",
-          "$value": "#120a11"
+          "$value": "#16090a"
         }
       },
       "signal": {
         "$type": "color",
-        "$value": "#a3940f"
+        "$value": "#a89207"
+      }
+    },
+    "brand": {
+      "bg": {
+        "$type": "color",
+        "$value": "#351312"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#9c4341"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#fda19b"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#fd9791"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#1a0e0e"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#fe4048"
       }
     },
     "focus": {
       "$type": "color",
-      "$value": "#f0da1e"
+      "$value": "#f7d715"
     },
     "state": {
       "hover": {
         "$type": "color",
-        "$value": "#ece5eb14",
-        "$description": "8% overlay of #ece5eb"
+        "$value": "#f1e5e414",
+        "$description": "8% overlay of #f1e5e4"
       },
       "focus": {
         "$type": "color",
-        "$value": "#ece5eb1a",
-        "$description": "10% overlay of #ece5eb"
+        "$value": "#f1e5e41a",
+        "$description": "10% overlay of #f1e5e4"
       },
       "pressed": {
         "$type": "color",
-        "$value": "#ece5eb1f",
-        "$description": "12% overlay of #ece5eb"
+        "$value": "#f1e5e41f",
+        "$description": "12% overlay of #f1e5e4"
       },
       "dragged": {
         "$type": "color",
-        "$value": "#ece5eb29",
-        "$description": "16% overlay of #ece5eb"
+        "$value": "#f1e5e429",
+        "$description": "16% overlay of #f1e5e4"
       },
       "selected": {
         "$type": "color",
-        "$value": "#fd94c42e",
-        "$description": "18% overlay of #fd94c4"
+        "$value": "#c4a4fd2e",
+        "$description": "18% overlay of #c4a4fd"
       }
     },
     "syntax": {
       "keyword": {
         "$type": "color",
-        "$value": "#3bcfcf"
+        "$value": "#3bcfd0"
       },
       "string": {
         "$type": "color",
-        "$value": "#7bcc98"
+        "$value": "#82cb92"
       },
       "number": {
         "$type": "color",
@@ -264,27 +292,27 @@
       },
       "function": {
         "$type": "color",
-        "$value": "#f19dc2"
+        "$value": "#c2a7f4"
       },
       "type": {
         "$type": "color",
-        "$value": "#f0a08f"
+        "$value": "#e6a1cf"
       },
       "comment": {
         "$type": "color",
-        "$value": "#d8d2d8"
+        "$value": "#dacece"
       },
       "plain": {
         "$type": "color",
-        "$value": "#ece5eb"
+        "$value": "#f1e5e4"
       }
     },
     "link": {
       "$type": "color",
-      "$value": "#fd9ac6",
+      "$value": "#c9adfd",
       "visited": {
         "$type": "color",
-        "$value": "#1ad1d1"
+        "$value": "#19d1d2"
       }
     },
     "viz": {
@@ -473,5 +501,5 @@
       ]
     }
   },
-  "$description": "Night City (cyberpunk · street ops, dark only) · dark · generated by omni themegen"
+  "$description": "Night City (cyberpunk, dark only) · dark · generated by omni themegen"
 }

@@ -68,6 +68,13 @@
   --omni-info-signal: #10a6ad;
   --omni-active-signal: #8a7cfd;
   --omni-accent-signal: #c68206;
+  --omni-brand-signal: #c68206;
+  --omni-brand-fg: #faa617;
+  --omni-brand-bg: #2d1b01;
+  --omni-brand-border: #875808;
+  --omni-brand-solid: #f3a009;
+  --omni-brand-on-solid: #0b1314;
+  --omni-active-signal-raw: #8a7cfd;
   --omni-info-fg: #17d0d8;
   --omni-info-bg: #032526;
   --omni-info-border: #007176;
@@ -161,6 +168,13 @@
   --omni-info-signal: #10a6ad;
   --omni-active-signal: #8a7cfd;
   --omni-accent-signal: #c68206;
+  --omni-brand-signal: #c68206;
+  --omni-brand-fg: #faa617;
+  --omni-brand-bg: #2d1b01;
+  --omni-brand-border: #875808;
+  --omni-brand-solid: #f3a009;
+  --omni-brand-on-solid: #0b1314;
+  --omni-active-signal-raw: #8a7cfd;
   --omni-info-fg: #17d0d8;
   --omni-info-bg: #032526;
   --omni-info-border: #007176;

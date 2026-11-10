@@ -218,6 +218,34 @@
         "$value": "#97750d"
       }
     },
+    "brand": {
+      "bg": {
+        "$type": "color",
+        "$value": "#fcf1d6"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#c4a042"
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "#745a08"
+      },
+      "solid": {
+        "$type": "color",
+        "$value": "#93720b"
+      },
+      "on": {
+        "solid": {
+          "$type": "color",
+          "$value": "#ffffff"
+        }
+      },
+      "signal": {
+        "$type": "color",
+        "$value": "#97750d"
+      }
+    },
     "focus": {
       "$type": "color",
       "$value": "#93720b"

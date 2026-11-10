@@ -14,7 +14,7 @@ import { craftProbe } from './craft.js';
 export const REQUIRED_ROLES = [
   'surface-inset', 'surface-0', 'surface-1', 'surface-2', 'surface-3', 'border-1', 'border-2', 'border-strong',
   'text-1', 'text-2', 'text-3', 'focus',
-  ...['ok', 'warn', 'danger', 'info', 'active', 'accent'].flatMap((f) => ['fg', 'bg', 'border', 'solid', 'on-solid'].map((x) => `${f}-${x}`)),
+  ...['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].flatMap((f) => ['fg', 'bg', 'border', 'solid', 'on-solid'].map((x) => `${f}-${x}`)),
   // beyond color (round 4): state layers, data viz, shape, type, motion, elevation
   'state-hover', 'state-pressed', 'state-selected', 'state-disabled-opacity',
   'viz-1', 'viz-2', 'viz-3', 'viz-4', 'viz-5', 'viz-6',
@@ -62,7 +62,7 @@ export function specimenHTML(themeCssHref) {
   .alert { display: flex; gap: 8px; padding: 8px 10px; border: 1px solid; border-radius: var(--radius-sm, 0); margin-bottom: 6px; }
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid; }
   .tag { padding: 2px 8px; border-radius: var(--radius-sm, 0); font-size: 12px; font-weight: 600; }
-  ${['ok', 'warn', 'danger', 'info', 'active', 'accent'].map((f) => `.alert.${f}, .badge.${f} { background: var(--${f}-bg); border-color: var(--${f}-border); color: var(--text-1); } .alert.${f} b, .badge.${f} { color: var(--${f}-fg); } .tag.${f} { background: var(--${f}-solid); color: var(--${f}-on-solid); }`).join('\n  ')}
+  ${['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].map((f) => `.alert.${f}, .badge.${f} { background: var(--${f}-bg); border-color: var(--${f}-border); color: var(--text-1); } .alert.${f} b, .badge.${f} { color: var(--${f}-fg); } .tag.${f} { background: var(--${f}-solid); color: var(--${f}-on-solid); }`).join('\n  ')}
   /* table */
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { text-align: left; color: var(--text-2); font-weight: 600; border-bottom: 1px solid var(--border-2); padding: 6px; }
@@ -112,9 +112,9 @@ export function specimenHTML(themeCssHref) {
     <div class="row"><span class="sw on"></span> On <span class="sw"></span> Off <span class="box on">✓</span> Checked <span class="box"></span> Unchecked</div>
   </section>
   <section class="card"><h2>Status families (grounded)</h2>
-    ${['ok', 'warn', 'danger', 'info', 'active', 'accent'].map((f) => `<div class="alert ${f}"><b>${f}</b><span>Body text on the ${f} ground stays readable.</span></div>`).join('')}
-    <div class="row">${['ok', 'warn', 'danger', 'info', 'active', 'accent'].map((f) => `<span class="badge ${f}">${f}</span>`).join('')}</div>
-    <div class="row">${['ok', 'warn', 'danger', 'info', 'active', 'accent'].map((f) => `<span class="tag ${f}">${f.toUpperCase()}</span>`).join('')}</div>
+    ${['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].map((f) => `<div class="alert ${f}"><b>${f}</b><span>Body text on the ${f} ground stays readable.</span></div>`).join('')}
+    <div class="row">${['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].map((f) => `<span class="badge ${f}">${f}</span>`).join('')}</div>
+    <div class="row">${['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].map((f) => `<span class="tag ${f}">${f.toUpperCase()}</span>`).join('')}</div>
   </section>
   <section class="card"><h2>Table · hover · selected</h2>
     <div class="tabs"><span class="tab on">Sessions</span><span class="tab is-hover">Agents</span><span class="tab">Cron</span></div>

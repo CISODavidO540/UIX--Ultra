@@ -68,6 +68,13 @@
   --omni-info-signal: #0d7dd4;
   --omni-active-signal: #dc0075;
   --omni-accent-signal: #97750d;
+  --omni-brand-signal: #97750d;
+  --omni-brand-fg: #745a08;
+  --omni-brand-bg: #fcf1d6;
+  --omni-brand-border: #c4a042;
+  --omni-brand-solid: #93720b;
+  --omni-brand-on-solid: #ffffff;
+  --omni-active-signal-raw: #dc0075;
   --omni-info-fg: #0260a6;
   --omni-info-bg: #e9f3fe;
   --omni-info-border: #70a9e4;
@@ -161,6 +168,13 @@
   --omni-info-signal: #0795fd;
   --omni-active-signal: #fd2d8c;
   --omni-accent-signal: #b58c00;
+  --omni-brand-signal: #b58c00;
+  --omni-brand-fg: #e5b30b;
+  --omni-brand-bg: #291d00;
+  --omni-brand-border: #7b5f09;
+  --omni-brand-solid: #ddad16;
+  --omni-brand-on-solid: #101115;
+  --omni-active-signal-raw: #fd2d8c;
   --omni-info-fg: #7dbdfe;
   --omni-info-bg: #0b2035;
   --omni-info-border: #2e669c;

@@ -1,34 +1,14 @@
 {
   "name": "night-city",
-  "label": "Night City (cyberpunk \u00b7 street ops, dark only)",
+  "label": "Night City (cyberpunk, dark only)",
   "mode": "dark",
-  "base": {
-    "hue": 330,
-    "chroma": 0.018
-  },
-  "accent": {
-    "hue": 102,
-    "chroma": 0.19,
-    "bright": true,
-    "meaning": "operator action (acid yellow, black legend)"
-  },
-  "status": {
-    "ok": 155,
-    "warn": 75,
-    "danger": 32,
-    "info": 352,
-    "active": 195
-  },
-  "concept": "Cyberpunk street ops: ink-violet night, hot crimson-pink signal for Hermes and its documents, acid yellow only for operator action, cyan only for live. Comic-print hard shadows, cut corners, slanted condensed display type. No glow, no gradients.",
-  "usecases": [
-    "agent-chat",
-    "game-fui"
-  ],
+  "base": { "hue": 18, "chroma": 0.022 },
+  "brand": { "hue": 24, "chroma": 0.17 },
+  "accent": { "hue": 98, "chroma": 0.18, "bright": true, "meaning": "needs you / operator action (notice yellow, black legend)" },
+  "status": { "ok": 150, "warn": 75, "danger": 340, "info": 300, "active": 196 },
+  "concept": "Night City corporate-street interface (genre reference: Cyberpunk 2077 menus). Coral-red chrome for every frame, label and tab; cyan only for what is selected or live; notice yellow only for what needs you; category colors as thin left-edge bars. Cut-corner hairline frames, condensed caps headers, big numbers with small units, micro-data only at the edges. No glow, no blue chrome.",
+  "usecases": ["agent-chat", "game-fui"],
   "shape": "sharp",
   "motion": "snappy",
-  "font": {
-    "sans": "\"IBM Plex Sans\", system-ui, sans-serif",
-    "mono": "\"IBM Plex Mono\", ui-monospace, monospace",
-    "display": "\"Barlow Condensed\", \"IBM Plex Sans\", system-ui, sans-serif"
-  }
+  "font": { "sans": "\"IBM Plex Sans\", system-ui, sans-serif", "mono": "\"IBM Plex Mono\", ui-monospace, monospace", "display": "\"Barlow Condensed\", \"IBM Plex Sans\", system-ui, sans-serif" }
 }

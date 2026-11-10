@@ -103,7 +103,9 @@ export function generate(preset) {
   }
 
   // Status + accent families, each grounded: fg, bg (tinted surface), border, solid, on-solid.
-  const families = { ...Object.fromEntries(Object.entries(st).map(([k, h]) => [k, { hue: h, chroma: 0.15 }])), accent: { hue: preset.accent?.hue ?? 75, chroma: preset.accent?.chroma ?? 0.16 } };
+  const families = { ...Object.fromEntries(Object.entries(st).map(([k, h]) => [k, { hue: h, chroma: 0.15 }])), accent: { hue: preset.accent?.hue ?? 75, chroma: preset.accent?.chroma ?? 0.16 },
+    // Brand / chrome: the identity color for frames, labels and tabs. Not a status. Defaults to the accent.
+    brand: { hue: preset.brand?.hue ?? preset.accent?.hue ?? 75, chroma: preset.brand?.chroma ?? preset.accent?.chroma ?? 0.16 } };
   for (const [name, { hue, chroma }] of Object.entries(families)) {
     // foreground text: must read on its own tinted bg and on panels
     const bg = oklch(dark ? 0.24 : 0.96, chroma * (dark ? 0.32 : 0.22), hue);
@@ -130,6 +132,8 @@ export function generate(preset) {
     roles[`${name}-solid`] = best.solid;
     roles[`${name}-on-solid`] = best.on;
   }
+  // No brand in the preset: brand IS the accent (same roles, no second near-identical color).
+  if (!preset.brand) for (const x of ['fg', 'bg', 'border', 'solid', 'on-solid']) roles[`brand-${x}`] = roles[`accent-${x}`];
   roles['focus'] = roles['accent-solid'];
 
   // Signal marks: full-chroma versions of each family for NON-text marks only (edges, bars,
@@ -143,6 +147,7 @@ export function generate(preset) {
     }
     roles[`${name}-signal`] = best || roles[`${name}-solid`];
   }
+  if (!preset.brand) roles['brand-signal'] = roles['accent-signal'];
 
   // ---- beyond color (round 4; numbers from reports/Complete theme systems.md) ----
   // Interaction state layers: overlays of the content color, M3 opacities
@@ -216,7 +221,7 @@ export function validate(r) {
   for (const s of ['surface-0', 'surface-1', 'surface-2', 'surface-inset']) {
     need('text-1', s, 75, 'body text'); need('text-2', s, 60, 'secondary text'); need('text-3', s, 45, 'placeholder/disabled');
   }
-  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent']) {
+  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand']) {
     need(`${f}-fg`, `${f}-bg`, 60, `${f} label on its ground`);
     need(`${f}-fg`, 'surface-1', 60, `${f} label on panel`);
     need(`${f}-on-solid`, `${f}-solid`, 60, `text on lit ${f}`);
@@ -224,19 +229,19 @@ export function validate(r) {
   }
   for (const k of ['keyword', 'string', 'number', 'function', 'type', 'comment']) if (r[`syntax-${k}`]) need(`syntax-${k}`, 'surface-inset', 60, `code ${k}`);
   if (r.link) { need('link', 'surface-0', 60, 'link text'); need('link', 'surface-1', 60, 'link text'); }
-  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent']) if (r[`${f}-signal`]) pairs.push({ fg: `${f}-signal`, bg: 'surface-1', target: 3, lc: wcag(r[`${f}-signal`], r['surface-1']), why: 'signal mark vs panel (non-text)', wcag: true });
+  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand']) if (r[`${f}-signal`]) pairs.push({ fg: `${f}-signal`, bg: 'surface-1', target: 3, lc: wcag(r[`${f}-signal`], r['surface-1']), why: 'signal mark vs panel (non-text)', wcag: true });
   // Placeholder is text under WCAG 1.4.3.
   for (const sname of ['surface-0', 'surface-inset']) pairs.push({ fg: 'text-3', bg: sname, target: 4.5, lc: wcag(r['text-3'], r[sname]), why: 'placeholder (WCAG 2)', wcag: true });
   // Data viz marks: ≥ 3:1 against panels (WCAG 1.4.11 non-text contrast).
   for (let i = 1; r[`viz-${i}`]; i++) pairs.push({ fg: `viz-${i}`, bg: 'surface-1', target: 3, lc: wcag(r[`viz-${i}`], r['surface-1']), why: 'chart mark vs panel', wcag: true });
   // Lit legends are small bold text: also hold WCAG 2 AA (4.5:1).
-  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent']) {
+  for (const f of ['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand']) {
     const ratio = wcag(r[`${f}-on-solid`], r[`${f}-solid`]);
     pairs.push({ fg: `${f}-on-solid`, bg: `${f}-solid`, target: 4.5, lc: ratio, why: 'WCAG 2 AA for small legends', wcag: true });
   }
   // Distinct families must not look alike (studio: active == danger; master-control: accent ≈ danger).
   // OKLab ΔE ≥ 0.08 between lit fills. warn/accent may share a hue when the accent *is* the caution color.
-  const fams = ['ok', 'warn', 'danger', 'info', 'active', 'accent'];
+  const fams = ['ok', 'warn', 'danger', 'info', 'active', 'accent', ...(r['brand-solid'] !== r['accent-solid'] ? ['brand'] : [])];
   for (let i = 0; i < fams.length; i++) for (let j = i + 1; j < fams.length; j++) {
     if (fams[i] === 'warn' && fams[j] === 'accent') continue;
     const d = +deltaE(r[`${fams[i]}-solid`], r[`${fams[j]}-solid`]).toFixed(3);
@@ -259,7 +264,7 @@ export function toCSS(themes, { defaultTheme } = {}) {
   const fc = ['--surface-inset: Canvas', '--surface-0: Canvas', '--surface-1: Canvas', '--surface-2: Canvas', '--surface-3: Canvas',
     '--border-1: CanvasText', '--border-2: CanvasText', '--border-strong: CanvasText', '--text-1: CanvasText', '--text-2: CanvasText', '--text-3: GrayText',
     '--focus: Highlight', '--link: LinkText', '--link-visited: VisitedText', '--state-hover: transparent', '--state-pressed: transparent', '--state-selected: Highlight',
-    ...['ok', 'warn', 'danger', 'info', 'active', 'accent'].flatMap((f) => [`--${f}-fg: CanvasText`, `--${f}-bg: Canvas`, `--${f}-border: CanvasText`, `--${f}-solid: ButtonFace`, `--${f}-on-solid: ButtonText`])];
+    ...['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].flatMap((f) => [`--${f}-fg: CanvasText`, `--${f}-bg: Canvas`, `--${f}-border: CanvasText`, `--${f}-solid: ButtonFace`, `--${f}-on-solid: ButtonText`])];
   out.push(`@media (forced-colors: active) { :root, [data-theme] { ${fc.join('; ')}; --shadow-1: none; --shadow-2: none; --shadow-3: none; } }`);
   return out.join('\n') + '\n';
 }
@@ -336,7 +341,9 @@ export function astryxTokenMap(r) {
     '--omni-active-fg': r['active-fg'], '--omni-active-bg': r['active-bg'], '--omni-active-border': r['active-border'], '--omni-active-solid': r['active-solid'], '--omni-active-on-solid': r['active-on-solid'],
     '--omni-surface-inset': r['surface-inset'], '--omni-state-selected': r['state-selected'], '--omni-border-strong': r['border-strong'],
     '--omni-accent-border': r['accent-border'], '--omni-surface-2': r['surface-2'],
-    ...Object.fromEntries(['ok', 'warn', 'danger', 'info', 'active', 'accent'].map((f) => [`--omni-${f}-signal`, r[`${f}-signal`]])),
+    ...Object.fromEntries(['ok', 'warn', 'danger', 'info', 'active', 'accent', 'brand'].map((f) => [`--omni-${f}-signal`, r[`${f}-signal`]])),
+    ...Object.fromEntries(['fg', 'bg', 'border', 'solid', 'on-solid'].map((x) => [`--omni-brand-${x}`, r[`brand-${x}`]])),
+    '--omni-active-signal-raw': r['active-signal'],
     '--omni-info-fg': r['info-fg'], '--omni-info-bg': r['info-bg'], '--omni-info-border': r['info-border'],
     // code highlighting (Astryx CodeBlock reads these)
     '--color-syntax-keyword': r['syntax-keyword'], '--color-syntax-string': r['syntax-string'], '--color-syntax-number': r['syntax-number'], '--color-syntax-constant': r['syntax-number'],

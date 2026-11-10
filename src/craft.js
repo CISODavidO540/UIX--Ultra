@@ -69,6 +69,7 @@ export function craftProbe() {
     if (cs.zIndex !== 'auto' && cs.position !== 'static') zs.add(cs.zIndex);
     const ownText = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
     if (!ownText || !/[\p{L}\p{N}]/u.test(ownText)) continue; // skip separators/symbols
+    if (el.closest('[aria-hidden="true"]')) continue; // decorative texture (micro-data), not content
     textNodes++;
     const px = parseFloat(cs.fontSize), w = Number(cs.fontWeight) || 400;
     weights.add(w);
