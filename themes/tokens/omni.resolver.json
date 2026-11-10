@@ -29,6 +29,16 @@
             "$ref": "./master-control.tokens.json"
           }
         ],
+        "netrunner-day": [
+          {
+            "$ref": "./netrunner-day.tokens.json"
+          }
+        ],
+        "netrunner": [
+          {
+            "$ref": "./netrunner.tokens.json"
+          }
+        ],
         "studio-daylight": [
           {
             "$ref": "./studio-daylight.tokens.json"

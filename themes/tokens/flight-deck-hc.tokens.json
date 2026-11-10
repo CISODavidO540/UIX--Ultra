@@ -379,6 +379,14 @@
         "sans-serif"
       ]
     },
+    "display": {
+      "$type": "fontFamily",
+      "$value": [
+        "IBM Plex Sans",
+        "system-ui",
+        "sans-serif"
+      ]
+    },
     "mono": {
       "$type": "fontFamily",
       "$value": [

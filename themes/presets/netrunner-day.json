@@ -1,0 +1,34 @@
+{
+  "name": "netrunner-day",
+  "label": "Netrunner \u00b7 day",
+  "mode": "light",
+  "base": {
+    "hue": 100,
+    "chroma": 0.012
+  },
+  "accent": {
+    "hue": 102,
+    "chroma": 0.18,
+    "bright": true,
+    "meaning": "operator action / needs you (hazard yellow, black legend)"
+  },
+  "status": {
+    "ok": 150,
+    "warn": 102,
+    "danger": 25,
+    "info": 258,
+    "active": 195
+  },
+  "concept": "Same hazard-label system on paper stock (daylight)",
+  "usecases": [
+    "agent-chat",
+    "game-fui"
+  ],
+  "shape": "sharp",
+  "motion": "snappy",
+  "font": {
+    "sans": "\"IBM Plex Sans\", system-ui, sans-serif",
+    "mono": "\"IBM Plex Mono\", ui-monospace, monospace",
+    "display": "\"Barlow Condensed\", \"IBM Plex Sans\", system-ui, sans-serif"
+  }
+}

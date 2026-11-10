@@ -1,0 +1,16 @@
+/* CONTROL: the palette swap a one-shot "make it cyberpunk" prompt produces.
+   Deliberately the stock recipe (taste.md Never list). It should fail the check. */
+html[data-bench="naive"] [data-astryx-theme], html[data-bench="naive"][data-astryx-theme] {
+  --color-background-body: #000000; --color-background-surface: #0a0a12; --color-background-card: #0a0a12;
+  --color-text-primary: #ffffff; --color-text-secondary: #00e5ff; --color-accent: #00e5ff; --color-on-accent: #000000;
+  --color-border: #ff2bd6; --color-border-emphasized: #00e5ff; --color-text-accent: #ff2bd6; --color-icon-accent: #ff2bd6;
+  --font-family-body: "Courier New", monospace; --font-family-heading: "Courier New", monospace;
+}
+html[data-bench="naive"] body { background: linear-gradient(135deg, #0a0014, #001a2e); }
+html[data-bench="naive"] body * { text-transform: uppercase; letter-spacing: 0.08em; }
+html[data-bench="naive"] button, html[data-bench="naive"] [class*="astryx"], html[data-bench="naive"] pre, html[data-bench="naive"] table {
+  box-shadow: 0 0 12px #00e5ff, 0 0 2px #ff2bd6; }
+html[data-bench="naive"] h1, html[data-bench="naive"] h2, html[data-bench="naive"] h3 { color: #00e5ff; text-shadow: 0 0 10px #00e5ff, 0 0 20px #ff2bd6; }
+html[data-bench="naive"] body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 99;
+  background: repeating-linear-gradient(to bottom, rgba(0, 229, 255, 0.06) 0 1px, transparent 1px 3px); animation: naive-flicker 2s infinite; }
+@keyframes naive-flicker { 50% { opacity: 0.6; } }

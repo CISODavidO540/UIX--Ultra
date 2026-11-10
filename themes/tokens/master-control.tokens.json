@@ -380,6 +380,15 @@
         "sans-serif"
       ]
     },
+    "display": {
+      "$type": "fontFamily",
+      "$value": [
+        "system-ui",
+        "-apple-system",
+        "Segoe UI",
+        "sans-serif"
+      ]
+    },
     "mono": {
       "$type": "fontFamily",
       "$value": [

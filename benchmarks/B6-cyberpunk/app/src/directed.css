@@ -1,0 +1,77 @@
+/* DIRECTED: "Hazard label" (../DIRECTION.md). Colors come only from the bridged
+   netrunner theme (netrunner.css): Astryx tokens + --omni-* extras. No raw colors. */
+html[data-bench="directed"] { --plate-font: "Barlow Condensed", "IBM Plex Sans", system-ui, sans-serif; }
+
+/* 1 · Deck plate: equipment data plate — designator, serial line, lamps, context meter */
+.deck-plate { display: flex; align-items: center; gap: 20px; padding: 8px 16px; background: var(--omni-surface-inset); border-bottom: 1px solid var(--color-border-emphasized); }
+.deck-plate .designator { margin: 0; font: 700 22px/1 var(--plate-font); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-primary); }
+.deck-plate .serial { font: 400 12px/1.3 var(--font-family-code); color: var(--color-text-secondary); }
+.deck-plate .lamps { display: flex; gap: 8px; margin-left: auto; }
+.lamp { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--lamp-border); background: var(--lamp-bg); color: var(--lamp-fg); border-radius: var(--radius-inner); font: 600 13px/1 var(--plate-font); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.lamp::before { content: ""; width: 7px; height: 7px; background: currentColor; }
+.lamp.ok { --lamp-fg: var(--color-text-success); --lamp-bg: var(--color-success-muted); --lamp-border: var(--color-border-success); }
+.lamp.live { --lamp-fg: var(--omni-active-fg); --lamp-bg: var(--omni-active-bg); --lamp-border: var(--omni-active-border); }
+.lamp.fail { --lamp-fg: var(--color-text-error); --lamp-bg: var(--color-error-muted); --lamp-border: var(--color-border-error); }
+.lamp.idle { --lamp-fg: var(--color-text-secondary); --lamp-bg: transparent; --lamp-border: var(--color-border-emphasized); }
+/* the plate itself reports that you are needed (master-caution idea) */
+.lamp.attn { --lamp-fg: var(--color-on-accent); --lamp-bg: var(--color-accent); --lamp-border: var(--color-accent); }
+.deck-plate[data-attn] { box-shadow: inset 0 -3px 0 var(--color-accent); }
+.lamp.live::before { animation: lamp-pulse 900ms ease-in-out infinite; }
+@keyframes lamp-pulse { 50% { opacity: 0.25; } }
+.meter { display: grid; gap: 4px; min-width: 150px; font: 400 12px/1 var(--font-family-code); color: var(--color-text-secondary); }
+.meter b { color: var(--color-text-primary); font-weight: 500; }
+.meter, .deck-plate .serial { font-variant-numeric: tabular-nums; }
+.meter .segs { display: flex; gap: 2px; }
+.meter .segs i { flex: 1; height: 6px; background: var(--color-border-emphasized); }
+.meter .segs i.on { background: var(--color-text-success); }
+.meter[data-level="high"] .segs i.on { background: var(--color-accent); }
+
+/* 2 · Authorization bar: the only hazard tape on the page */
+.auth-bar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 12px 10px 28px; background: var(--color-accent-muted); border: 1px solid var(--omni-accent-border); border-radius: var(--radius-element); }
+.auth-bar::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 16px; border-radius: var(--radius-element) 0 0 var(--radius-element);
+  background: repeating-linear-gradient(135deg, var(--color-accent) 0 8px, var(--color-on-accent) 8px 16px); }
+.auth-bar .what { margin: 0 auto 0 0; min-width: 0; font: 400 14px/1.4 var(--font-family-body); color: var(--color-text-primary); }
+.auth-bar .tag { display: block; font: 700 13px/1.2 var(--plate-font); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-accent); }
+.auth-bar code { font: 500 13px var(--font-family-code); }
+.key { min-height: 40px; padding: 0 16px; border-radius: var(--radius-inner); border: 1px solid var(--color-border-emphasized); background: var(--omni-surface-2); color: var(--color-text-primary); font: 600 16px/1 var(--plate-font); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: transform 60ms, background-color var(--duration-fast, 90ms); }
+.key:hover { border-color: var(--omni-border-strong); }
+.key:active { transform: translateY(1px); }
+.key:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.key:disabled { opacity: 0.4; cursor: not-allowed; }
+.key.authorize { background: var(--color-accent); color: var(--color-on-accent); border-color: var(--color-accent); }
+.key kbd { font: 500 11px var(--font-family-code); letter-spacing: 0; margin-left: 8px; opacity: 0.75; }
+
+/* states the template lacks */
+.run-banner { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin: 8px 0; border: 1px solid var(--color-border-error); background: var(--color-error-muted); color: var(--color-text-primary); border-radius: var(--radius-element); font-size: 14px; }
+.run-banner p { margin: 0 auto 0 0; }
+.empty-view { max-width: 52ch; padding: 48px 8px; }
+.empty-view h2 { margin: 0 0 6px; font: 600 26px/1.1 var(--plate-font); letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-primary); }
+.empty-view p { margin: 0 0 16px; color: var(--color-text-secondary); }
+.empty-view .keys { display: flex; flex-wrap: wrap; gap: 8px; }
+.sk { height: 14px; margin: 10px 0; background: var(--color-skeleton); opacity: 0.5; border-radius: var(--radius-inner); }
+.status-line { margin: 0; font: 400 13px var(--font-family-code); color: var(--color-text-success); }
+
+/* Color jobs (grounded, from roles): the agent is the cyan "live" party; documents are blue. */
+html[data-bench="directed"] .agent-plate { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-inner); background: var(--omni-active-bg); border: 1px solid var(--omni-active-border); color: var(--omni-active-fg); font: 700 14px/1 var(--plate-font); letter-spacing: 0.06em; }
+html[data-bench="directed"] .ai-chat-artifact-panel { border-top: 3px solid var(--color-info); }
+html[data-bench="directed"] .ai-chat-artifact-panel h2 { padding-left: 10px; border-left: 3px solid var(--color-border-info); }
+html[data-bench="directed"] .ai-chat-artifact-panel a { color: var(--color-text-info); }
+
+/* plate lettering on Astryx headings only (reading text stays Plex) */
+html[data-bench="directed"] h1, html[data-bench="directed"] h2, html[data-bench="directed"] h3 { font-family: var(--plate-font); letter-spacing: 0.02em; }
+
+@media (max-width: 767px) {
+  .deck-plate { flex-wrap: wrap; gap: 8px 12px; padding: 8px 12px; }
+  .deck-plate .serial, .meter { display: none; }
+  .deck-plate .lamps { margin-left: auto; }
+  .auth-bar .key { flex: 1; min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { /* the plate itself reports that you are needed (master-caution idea) */
+.lamp.attn { --lamp-fg: var(--color-on-accent); --lamp-bg: var(--color-accent); --lamp-border: var(--color-accent); }
+.deck-plate[data-attn] { box-shadow: inset 0 -3px 0 var(--color-accent); }
+.lamp.live::before { animation: none; } .key { transition: none; } }
+@media (forced-colors: active) {
+  .auth-bar::before { forced-color-adjust: none; }
+  .key, .lamp { border: 1px solid ButtonText; }
+  .key.authorize { background: Highlight; color: HighlightText; }
+}

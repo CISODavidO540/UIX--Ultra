@@ -247,7 +247,7 @@ export async function run(argv) {
         for (const f of fams) {
           const group = themes.filter((t) => fam(t.name) === f && t.contrast !== 'high');
           const light = group.find((t) => t.mode === 'light'), dark = group.find((t) => t.mode === 'dark');
-          await fs.writeFile(path.join(dir, `astryx-${f}.css`), toAstryxCSS(light || dark, dark || light, { name: f }));
+          await fs.writeFile(path.join(dir, `astryx-${f}.css`), toAstryxCSS(light || dark, dark || light, { name: f, scope: typeof args.scope === 'string' ? args.scope : '' }));
         }
         console.log(`→ ${dir}/astryx-<family>.css (OMNI themes as Astryx token overrides: ${fams.join(', ')})`);
       }

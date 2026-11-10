@@ -39,6 +39,7 @@ that is productive, usable and alive, and he judges by looking, fast.
 - **Grounded color**: status and accent colors come with their own tinted surface, border and solid variant; panels sit on a visible elevation ladder (inset wells, raised panels). (2026-11-09)
 - **Managed themes**: every color is a semantic role from a generated theme (light + dark + high contrast), contrast-checked; components never hold raw hex. (2026-11-09)
 - **Concept fits the use case**: pick the concept/theme from the use case (long agent runs ≠ high-stakes approvals ≠ dashboards), and say why. No single look for everything. (2026-11-09: "it depends on the use case")
+- **Start from the Astryx frame** for app UI (accepted 2026-11-10); spend the design effort on theme, states and the 2–3 concept pieces, not on reinventing layout.
 - **Controls designed from the concept** (physical-feeling keys, indicators, legends), never kit defaults. (2026-11-09)
 
 ## Open questions (ask when relevant, then move the answer up)
@@ -50,6 +51,8 @@ that is productive, usable and alive, and he judges by looking, fast.
 ## Verdict log
 
 Format: `date · artifact · verdict (his words) · rule it implies`
+
+- 2026-11-10 · Astryx `ai-chat` template (stock, and with the flight-deck bridge) · "thats actually a pretty good UI i think were getting the hang of it" · Astryx's frame (transcript + artifact panel, real markdown/code, quiet chrome) is an accepted base. Build on it rather than hand-rolling layouts. Next ask: train/test on it, and benchmark **cyberpunk** as the hard case.
 
 - 2026-11-09 · `v2-flightdeck` + `v2-mixer` · "good upgrade but it needs better theme management and colors and a little everywhere it just needs a little more grounding… it can work but it depends on usecase" · new: grounded color, managed themes, concept fits use case; Never: sprinkled color.
 - 2026-11-09 · `examples/fix-vibecoded/after.html` (scored 100 S) · "somewhat of a improvement but it lacks color and enough structure and the buttons and settings are vibecoded… right track… not good enough to flex" · new Never: restraint without color, default-looking controls; new Always: flex-worthy, color with a job, visible structure, concept-designed controls. **The stat sheet said 100 S and David said no: the score measures hygiene, not impressiveness.**

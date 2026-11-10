@@ -1,0 +1,13 @@
+{
+  "name": "netrunner",
+  "label": "Netrunner (cyberpunk · hazard label)",
+  "mode": "dark",
+  "base": { "hue": 105, "chroma": 0.008 },
+  "accent": { "hue": 102, "chroma": 0.18, "bright": true, "meaning": "operator action / needs you (hazard yellow, black legend)" },
+  "status": { "ok": 150, "warn": 102, "danger": 25, "info": 258, "active": 195 },
+  "concept": "Cyberpunk as industrial hazard labeling: one hazard yellow with black ink, signal red, cold cyan for live data. For agent consoles and stylized tools.",
+  "usecases": ["agent-chat", "game-fui"],
+  "shape": "sharp",
+  "motion": "snappy",
+  "font": { "sans": "\"IBM Plex Sans\", system-ui, sans-serif", "mono": "\"IBM Plex Mono\", ui-monospace, monospace", "display": "\"Barlow Condensed\", \"IBM Plex Sans\", system-ui, sans-serif" }
+}

@@ -59,6 +59,17 @@
   --omni-active-on-solid: #0b1314;
   --omni-surface-inset: #060d0d;
   --omni-state-selected: color-mix(in oklab, #11c9d1 18%, transparent);
+  --omni-border-strong: #788283;
+  --omni-accent-border: #875808;
+  --omni-surface-2: #1b2324;
+  --radius-inner: 2px;
+  --radius-element: 3px;
+  --radius-container: 6px;
+  --radius-page: 6px;
+  --radius-chat: 6px;
+  --font-family-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-code: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-family-heading: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 [data-astryx-theme][data-theme="dark"] {
   --color-background-body: #0b1314;
@@ -120,4 +131,15 @@
   --omni-active-on-solid: #0b1314;
   --omni-surface-inset: #060d0d;
   --omni-state-selected: color-mix(in oklab, #11c9d1 18%, transparent);
+  --omni-border-strong: #788283;
+  --omni-accent-border: #875808;
+  --omni-surface-2: #1b2324;
+  --radius-inner: 2px;
+  --radius-element: 3px;
+  --radius-container: 6px;
+  --radius-page: 6px;
+  --radius-chat: 6px;
+  --font-family-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-code: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-family-heading: system-ui, -apple-system, "Segoe UI", sans-serif;
 }

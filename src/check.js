@@ -232,6 +232,9 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   craft = clamp(craft);
 
   const expr = expressionScore(desktop.color, desktop.structure);
+  // Color that comes from slop (neon glow, palette swaps) is not expression: B6's naive
+  // cyberpunk control scored Expression 100. With 2+ tells, cap it.
+  if (tells.length >= 2 && expr.expression > 40) { expr.notes.push(`${tells.length} slop tells: the color on screen is decoration, not color with a job (capped)`); expr.expression = 40; }
   const expression = expr.expression;
   const stats = { access, originality, states, motion, responsive, craft, expression };
   const W = { access: 1.2, originality: 1.3, states: 1.0, motion: 0.8, responsive: 1.0, craft: 1.0, expression: 1.0 };
@@ -249,6 +252,8 @@ export async function check(target, { out, viewport = "1440x900", label, states:
   const pass = gate.every(([, ok]) => ok);
   // You can't be A-rank with a failing gate: cap at B.
   if (!pass) overall = Math.min(overall, 84);
+  // Three or more slop tells means recompose, not patch: cap at C.
+  if (tells.length >= 3) overall = Math.min(overall, 69);
   // Hygiene isn't impressiveness (David, 2026-11-09): S needs expression ≥ 70; below 50 caps at B.
   if (expression < 70) overall = Math.min(overall, 94);
   if (expression < 50) overall = Math.min(overall, 87);

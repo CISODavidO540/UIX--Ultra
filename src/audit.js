@@ -103,6 +103,15 @@ function staticChecks() {
     // A control wrapped in (or tied to) a label that is itself ≥ 24px: the label is the hit target.
     const lab = el.closest('label') || (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`));
     if (lab) { const lr = lab.getBoundingClientRect(); if (lr.width >= 24 && lr.height >= 24) return; }
+    // WCAG 2.5.8 spacing exception: an undersized target passes if a 24px box centered on it
+    // touches no other target (e.g. a 22px-tall text field alone in a composer card).
+    if (r.width < 24 || r.height < 24) {
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const box = { l: Math.min(r.left, cx - 12), r: Math.max(r.right, cx + 12), t: Math.min(r.top, cy - 12), b: Math.max(r.bottom, cy + 12) };
+      const others = [...document.querySelectorAll('button, a[href], input, select, textarea, [role=button]')].filter((o) => o !== el && !el.contains(o) && !o.contains(el) && visible(o));
+      const clash = others.some((o) => { const q = o.getBoundingClientRect(); return q.left < box.r && q.right > box.l && q.top < box.b && q.bottom > box.t; });
+      if (!clash && Math.min(r.width, r.height) >= 16) return;
+    }
     if (r.width < 24 || r.height < 24) { small++; if (small <= 5) add('serious', 'tap-target', `Target is ${Math.round(r.width)}×${Math.round(r.height)}px (min 24, ideal 44)`, describe(el)); }
   });
 
@@ -145,11 +154,22 @@ async function focusCheck(page) {
       if (!el || el === document.body) return null;
       const cs = getComputedStyle(el);
       const outline = cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 && !/rgba\([^)]*,\s*0\)$/.test(cs.outlineColor);
-      const ring = outline || cs.boxShadow !== 'none';
-      return { ring, glowOnly: !outline && cs.boxShadow !== 'none', desc: `<${el.tagName.toLowerCase()}> ${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 40)}` };
+      let ring = outline || cs.boxShadow !== 'none';
+      // Composite controls (a text field inside a composer card) often show focus on a
+      // wrapper via :focus-within. Compare wrapper styles focused vs blurred. Text fields
+      // also show a caret, which WCAG 2.4.7 accepts as a focus indicator.
+      if (!ring) {
+        const chain = []; for (let n = el.parentElement, k = 0; n && k < 4; n = n.parentElement, k++) chain.push(n);
+        const snap = () => chain.map((n) => { const c = getComputedStyle(n); return [c.outlineStyle, c.outlineWidth, c.outlineColor, c.boxShadow, c.borderTopColor, c.backgroundColor].join('|'); }).join('#');
+        const focused = snap(); el.blur(); const blurred = snap(); el.focus({ preventScroll: true });
+        if (focused !== blurred) ring = true;
+        if (!ring && (el.isContentEditable || /^(INPUT|TEXTAREA)$/.test(el.tagName))) ring = 'caret';
+      }
+      return { ring: !!ring, caretOnly: ring === 'caret', glowOnly: !outline && cs.boxShadow !== 'none', desc: `<${el.tagName.toLowerCase()}> ${(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 40)}` };
     });
     if (!r) break;
     if (r.glowOnly) { glowOnly++; if (glowOnly <= 2) issues.push({ severity: 'moderate', rule: 'focus-forced-colors', message: 'Focus shown only with box-shadow/glow — it disappears in Windows High Contrast. Keep a real outline (transparent is fine) under the glow', sample: r.desc }); }
+    if (r.caretOnly && !issues.some((x) => x.rule === 'focus-caret-only')) issues.push({ severity: 'minor', rule: 'focus-caret-only', message: 'Text field shows focus only by its caret; add a ring on the field or its container (:focus-within)', sample: r.desc });
     if (!r.ring) { invisible++; if (invisible <= 4) issues.push({ severity: 'serious', rule: 'focus-visible', message: 'Keyboard focus has no visible indicator (outline/box-shadow)', sample: r.desc }); }
   }
   return issues;

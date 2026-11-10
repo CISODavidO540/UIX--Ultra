@@ -59,6 +59,17 @@
   --omni-active-on-solid: #ffffff;
   --omni-surface-inset: #eeebe4;
   --omni-state-selected: color-mix(in oklab, #088298 18%, transparent);
+  --omni-border-strong: #74716b;
+  --omni-accent-border: #7ea7dd;
+  --omni-surface-2: #ffffff;
+  --radius-inner: 4px;
+  --radius-element: 8px;
+  --radius-container: 12px;
+  --radius-page: 12px;
+  --radius-chat: 12px;
+  --font-family-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-family-code: "IBM Plex Mono", ui-monospace, monospace;
+  --font-family-heading: "IBM Plex Sans", system-ui, sans-serif;
 }
 [data-astryx-theme][data-theme="dark"] {
   --color-background-body: #faf6ef;
@@ -120,4 +131,15 @@
   --omni-active-on-solid: #ffffff;
   --omni-surface-inset: #eeebe4;
   --omni-state-selected: color-mix(in oklab, #088298 18%, transparent);
+  --omni-border-strong: #74716b;
+  --omni-accent-border: #7ea7dd;
+  --omni-surface-2: #ffffff;
+  --radius-inner: 4px;
+  --radius-element: 8px;
+  --radius-container: 12px;
+  --radius-page: 12px;
+  --radius-chat: 12px;
+  --font-family-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-family-code: "IBM Plex Mono", ui-monospace, monospace;
+  --font-family-heading: "IBM Plex Sans", system-ui, sans-serif;
 }

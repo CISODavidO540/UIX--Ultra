@@ -46,3 +46,10 @@ or stats.
 A phone-first food log for a cut: log a meal fast, see remaining calories and
 protein for today, weekly trend. Includes the quesadilla rule: weigh half,
 multiply by two. 390px is the primary viewport.
+
+### B6 · Cyberpunk agent console (Operate, stylized)
+The hard case: make the Hermes agent chat cyberpunk without it reading as vibe
+coded. Frame: Astryx `ai-chat`. Three variants scored the same way: `stock`
+(baseline), `naive` (the palette-swap control, which must fail), `directed`
+(a written direction + generated theme + the agent pieces the template lacks).
+See `B6-cyberpunk/`.
