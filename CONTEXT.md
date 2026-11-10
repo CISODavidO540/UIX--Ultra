@@ -168,3 +168,10 @@ Next:
 ## Correction (Nov 10)
 
 **Astra ≠ Astryx.** Astra is David's GPT-6-based assistant; it is not reachable from cloud sessions. When David says "ask Astra", hand him a prompt to run and fold the answer back in. Astryx is Meta's design system (facebook/astryx).
+
+## Update (Nov 10): Harvis desktop UI audit
+
+- Ran Harvis `front_end/hermes-desktop-ui` (feat/hermes-ui; Nous Hermes desktop, React 19/Tailwind 4/Motion) in a browser via its desktop-shim (needs `front_end/hermes-shared` from the same branch).
+- Findings + patch: `examples/harvis-ui-audit/` — global "no focus rings" rule (WCAG 2.4.7 fail), no pressed state in Button, transition-all, boot bar stalls at 95%, blank main pane while connecting, skeletons never resolve on failure, 229 ad-hoc spinners, JS animations ignore reduced motion, a getSnapshot infinite loop.
+- Patch fixes focus, press, transitions, skeleton delay, Loader reduced motion. Not pushed (read-only access); David applies it.
+- New `omni audit` press-feedback check.

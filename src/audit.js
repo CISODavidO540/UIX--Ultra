@@ -175,6 +175,31 @@ async function focusCheck(page) {
   return issues;
 }
 
+async function pressCheck(page) {
+  // Pressed feedback: mouse-down must look different from hover (otherwise a click
+  // gives no sign it registered until the result arrives). Samples up to 6 buttons.
+  const PROPS = ['backgroundColor', 'color', 'boxShadow', 'transform', 'translate', 'scale', 'opacity', 'filter', 'borderColor'];
+  const ids = await page.evaluate(() => [...document.querySelectorAll('button:not([disabled]), [role=button]:not([aria-disabled=true])')]
+    .filter((el) => { const r = el.getBoundingClientRect(); return r.width >= 16 && r.height >= 16 && r.top >= 0 && r.bottom <= innerHeight; })
+    .slice(0, 6).map((el, i) => { el.setAttribute('data-omni-press', String(i)); return i; }));
+  const read = (i) => page.evaluate(([i, props]) => { const el = document.querySelector(`[data-omni-press="${i}"]`); if (!el) return null; const cs = getComputedStyle(el); return props.map((k) => cs[k]).join('|'); }, [i, PROPS]);
+  let same = 0; const samples = [];
+  for (const i of ids) {
+    try {
+      const loc = page.locator(`[data-omni-press="${i}"]`);
+      await loc.hover({ timeout: 1000 }); await page.waitForTimeout(150);
+      const hover = await read(i);
+      await page.mouse.down(); await page.waitForTimeout(60);
+      const press = await read(i);
+      await page.mouse.move(0, 0); await page.mouse.up();
+      if (hover && hover === press) { same++; if (samples.length < 3) samples.push(await loc.innerText({ timeout: 500 }).catch(() => '')); }
+    } catch { /* covered or detached */ }
+  }
+  return same && same >= Math.ceil(ids.length / 2)
+    ? [{ severity: 'moderate', rule: 'press-feedback', message: `${same}/${ids.length} buttons look the same pressed as hovered; add an :active state (darker fill or 1px press)`, sample: samples.map((x) => x.trim().slice(0, 20)).join(', ') }]
+    : [];
+}
+
 async function layoutShift(page) {
   const cls = await page.evaluate(() => new Promise((resolve) => {
     let total = 0;
@@ -195,6 +220,7 @@ export async function audit(target, { viewport } = {}) {
       ...(await page.evaluate(staticChecks)),
       ...(await layoutShift(page)),
       ...(await focusCheck(page)),
+      ...(await pressCheck(page)),
     ];
     const penalty = issues.reduce((s, i) => s + WEIGHT[i.severity], 0);
     const score = Math.max(0, 100 - penalty);

@@ -1,0 +1,114 @@
+diff --git a/front_end/hermes-desktop-ui/src/components/ui/button.tsx b/front_end/hermes-desktop-ui/src/components/ui/button.tsx
+index 4af37b2f..4c78d9f7 100644
+--- a/front_end/hermes-desktop-ui/src/components/ui/button.tsx
++++ b/front_end/hermes-desktop-ui/src/components/ui/button.tsx
+@@ -11,20 +11,20 @@ const TEXT_ACTION_ICON = '[&_.codicon]:no-underline [&_svg]:no-underline'
+ // fixed heights — so they stay snug and scale with content. Only icon buttons
+ // (inherently square) carry the shared 4px radius.
+ const buttonVariants = cva(
+-  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[2.5px] text-xs leading-4 font-medium whitespace-nowrap shadow-none transition-all duration-100 outline-none focus-visible:border-ring focus-visible:ring-[0.1875rem] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
++  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[2.5px] text-xs leading-4 font-medium whitespace-nowrap shadow-none transition-[background-color,color,box-shadow,opacity,transform] duration-100 active:translate-y-px active:duration-0 disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+   {
+     variants: {
+       variant: {
+-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
++        default: 'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80',
+         destructive:
+-          'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
++          'bg-destructive text-white hover:bg-destructive/90 active:bg-destructive/80 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
+         // Quiet action — transparent fill with a 1.5px inset ring (no layout-shifting border).
+         outline:
+           'bg-transparent text-(--ui-text-primary) shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--ui-stroke-secondary)_50%,transparent)] hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary)',
+         // Soft-fill action (the default "non-primary button" look).
+         secondary:
+-          'bg-(--ui-bg-quaternary) text-(--ui-text-primary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary)',
+-        ghost: 'text-(--ui-text-secondary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary)',
++          'bg-(--ui-bg-quaternary) text-(--ui-text-primary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary) active:bg-(--ui-bg-tertiary)',
++        ghost: 'text-(--ui-text-secondary) hover:bg-(--chrome-action-hover) hover:text-(--ui-text-primary) active:bg-(--ui-bg-tertiary)',
+         link: `text-primary underline-offset-4 decoration-current/20 hover:underline ${TEXT_ACTION_ICON}`,
+         // Boxless inline-text action (no bg/border). Quiet by default — reads as
+         // muted label text, underlines on hover (e.g. "Cancel", "Clear").
+diff --git a/front_end/hermes-desktop-ui/src/components/ui/loader.tsx b/front_end/hermes-desktop-ui/src/components/ui/loader.tsx
+index 985a50cf..37179ca0 100644
+--- a/front_end/hermes-desktop-ui/src/components/ui/loader.tsx
++++ b/front_end/hermes-desktop-ui/src/components/ui/loader.tsx
+@@ -356,9 +356,11 @@ export function Loader({
+         node.setAttribute('opacity', particle.opacity.toFixed(3))
+       })
+ 
+-      animationFrame = window.requestAnimationFrame(render)
++      if (!reduceMotion) animationFrame = window.requestAnimationFrame(render)
+     }
+ 
++    // Reduced motion: one still frame (the CSS catch-all can't stop a rAF loop).
++    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+     render(performance.now())
+ 
+     return () => window.cancelAnimationFrame(animationFrame)
+diff --git a/front_end/hermes-desktop-ui/src/components/ui/skeleton.tsx b/front_end/hermes-desktop-ui/src/components/ui/skeleton.tsx
+index a4b3e1d1..57864eb0 100644
+--- a/front_end/hermes-desktop-ui/src/components/ui/skeleton.tsx
++++ b/front_end/hermes-desktop-ui/src/components/ui/skeleton.tsx
+@@ -1,14 +1,14 @@
+ import { cn } from '@/lib/utils'
+ 
+ function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
+-  return <div className={cn('animate-pulse rounded-md bg-accent', className)} data-slot="skeleton" {...props} />
++  return <div className={cn('rounded-md bg-accent', className)} data-slot="skeleton" {...props} />
+ }
+ 
+ /** Inline pulsing chip standing in for a small count/badge while it loads. */
+ function CountSkeleton({ className, ...props }: React.ComponentProps<'span'>) {
+   return (
+     <span
+-      className={cn('inline-block h-2 w-3.5 translate-y-px animate-pulse rounded-sm bg-current/25', className)}
++      className={cn('inline-block h-2 w-3.5 translate-y-px rounded-sm bg-current/25', className)}
+       data-slot="count-skeleton"
+       {...props}
+     />
+diff --git a/front_end/hermes-desktop-ui/src/styles.css b/front_end/hermes-desktop-ui/src/styles.css
+index fbcbea10..f5bd9b84 100644
+--- a/front_end/hermes-desktop-ui/src/styles.css
++++ b/front_end/hermes-desktop-ui/src/styles.css
+@@ -1204,21 +1204,34 @@
+   }
+ }
+ 
+-/* No focus rings, anywhere. Kills the native outline plus Tailwind's
+-   `focus-visible:ring-*` (a box-shadow driven by --tw-ring-*). Unlayered so it
+-   beats the utilities layer without !important on the outline. The composer /
+-   .desktop-input-chrome focus glow is untouched — those set `box-shadow`
+-   directly rather than through the ring vars. */
+-*:focus,
+-*:focus-visible {
++/* Focus: no ring on mouse/touch focus (`:focus` without `:focus-visible`), one
++   consistent ring for keyboard focus (WCAG 2.4.7). The ring is a real outline,
++   so it also survives Windows High Contrast, where box-shadows are dropped.
++   Tailwind's `focus-visible:ring-*` box-shadows stay off so there's one look.
++   The composer (.desktop-input-chrome) keeps its own focus glow. */
++*:focus:not(:focus-visible) {
+   outline: none;
+ }
+ 
+ *:focus-visible {
++  outline: 2px solid var(--color-primary);
++  outline-offset: 2px;
+   --tw-ring-shadow: 0 0 #0000 !important;
+   --tw-ring-offset-shadow: 0 0 #0000 !important;
+ }
+ 
++.desktop-input-chrome :focus-visible {
++  outline: none;
++}
++
++/* Skeletons wait 150ms before showing (fast loads never flash a placeholder),
++   then pulse. Reduced motion keeps them static (the global rule above). */
++@keyframes skeleton-in { from { opacity: 0; } to { opacity: 1; } }
++[data-slot='skeleton'],
++[data-slot='count-skeleton'] {
++  animation: skeleton-in 1ms linear 150ms both, pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 150ms infinite;
++}
++
+ button {
+   -webkit-app-region: no-drag;
+ }
