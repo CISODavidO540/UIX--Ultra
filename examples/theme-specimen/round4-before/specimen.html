@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme specimen</title>
+<link rel="stylesheet" href="../../../themes/omni-themes.css">
+<style>
+  /* Missing roles show as hazard stripes so gaps are impossible to miss. */
+  :root { --missing: repeating-linear-gradient(45deg, #ff00c8 0 6px, #000 6px 12px); }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: var(--surface-0, #f0f); color: var(--text-1, #f0f); font: 14px/1.5 var(--font-sans, system-ui); }
+  h1 { font-size: 18px; margin: 0 0 4px; } h2 { font-size: 13px; margin: 0 0 10px; color: var(--text-2); font-weight: 600; }
+  .meta { color: var(--text-2); margin: 0 0 20px; font: 12px var(--font-mono, monospace); }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .card { background: var(--surface-1); border: 1px solid var(--border-1); border-radius: var(--radius-lg, 0); padding: 14px; box-shadow: var(--shadow-1, none); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .lbl { width: 64px; color: var(--text-2); font-size: 12px; }
+  /* buttons, with forced states (.is-*) so a static screenshot shows them */
+  .btn { min-height: 32px; padding: 0 12px; border-radius: var(--radius-md, 0); border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text-1); font: inherit; font-weight: 500; position: relative; }
+  .btn::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: transparent; }
+  .btn.is-hover::after { background: var(--state-hover, var(--missing)); } .btn.is-pressed::after { background: var(--state-pressed, var(--missing)); }
+  .btn.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .btn.is-disabled { opacity: var(--state-disabled-opacity, .4); }
+  .btn.primary { background: var(--accent-solid); color: var(--accent-on-solid); border-color: var(--accent-solid); }
+  .btn.danger { background: var(--danger-solid); color: var(--danger-on-solid); border-color: var(--danger-solid); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  /* inputs */
+  .in { width: 100%; min-height: 32px; padding: 6px 10px; background: var(--surface-inset); color: var(--text-1); border: 1px solid var(--border-2); border-radius: var(--radius-sm, 0); font: inherit; }
+  .in::placeholder { color: var(--text-3); } .in.is-focus { outline: 2px solid var(--focus); outline-offset: 0; }
+  .in.is-invalid { border-color: var(--danger-solid); background: var(--danger-bg); } .in:disabled { opacity: var(--state-disabled-opacity, .4); }
+  .help { font-size: 12px; color: var(--text-2); } .err { font-size: 12px; color: var(--danger-fg); }
+  /* status families, grounded */
+  .alert { display: flex; gap: 8px; padding: 8px 10px; border: 1px solid; border-radius: var(--radius-sm, 0); margin-bottom: 6px; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid; }
+  .tag { padding: 2px 8px; border-radius: var(--radius-sm, 0); font-size: 12px; font-weight: 600; }
+  .alert.ok, .badge.ok { background: var(--ok-bg); border-color: var(--ok-border); color: var(--text-1); } .alert.ok b, .badge.ok { color: var(--ok-fg); } .tag.ok { background: var(--ok-solid); color: var(--ok-on-solid); }
+  .alert.warn, .badge.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--text-1); } .alert.warn b, .badge.warn { color: var(--warn-fg); } .tag.warn { background: var(--warn-solid); color: var(--warn-on-solid); }
+  .alert.danger, .badge.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--text-1); } .alert.danger b, .badge.danger { color: var(--danger-fg); } .tag.danger { background: var(--danger-solid); color: var(--danger-on-solid); }
+  .alert.info, .badge.info { background: var(--info-bg); border-color: var(--info-border); color: var(--text-1); } .alert.info b, .badge.info { color: var(--info-fg); } .tag.info { background: var(--info-solid); color: var(--info-on-solid); }
+  .alert.active, .badge.active { background: var(--active-bg); border-color: var(--active-border); color: var(--text-1); } .alert.active b, .badge.active { color: var(--active-fg); } .tag.active { background: var(--active-solid); color: var(--active-on-solid); }
+  .alert.accent, .badge.accent { background: var(--accent-bg); border-color: var(--accent-border); color: var(--text-1); } .alert.accent b, .badge.accent { color: var(--accent-fg); } .tag.accent { background: var(--accent-solid); color: var(--accent-on-solid); }
+  /* table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--text-2); font-weight: 600; border-bottom: 1px solid var(--border-2); padding: 6px; }
+  td { padding: 6px; border-bottom: 1px solid var(--border-1); } td.num { text-align: right; font-family: var(--font-mono, monospace); font-variant-numeric: tabular-nums; }
+  tr.is-hover td { background: var(--state-hover, var(--missing)); } tr.is-selected td { background: var(--state-selected, var(--missing)); }
+  /* tabs, toggles */
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border-1); margin-bottom: 10px; }
+  .tab { padding: 6px 10px; color: var(--text-2); border-bottom: 2px solid transparent; } .tab.on { color: var(--text-1); border-color: var(--accent-solid); } .tab.is-hover { background: var(--state-hover, var(--missing)); }
+  .sw { width: 34px; height: 20px; border-radius: 999px; background: var(--border-2); position: relative; display: inline-block; vertical-align: middle; }
+  .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface-3); box-shadow: var(--shadow-1, none); }
+  .sw.on { background: var(--accent-solid); } .sw.on::after { left: 16px; }
+  .box { width: 16px; height: 16px; border: 1.5px solid var(--border-strong); border-radius: 3px; display: inline-grid; place-items: center; vertical-align: middle; font-size: 11px; }
+  .box.on { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--accent-on-solid); }
+  /* elevation */
+  .elev { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .elev div { height: 48px; border-radius: var(--radius-md, 0); display: grid; place-items: center; font-size: 12px; color: var(--text-2); border: 1px solid var(--border-1); }
+  .e0 { background: var(--surface-inset); } .e1 { background: var(--surface-1); box-shadow: var(--shadow-1, var(--missing)); } .e2 { background: var(--surface-2); box-shadow: var(--shadow-2, var(--missing)); } .e3 { background: var(--surface-3); box-shadow: var(--shadow-3, var(--missing)); }
+  /* data viz */
+  .bars { display: flex; align-items: end; gap: 6px; height: 90px; padding-top: 6px; }
+  .bars i { flex: 1; border-radius: 2px 2px 0 0; }
+  .v1 { background: var(--viz-1, var(--missing)); } .v2 { background: var(--viz-2, var(--missing)); } .v3 { background: var(--viz-3, var(--missing)); } .v4 { background: var(--viz-4, var(--missing)); } .v5 { background: var(--viz-5, var(--missing)); } .v6 { background: var(--viz-6, var(--missing)); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--text-2); margin-top: 6px; } .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; background: var(--c); }
+  /* code, toast, skeleton */
+  pre { margin: 0; padding: 10px; background: var(--surface-inset); border: 1px solid var(--border-1); border-radius: var(--radius-sm, 0); font: 12px/1.6 var(--font-mono, monospace); overflow: auto; }
+  .k { color: var(--active-fg); } .s { color: var(--ok-fg); } .c { color: var(--text-3); } .n { color: var(--warn-fg); }
+  .toast { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; background: var(--surface-3); border: 1px solid var(--border-2); border-radius: var(--radius-md, 0); box-shadow: var(--shadow-3, var(--missing)); }
+  .sk { height: 10px; border-radius: 2px; background: var(--surface-2); margin: 6px 0; }
+  a { color: var(--info-fg); } ::selection { background: var(--accent-bg); }
+  .motion { font: 12px var(--font-mono, monospace); color: var(--text-2); }
+</style>
+</head>
+<body>
+<h1>Theme specimen</h1>
+<p class="meta" id="meta"></p>
+<div class="grid">
+  <section class="card"><h2>Buttons × states</h2>
+    <div class="row"><span class="lbl">default</span><button class="btn  " type="button">rest</button><button class="btn  is-hover" type="button">hover</button><button class="btn  is-pressed" type="button">pressed</button><button class="btn  is-focus" type="button">focus</button><button class="btn  is-disabled" type="button">disabled</button></div><div class="row"><span class="lbl">primary</span><button class="btn primary " type="button">rest</button><button class="btn primary is-hover" type="button">hover</button><button class="btn primary is-pressed" type="button">pressed</button><button class="btn primary is-focus" type="button">focus</button><button class="btn primary is-disabled" type="button">disabled</button></div><div class="row"><span class="lbl">danger</span><button class="btn danger " type="button">rest</button><button class="btn danger is-hover" type="button">hover</button><button class="btn danger is-pressed" type="button">pressed</button><button class="btn danger is-focus" type="button">focus</button><button class="btn danger is-disabled" type="button">disabled</button></div><div class="row"><span class="lbl">ghost</span><button class="btn ghost " type="button">rest</button><button class="btn ghost is-hover" type="button">hover</button><button class="btn ghost is-pressed" type="button">pressed</button><button class="btn ghost is-focus" type="button">focus</button><button class="btn ghost is-disabled" type="button">disabled</button></div>
+  </section>
+  <section class="card"><h2>Inputs × states</h2>
+    <div class="row"><input class="in" placeholder="Placeholder text" aria-label="empty"></div>
+    <div class="row"><input class="in is-focus" value="Focused value" aria-label="focused"></div>
+    <div class="row"><input class="in is-invalid" value="not-an-email" aria-label="invalid"><span class="err">Enter a valid email.</span></div>
+    <div class="row"><input class="in" value="Disabled" disabled aria-label="disabled"><span class="help">Help text explains the field.</span></div>
+    <div class="row"><span class="sw on"></span> On <span class="sw"></span> Off <span class="box on">✓</span> Checked <span class="box"></span> Unchecked</div>
+  </section>
+  <section class="card"><h2>Status families (grounded)</h2>
+    <div class="alert ok"><b>ok</b><span>Body text on the ok ground stays readable.</span></div><div class="alert warn"><b>warn</b><span>Body text on the warn ground stays readable.</span></div><div class="alert danger"><b>danger</b><span>Body text on the danger ground stays readable.</span></div><div class="alert info"><b>info</b><span>Body text on the info ground stays readable.</span></div><div class="alert active"><b>active</b><span>Body text on the active ground stays readable.</span></div><div class="alert accent"><b>accent</b><span>Body text on the accent ground stays readable.</span></div>
+    <div class="row"><span class="badge ok">ok</span><span class="badge warn">warn</span><span class="badge danger">danger</span><span class="badge info">info</span><span class="badge active">active</span><span class="badge accent">accent</span></div>
+    <div class="row"><span class="tag ok">OK</span><span class="tag warn">WARN</span><span class="tag danger">DANGER</span><span class="tag info">INFO</span><span class="tag active">ACTIVE</span><span class="tag accent">ACCENT</span></div>
+  </section>
+  <section class="card"><h2>Table · hover · selected</h2>
+    <div class="tabs"><span class="tab on">Sessions</span><span class="tab is-hover">Agents</span><span class="tab">Cron</span></div>
+    <table><thead><tr><th>Session</th><th>Status</th><th class="num">Tokens</th></tr></thead><tbody>
+      <tr><td>Fix failing auth test</td><td><span class="badge accent">needs you</span></td><td class="num">18,412</td></tr>
+      <tr class="is-hover"><td>Nightly report digest</td><td><span class="badge ok">done</span></td><td class="num">4,090</td></tr>
+      <tr class="is-selected"><td>GPU node health</td><td><span class="badge danger">failed</span></td><td class="num">912</td></tr>
+      <tr><td>Refactor middleware</td><td><span class="badge active">running</span></td><td class="num">31,007</td></tr>
+    </tbody></table>
+  </section>
+  <section class="card"><h2>Data viz (categorical 1–6)</h2>
+    <div class="bars"><i class="v1" style="height:80%"></i><i class="v2" style="height:55%"></i><i class="v3" style="height:95%"></i><i class="v4" style="height:40%"></i><i class="v5" style="height:70%"></i><i class="v6" style="height:30%"></i></div>
+    <div class="legend"><span style="--c:var(--viz-1, var(--missing))">series 1</span><span style="--c:var(--viz-2, var(--missing))">series 2</span><span style="--c:var(--viz-3, var(--missing))">series 3</span><span style="--c:var(--viz-4, var(--missing))">series 4</span><span style="--c:var(--viz-5, var(--missing))">series 5</span><span style="--c:var(--viz-6, var(--missing))">series 6</span></div>
+  </section>
+  <section class="card"><h2>Elevation · shape</h2>
+    <div class="elev"><div class="e0">inset</div><div class="e1">1</div><div class="e2">2</div><div class="e3">3</div></div>
+    <p class="motion" id="motion"></p>
+  </section>
+  <section class="card"><h2>Code · links · selection</h2>
+<pre><span class="k">await</span> cache.set(KEY, fresh); <span class="c">// retry reads new token</span>
+<span class="k">const</span> msg = <span class="s">"47 passed"</span>; <span class="k">let</span> n = <span class="n">47</span>;</pre>
+    <p>Read the <a href="#">run log</a> or <mark style="background:var(--accent-bg);color:var(--text-1)">selected text</mark>.</p>
+  </section>
+  <section class="card"><h2>Overlay · toast · loading</h2>
+    <div class="toast"><span>Pushed to origin/fix/token-refresh.</span><button class="btn ghost" type="button">Undo</button></div>
+    <div class="sk" style="width:70%"></div><div class="sk"></div><div class="sk" style="width:40%"></div>
+  </section>
+  <section class="card"><h2>Text ladder</h2>
+    <p style="margin:0;color:var(--text-1)">text-1 · Body text, the thing people read.</p>
+    <p style="margin:0;color:var(--text-2)">text-2 · Secondary, metadata, labels.</p>
+    <p style="margin:0;color:var(--text-3)">text-3 · Placeholder and disabled only.</p>
+  </section>
+</div>
+<script>
+  const t = new URLSearchParams(location.search).get('theme');
+  if (t) document.documentElement.dataset.theme = t;
+  const cs = getComputedStyle(document.documentElement);
+  const missing = ["surface-inset","surface-0","surface-1","surface-2","surface-3","border-1","border-2","border-strong","text-1","text-2","text-3","focus","ok-fg","ok-bg","ok-border","ok-solid","ok-on-solid","warn-fg","warn-bg","warn-border","warn-solid","warn-on-solid","danger-fg","danger-bg","danger-border","danger-solid","danger-on-solid","info-fg","info-bg","info-border","info-solid","info-on-solid","active-fg","active-bg","active-border","active-solid","active-on-solid","accent-fg","accent-bg","accent-border","accent-solid","accent-on-solid","state-hover","state-pressed","state-selected","state-disabled-opacity","viz-1","viz-2","viz-3","viz-4","viz-5","viz-6","radius-sm","radius-md","radius-lg","shadow-1","shadow-2","shadow-3","font-sans","font-mono","duration-fast","duration-base","ease-standard"].filter((r) => !cs.getPropertyValue('--' + r).trim());
+  document.getElementById('meta').textContent = (t || 'default') + ' · ' + cs.colorScheme + ' · missing roles: ' + (missing.length ? missing.join(', ') : 'none');
+  document.getElementById('motion').textContent = 'motion: fast ' + (cs.getPropertyValue('--duration-fast').trim() || '—') + ' · base ' + (cs.getPropertyValue('--duration-base').trim() || '—') + ' · ease ' + (cs.getPropertyValue('--ease-standard').trim() || '—');
+  window.__missing = missing;
+</script>
+</body>
+</html>

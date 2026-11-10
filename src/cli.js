@@ -55,6 +55,10 @@ USAGE
       families) from OKLCH presets, light/dark/high-contrast, APCA-validated.
       No args = all presets in themes/presets. --for lists presets fit for a use case.
 
+  omni specimen [--themes a,b,c] [--css themes/omni-themes.css] [--out dir]
+      Theme visual test: every component × state in every theme, screenshots,
+      contrast + a11y per theme, missing roles shown as hazard stripes.
+
   omni plan     <url|file.html> [--task "<what it is>"] [--out dir]
       Check the page and write FIXPLAN.md: P0 blockers, P1 vibe-coded tells and
       missing states, P2 craft — plus the use-case playbook's must-haves.
@@ -228,6 +232,17 @@ export async function run(argv) {
       await fs.writeFile(out, toCSS(themes));
       console.log(`→ ${out}`);
       if (bad) process.exitCode = 1;
+      return;
+    }
+    case 'specimen': {
+      const { specimen } = await import('./specimen.js');
+      const css = path.resolve(args.css || path.join(THEMES_DIR, 'omni-themes.css'));
+      let themes = typeof args.themes === 'string' ? args.themes.split(',') : null;
+      if (!themes) themes = [...(await fs.readFile(css, 'utf8')).matchAll(/\[data-theme="([^"]+)"\]/g)].map((m) => m[1]).filter((v, i, a) => a.indexOf(v) === i);
+      const out = path.resolve(args.out || path.join('omni-out', 'specimen'));
+      const res = await specimen({ themesCss: css, themes, out });
+      for (const r of res) console.log(`${r.missing.length || r.apcaFails ? '✘' : '✔'} ${r.theme.padEnd(20)} missing roles ${String(r.missing.length).padStart(2)} · APCA fails ${r.apcaFails}/${r.textNodes} · a11y ${r.a11y}`);
+      console.log(`→ ${out}/SPECIMEN.md, grid.png`);
       return;
     }
     case 'plan': {
