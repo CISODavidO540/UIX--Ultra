@@ -230,7 +230,10 @@ export async function run(argv) {
       }
       const out = path.resolve(args.out || 'themes.css');
       await fs.writeFile(out, toCSS(themes));
-      console.log(`→ ${out}`);
+      const { bootScript } = await import('./theme-engine.js');
+      const boot = out.replace(/\.css$/, '') + '.boot.html';
+      await fs.writeFile(boot, `<!-- Paste inline in <head>, before stylesheets: applies the theme before first paint. -->\n<meta name="color-scheme" content="dark light">\n${bootScript(themes, { storageKey: args.key || 'theme' })}\n`);
+      console.log(`→ ${out}\n→ ${boot} (no-flash boot snippet)`);
       if (bad) process.exitCode = 1;
       return;
     }

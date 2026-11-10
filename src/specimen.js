@@ -174,13 +174,20 @@ export async function specimen({ themesCss, themes, out }) {
     const a = await audit(url);
     results.push({ theme: t, missing: r.missing, apcaFails: r.craft.apcaFails, apcaSamples: r.craft.apcaSamples, textNodes: r.craft.textNodes, a11y: a.score, a11yIssues: a.issues.filter((i) => i.severity !== 'info').map((i) => `${i.rule}: ${i.message}`) });
   }
+  // Forced colors (Windows High Contrast): does the sheet survive with the OS palette?
+  if (themes[0]) {
+    const url = `${pathToFileURL(htmlPath).href}?theme=${encodeURIComponent(themes[0])}`;
+    await withPage(url, { viewport: '1440x900', before: (page) => page.emulateMedia({ forcedColors: 'active' }) }, async (page) => {
+      await page.screenshot({ path: path.join(out, 'forced-colors.png'), fullPage: true });
+    });
+  }
   // Comparison grid
   const grid = path.join(out, 'grid.html');
   await fs.writeFile(grid, `<!doctype html><meta charset=utf-8><body style="margin:0;background:#1b1b1b;color:#ddd;font:14px monospace;display:grid;grid-template-columns:repeat(${Math.min(themes.length, 3)},1fr);gap:10px;padding:10px">${themes.map((t) => `<figure style="margin:0"><figcaption style="padding:4px 0">${t}</figcaption><img style="width:100%;display:block" src="${t}.png"></figure>`).join('')}</body>`);
   await withPage(grid, { viewport: '2400x900' }, async (page) => { await page.screenshot({ path: path.join(out, 'grid.png'), fullPage: true }); });
   const L = ['# Theme specimen report', '', '| theme | missing roles | APCA fails | a11y |', '|---|---|---|---|'];
   for (const r of results) L.push(`| ${r.theme} | ${r.missing.length ? r.missing.length + ': ' + r.missing.slice(0, 6).join(', ') + (r.missing.length > 6 ? '…' : '') : '0'} | ${r.apcaFails}/${r.textNodes} | ${r.a11y} |`);
-  L.push('', '![grid](grid.png)', '');
+  L.push('', '![grid](grid.png)', '', 'Forced colors (Windows High Contrast) on the first theme: `forced-colors.png`. Check focus rings, borders on controls, and that status is still readable without color.', '');
   for (const r of results.filter((x) => x.apcaSamples.length || x.a11yIssues.length)) {
     L.push(`## ${r.theme}`, ...r.apcaSamples.map((s) => `- APCA Lc ${s.lc} < ${s.need}: \`${s.sample.slice(0, 60)}\``), ...r.a11yIssues.slice(0, 5).map((i) => `- ${i}`), '');
   }

@@ -156,3 +156,17 @@ export function toCSS(themes, { defaultTheme } = {}) {
   out.push('@media (forced-colors: active) { :root { --focus: Highlight; } }');
   return out.join('\n') + '\n';
 }
+
+/**
+ * Blocking <head> snippet: applies ?theme= → saved → OS contrast/scheme before
+ * first paint (no flash of the wrong theme), and sets color-scheme so native
+ * controls/scrollbars match. Put it inline in <head>, before stylesheets.
+ */
+export function bootScript(themes, { storageKey = 'theme', dark, light, highContrast } = {}) {
+  const names = themes.map((t) => t.name);
+  dark ||= themes.find((t) => t.mode === 'dark' && t.contrast !== 'high')?.name;
+  light ||= themes.find((t) => t.mode === 'light')?.name || dark;
+  highContrast ||= themes.find((t) => t.contrast === 'high')?.name || dark;
+  const modes = Object.fromEntries(themes.map((t) => [t.name, t.mode]));
+  return `<script>(function(){var n=${JSON.stringify(names)},m=${JSON.stringify(modes)},t=new URLSearchParams(location.search).get('theme'),s=null;try{s=localStorage.getItem(${JSON.stringify(storageKey)})}catch(e){}var q=function(x){return matchMedia(x).matches};var pick=n.indexOf(t)>-1?t:n.indexOf(s)>-1?s:q('(prefers-contrast: more)')?${JSON.stringify(highContrast)}:q('(prefers-color-scheme: light)')?${JSON.stringify(light)}:${JSON.stringify(dark)};var d=document.documentElement;d.dataset.theme=pick;d.style.colorScheme=m[pick]||'dark';})();</script>`;
+}
